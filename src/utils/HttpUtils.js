@@ -76,20 +76,21 @@ export class HttpClient {
                 //             window.localStorage.setItem('token',res.data.token)
                 //         }
                 //     })
+            }else if(response.data.code === -1){
+                console.log('暂无权限');
+                // alert('暂无权限')
             }
-            // else if(response.data.code === -1){
-            //     alert('您没有权限！');
-            // }
             return response;
         }, function (error) {
             return Promise.reject(error);
+            
         });
 
         return axios({
             method: type,
             url: url,
             data: qs.stringify(param),
-            params: param,
+            params: type === 'GET' ? param:'',
             headers:headers,
             async:true,
         });

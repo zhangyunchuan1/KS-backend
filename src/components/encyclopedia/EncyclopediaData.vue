@@ -315,10 +315,10 @@
         this.planeActivity.total=eval(plane.join('+'));
         this.intelligentActivity.total=eval(intelligent.join('+'));
         this.encyclopediaTotalByDate=this.carActivity.total+this.motorActivity.total+this.planeActivity.total+this.intelligentActivity.total;
-        this.carActivity.percent=Number((this.carActivity.total/this.encyclopediaTotalByDate*100).toFixed(2));
-        this.motorActivity.percent=Number((this.motorActivity.total/this.encyclopediaTotalByDate*100).toFixed(2));
-        this.planeActivity.percent=Number((this.planeActivity.total/this.encyclopediaTotalByDate*100).toFixed(2));
-        this.intelligentActivity.percent=Number((this.intelligentActivity.total/this.encyclopediaTotalByDate*100).toFixed(2));
+        this.carActivity.percent=this.encyclopediaTotalByDate?Number((this.carActivity.total/this.encyclopediaTotalByDate*100).toFixed(2)):0;
+        this.motorActivity.percent=this.encyclopediaTotalByDate?Number((this.motorActivity.total/this.encyclopediaTotalByDate*100).toFixed(2)):0;
+        this.planeActivity.percent=this.encyclopediaTotalByDate?Number((this.planeActivity.total/this.encyclopediaTotalByDate*100).toFixed(2)):0;
+        this.intelligentActivity.percent=this.encyclopediaTotalByDate?Number((this.intelligentActivity.total/this.encyclopediaTotalByDate*100).toFixed(2)):0;
 
         // 基于准备好的dom，初始化echarts实例
         let myChart = echarts.init(document.getElementById('myChart'));
@@ -412,6 +412,7 @@
       },
       //获取某一时间段内百科数据
       getEncyclopediaDataByDate(){
+        console.log(this.startTime)
         this.HttpClient.post('/admin/analysis/diagram',{type:4,begin:this.startTime,end:this.endTime})
           .then(res=>{
             console.log(res);
@@ -460,7 +461,13 @@
     },
     created(){
       let arr=this.initDateValue(new Date()).split('-');
-      arr[1]=arr[1]-1;
+      // arr[1]=arr[1]-1;
+      if (arr[1] == "01") {
+        arr[0] = arr[0] - 1;
+        arr[1] = "12";
+      } else {
+        arr[1] = arr[1] - 1;
+      }
       arr.join('-');
       this.startTime=arr.join('-');
       this.endTime=this.initDateValue(new Date());

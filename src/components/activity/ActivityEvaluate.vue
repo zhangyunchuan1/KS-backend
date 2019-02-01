@@ -53,11 +53,11 @@
         <div>
           <div class="conditions">
             <!-- <el-input class="select_normal" v-model="searchObj.nickName" placeholder="昵称" size="mini"> </el-input> -->
-            <el-input class="select_normal" v-model="nickName" placeholder="昵称" size="mini">
+            <el-input class="select_normal" v-model="nickName" clearable placeholder="昵称" size="mini" @change="handleNickNameSearch">
               <el-button slot="append" @click="handleNickNameSearch" icon="el-icon-search"></el-button>
             </el-input>
             <!-- <el-input class="select_normal" v-model="searchObj.useaName" placeholder="用户名" size="mini"> </el-input> -->
-            <el-input class="select_normal" v-model="useaName" placeholder="用户名" size="mini">
+            <el-input class="select_normal" v-model="useaName" clearable placeholder="用户名" size="mini" @change="handleUseaNameSearch">
               <el-button slot="append" @click="handleUseaNameSearch" icon="el-icon-search"></el-button>
             </el-input>
             <!-- <el-input class="select_normal" v-model="type" placeholder="类别选择" size="mini"> </el-input>
@@ -70,7 +70,7 @@
                 end-placeholder="结束日期"
                 @change="handleSelectTime">
             </el-date-picker>
-            <el-input class="select_normal" v-model="activityName" placeholder="活动名称" size="mini">
+            <el-input class="select_normal" v-model="activityName" clearable placeholder="活动名称" size="mini" @change="handleActivityNameSearch">
               <el-button slot="append" @click="handleActivityNameSearch" icon="el-icon-search"></el-button>
             </el-input>
         </div>

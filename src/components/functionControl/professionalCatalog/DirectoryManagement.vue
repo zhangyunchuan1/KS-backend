@@ -241,7 +241,7 @@
       },
       //获取目录
       getMenuList(pid){
-          this.HttpClient.post('/admin/menu/getList',{
+          this.HttpClient.post('/admin/menu/getListWithDel',{
                 menu_type : 3,
                 type :0
             })

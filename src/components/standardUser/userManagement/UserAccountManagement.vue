@@ -12,19 +12,19 @@
       <div class="content">
         <div class="content_header">
           <div class="content_header_search">
-            <el-input placeholder="姓名搜索" v-model="fullNameSearch" class="input-with-select">
+            <el-input placeholder="姓名搜索" v-model="fullNameSearch" clearable  @change="initData('', '', '', '', fullNameSearch)" class="input-with-select">
               <el-button slot="append" icon="el-icon-search" @click="initData('', '', '', '', fullNameSearch)"></el-button>
             </el-input>
-            <el-input placeholder="电话搜索" v-model="telephoneSearch" class="input-with-select">
+            <el-input placeholder="电话搜索" v-model="telephoneSearch" clearable  @change="initData('', '', '', '', telephoneSearch)" class="input-with-select">
               <el-button slot="append" icon="el-icon-search" @click="initData('', '', '', telephoneSearch)"></el-button>
             </el-input>
-            <el-input placeholder="身份证号搜索" v-model="IdCardSearch" class="input-with-select">
+            <el-input placeholder="身份证号搜索" v-model="IdCardSearch" clearable  @change="initData('', '', '', '', IdCardSearch)" class="input-with-select">
               <el-button slot="append" icon="el-icon-search" @click="initData('', '', IdCardSearch)"></el-button>
             </el-input>
-            <el-input placeholder="昵称搜索" v-model="nickNameSearch" class="input-with-select">
+            <el-input placeholder="昵称搜索" v-model="nickNameSearch" clearable  @change="initData('', '', '', '', nickNameSearch)" class="input-with-select">
               <el-button slot="append" icon="el-icon-search" @click="initData('', nickNameSearch)"></el-button>
             </el-input>
-            <el-input placeholder="用户名搜索" v-model="userNameSearch" class="input-with-select">
+            <el-input placeholder="用户名搜索" v-model="userNameSearch" clearable  @change="initData(userNameSearch)" class="input-with-select">
               <el-button slot="append" icon="el-icon-search" @click="initData(userNameSearch)"></el-button>
             </el-input>
           </div>
@@ -56,8 +56,11 @@
               width="100"
               show-overflow-tooltip>
               <template slot-scope="scope">
-                <div class="table_avatar">
-                  <img :src='scope.row.avatar' alt="">
+                <div class="table_avatar" v-if="scope.row.avatar">
+                  <img :src='Tools.handleImg(scope.row.avatar)' alt="">
+                </div>
+                <div class="table_avatar" v-else>
+                  <span class="sortout_color">暂无图片</span>
                 </div>
               </template>
             </el-table-column>
@@ -125,7 +128,7 @@
               label="创建时间"
               align="center"
               show-overflow-tooltip
-              width="140"
+              width="160"
               prop="created_at">
             </el-table-column>
 
@@ -200,7 +203,7 @@
         v-loading="uploadLoading1"
         action="http://test.kslab.com/api/article/null"
         :before-upload="beforeFileUpload1"
-        :show-file-list=false
+        :show-file-list='false'
       >
         <img v-if="id_card1" :src="id_card1" class="preview-img" />
         <div class="el-upload__text">正面-样式展示</div>
@@ -210,7 +213,7 @@
         class="userManagement-upload"
         action="http://test.kslab.com/api/article/null"
         :before-upload="beforeFileUpload2"
-        :show-file-list=false
+        :show-file-list='false'
       >
         <img v-if="id_card2" :src="id_card2" class="preview-img" />
         <div class="el-upload__text">反面-样式展示</div>
@@ -424,7 +427,8 @@
         this.signature = row.signature
         this.id_card = row.id_card
         this.actual_name = row.actual_name
-        this.avatar = row.avatar 
+        this.avatar = Tools.handleImg(row.avatar) 
+        console.log(this.avatar)
         // this.serial_number = Math.random().toString(36).substring(2)
 
         // 获取身份证照片
@@ -456,7 +460,7 @@
               console.log(res.data)
               if (code === 200 ) {
                 this.qq = qq
-                this.wechat = weChat
+                this.wechat = weChat;
               }
             })
         }
@@ -549,11 +553,21 @@
           uid: this.uid,
           id_card_num: this.id_card,
           name: this.actual_name,
-          serial_number: this.serial_number
+          id_photo_front:this.id_card1,
+          id_photo_back:this.id_card2
         }
         console.log(data)
+        this.HttpClient.post('/admin/users/verifyUserIdCard',data).then(res => {
+          console.log(res.data)
+          if(res.data.code === 200){
+            this.$message.success(res.data.msg);
+            this.verifiedDialog = false;
+          }else{
+            this.$message.warning(res.data.msg);
+          }
+        })
 
-        this.updateItem('/admin/users/verifyUserIdCard', data, 'verifiedDialog')
+        // this.updateItem('/admin/users/verifyUserIdCard', data, 'verifiedDialog')
       },
 
       // 基本信息
@@ -574,6 +588,7 @@
           signature: this.signature
         }
         this.updateItem('/admin/users/updateUserInfo', data, 'userInfoDialog')
+        
       },
 
       // 图片上传
@@ -630,35 +645,49 @@
 
       // 身份证正面照
       beforeFileUpload1(file) {
-        if (this.id_card1) {
-          this.deletePicture(this.id_card1)
-            .then(res => {
-              if (res.code === 200) {
-                setTimeout(() => {
-                  this.beforeFileUpload(file, 1) 
-                }, 1000)
-              }
-            })
-        } else {
-          this.beforeFileUpload(file, 1) 
-        }
+        this.HttpClient.form('/admin/uploadOneImage',{images:file}).then(res => {
+            if(res.data.code === 200){
+              console.log(res.data.path)
+              this.$message.success(res.data.msg);
+              this.id_card1 = res.data.path;
+            }
+        })
+        // if (this.id_card1) {
+        //   this.deletePicture(this.id_card1)
+        //     .then(res => {
+        //       if (res.code === 200) {
+        //         setTimeout(() => {
+        //           this.beforeFileUpload(file, 1) 
+        //         }, 1000)
+        //       }
+        //     })
+        // } else {
+        //   this.beforeFileUpload(file, 1) 
+        // }
 
       },
 
       // 身份证背面照
       beforeFileUpload2(file) {
-        if (this.id_card2) {
-          this.deletePicture(this.id_card2)
-            .then(res => {
-              if (res.code === 200) {
-                setTimeout(() => {
-                  this.beforeFileUpload(file, 2) 
-                }, 1000)
-              }
-            })
-        } else {
-          this.beforeFileUpload(file, 2) 
-        }
+        this.HttpClient.form('/admin/uploadOneImage',{images:file}).then(res => {
+            if(res.data.code === 200){
+              console.log(res.data.path)
+              this.$message.success(res.data.msg);
+              this.id_card2 = res.data.path;
+            }
+        })
+        // if (this.id_card2) {
+        //   this.deletePicture(this.id_card2)
+        //     .then(res => {
+        //       if (res.code === 200) {
+        //         setTimeout(() => {
+        //           this.beforeFileUpload(file, 2) 
+        //         }, 1000)
+        //       }
+        //     })
+        // } else {
+        //   this.beforeFileUpload(file, 2) 
+        // }
       },
 
       // 上传头像
@@ -667,25 +696,30 @@
         if(!isJPG) {
           return this.showMsg('上传图片只能是 JPG 格式!', 'error')
         }
-        
-        const data = {
-          images: file,
-          type: 1,
-          uid: this.uid,
-          serial_number: this.serial_number
-        }
-        this.uploadLoading3 = true
-
-        this.HttpClient.form('/admin/users/updateAvatar', data)
-          .then(res => {
-            this.uploadLoading3 = false
-            const { data: { code, msg, avatar } } = res
-            if (code === 200) {
-              this.avatar = avatar 
-            } else {
-              return this.showMsg(msg, 'error') 
+        console.log(file)
+        this.HttpClient.form('/admin/uploadOneImage',{images:file}).then(res => {
+          if(res.data.code === 200){
+            const data = {
+              image: res.data.path,
+              type: 1,
+              uid: this.uid,
+              // serial_number: this.serial_number
             }
-          })
+            this.uploadLoading3 = true
+
+            this.HttpClient.form('/admin/users/updateAvatar', data)
+              .then(res => {
+                this.uploadLoading3 = false
+                const { data: { code, msg, avatar } } = res
+                if (code === 200) {
+                  this.avatar = 'http://cdn.kushualab.com/' + avatar 
+                } else {
+                  return this.showMsg(msg, 'error') 
+                }
+              })
+          }
+        })
+        
 
       }
 

@@ -21,8 +21,7 @@
             :header-cell-style="{padding:0}"
             :row-style="{height:'40px'}"
             :cell-style="{padding:0}"
-            style="width: 100%"
-          >
+            style="width: 100%">
             <el-table-column prop="id" label="ID" width="80"></el-table-column>
             <el-table-column prop="name" label="职位" width="250"></el-table-column>
             <el-table-column prop="province" label="城市" min-width="250"></el-table-column>
@@ -31,8 +30,8 @@
             <el-table-column prop="current" label="当前申请人数" width="200"></el-table-column>
             <el-table-column prop="status" label="状态" width="145">
               <template slot-scope="scope">
-                <span v-if="scope.row.status === 1" style="color:#15bafe">正在招聘</span>
-                <span v-if="scope.row.status === 0" style="color:red">停止招聘</span>
+                <span v-if="scope.row.status === 1" style="color:#15bafe">启用</span>
+                <span v-if="scope.row.status === 0" style="color:red">禁用</span>
               </template>
             </el-table-column>
             <el-table-column label="操作" width="250" fixed="right">
@@ -58,7 +57,7 @@
       </div>
     </div>
     <!-- 添加弹框 -->
-    <el-dialog :visible.sync="addVisible" width="515px">
+    <el-dialog :visible.sync="addVisible" width="650px">
       <div slot="title" class="dialog_delete_head_title">
         <i class="iconfont icon-edit-square delete_icon"></i>
         <span>创建新职位</span>
@@ -70,6 +69,8 @@
         <el-input v-model="salary" class="input"></el-input>
         <p>职位描述</p>
         <el-input type="textarea" v-model="jobDescription" placeholder="100字内介绍" class="textarea"></el-input>
+        <p>岗位需求</p>
+        <el-input type="textarea" v-model="jobDemand" placeholder="100字内介绍" class="textarea"></el-input>
         <div class="bott">
           <div class="bot-left">
             <div>
@@ -82,6 +83,7 @@
                   type="date"
                   placeholder="选择日期"
                   :change="dd()"
+                  value-format="yyyy-MM-dd HH:mm:ss"
                 ></el-date-picker>
               </div>
             </div>
@@ -111,7 +113,7 @@
       </div>
     </el-dialog>
     <!-- 修改弹框 -->
-    <el-dialog :visible.sync="modifyVisible" width="515px">
+    <el-dialog :visible.sync="modifyVisible" width="650px">
       <div slot="title" class="dialog_delete_head_title">
         <i class="iconfont icon-edit-square delete_icon"></i>
         <span>修改职位</span>
@@ -123,6 +125,8 @@
         <el-input v-model="salary" class="input"></el-input>
         <p>职位描述</p>
         <el-input type="textarea" v-model="jobDescription" placeholder="100字内介绍" class="textarea"></el-input>
+        <p>岗位需求</p>
+        <el-input type="textarea" v-model="jobDemand" placeholder="100字内介绍" class="textarea"></el-input>
         <div class="bott">
           <div class="bot-left">
             <div>
@@ -135,6 +139,7 @@
                   type="date"
                   placeholder="选择日期"
                   :change="dd()"
+                  value-format="yyyy-MM-dd HH:mm:ss"
                 ></el-date-picker>
               </div>
             </div>
@@ -192,11 +197,11 @@ export default {
       jobName: "",
       salary: "",
       jobDescription: "",
+      jobDemand:'', //岗位需求
       endTime: "",
       city: "",
       limit: "",
       time: "",
-      requirement: "无", //职位要求
       form: {
         name: "",
         region: "",
@@ -219,7 +224,7 @@ export default {
   methods: {
     // 请求职位列表
     getJobList() {
-      this.HttpClient.post("/admin/position/getList", {}).then(res => {
+      this.HttpClient.post("/web/position/getList", {}).then(res => {
         console.log(res);
         this.slist = res.data.data;
       });
@@ -247,12 +252,14 @@ export default {
       this.city = "";
       this.limit = "";
       this.HttpClient.get("/city/getAllCities").then(res => {
+        console.log(res)
         if (res.data.code == 200) {
-          res.data.data.forEach(item => {
-            item.child.forEach(e => {
-              this.cityData.push(e);
-            });
-          });
+          this.cityData = res.data.data;
+          // res.data.data.forEach(item => {
+          //   item.child.forEach(e => {
+          //     this.cityData.push(e);
+          //   });
+          // });
         }
       });
     },
@@ -260,12 +267,10 @@ export default {
     sure() {
       this.addVisible = false;
       //发送新创建的职位
-      this.HttpClient.post("/admin/position/create", {
-        // token: this.token,
-        department_id: 1,
+      this.HttpClient.post("/web/position/create", {
         name: this.jobName,
         description: this.jobDescription,
-        requirement: this.requirement,
+        requirement: this.jobDemand,
         limit: this.limit,
         end_time: this.time,
         price: this.salary,
@@ -279,25 +284,15 @@ export default {
               this.getJobList();
             }, 500);
           }
-          //   this.list.push({
-          //     id: res.data.data.id,
-          //     name: this.jobName,
-          //     province: this.city,
-          //     end_time: this.time,
-          //     limit: this.limit,
-          //     city: this.city,
-          //     status: 1
-          //   });tables
-          //   this.setSlist(this.list);
         })
         .catch(e => {
-          console.log("请求失败");
+          this.$message.error(res.data.msg);
         });
     },
     //删除职位
     handleDelete(row) {
       //先删除后台数据，当后台数据删除成功后方可删除视图数据
-      this.HttpClient.post("/admin/position/destroy", {
+      this.HttpClient.post("/web/position/destroy", {
         id: row.id
       })
         .then(res => {
@@ -318,10 +313,10 @@ export default {
     },
     //禁用或启用
     handleOpen(row) {
-      // console.log(index)
+      console.log(row)
       //   var id = this.list[index].id; //存储的职位ID
       if (row.status == 1) {
-        this.HttpClient.post("/admin/position/changeStatus", {
+        this.HttpClient.post("/web/position/changeStatus", {
           // token: this.token,
           id: row.id
         })
@@ -388,29 +383,23 @@ export default {
       this.jobName = i.name;
       this.salary = i.price;
       this.jobDescription = i.description;
+      this.jobDemand = i.requirement;
       this.endTime = i.end_time;
       this.city = i.province;
       this.limit = i.limit;
       this.modifyVisible = true;
     },
-    // 选择省
-    // changeProvince() {
-    //   console.log(this.province);
-    //   this.provinceData.forEach(item => {
-    //       if(item.id == this.province){
-    //           console.log(item)
-    //       }
-    //   })
-    // },
     //保存修改
     handleSave() {
-      this.HttpClient.post("/admin/position/edit", {
+      this.HttpClient.post("/web/position/edit", {
         id: this.jobId,
-        department_id: this.poindex,
         name: this.jobName,
         description: this.jobDescription,
-        requirement: "无",
-        limit: this.limit
+        requirement: this.jobDemand,
+        end_time:this.endTime,
+        price:this.salary,
+        limit: this.limit,
+        province:this.city
       }).then(res => {
         console.log(res);
         if (res.data.code === 200) {
@@ -444,9 +433,9 @@ export default {
 }
 .title {
   text-align: left;
-  padding: 10px;
-  padding-left: 20px;
-  font-size: 14px;
+  padding: 20px;
+  padding-left: 50px;
+  font-size: 18px;
   border-bottom: 1px solid #f2f2f2;
 }
 .content_contain {

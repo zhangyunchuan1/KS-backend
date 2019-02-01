@@ -65,7 +65,33 @@
       </div>
     </div>
     <!-- 查看属性值弹框 -->
-    <el-dialog
+    <div>
+        <el-dialog title="选择框和数字区间" :visible.sync="isShowProperty" width="30%" center>
+          <div class="showinfo">
+            <div>
+              <el-radio v-model="selectNum" label="1" border @change="changesSelectFn">选择框</el-radio>
+              <el-radio v-model="selectNum" label="2" border @change="changesSelectFn">数字区间</el-radio>
+            </div>
+            <div class="boxsh" v-for="(item,index) in selectNumchoseData" :key="index">
+              <div>
+                <el-tag type="warning">{{item.property_name}}</el-tag>
+                <el-tag
+                  type="success"
+                >{{item.rule == 1?'单选':item.rule == 2?'多选':item.rule == 3?'整数':item.rule == 4?'一位小数':item.rule == 5?'两位小数':''}}</el-tag>
+                <el-tag type="success">{{item.selective == 0?'必填':item.selective == 1?'选填':''}}</el-tag>
+                <el-tag type="success">{{item.selective == 0?'不可搜索':item.selective == 1?'可以搜索':''}}</el-tag>
+              </div>
+              <div style="margin-top:10px;" v-if="selectNum == '1'">
+                <el-tag v-for="(e,i) in item.values" :key="i">{{e.value}}</el-tag>
+              </div>
+              <div style="margin-top:10px;" v-if="selectNum == '2'">
+                <el-tag>{{item.unit_cn+'('+item.unit+')'}}</el-tag>
+              </div>
+            </div>
+          </div>
+        </el-dialog>
+      </div>
+    <!-- <el-dialog
       :visible.sync="isShowProperty"
       width="500px"
       custom-class="property-dialog"
@@ -88,7 +114,7 @@
             <p>{{item.values}}</p>
           </template>
       </div>
-    </el-dialog>
+    </el-dialog> -->
   </div>
 </template>
 
@@ -137,6 +163,8 @@ export default {
       searchName: "", //名称搜索
       
       isShowProperty: false,      // 是否显示查看属性值弹框
+      selectNum: '1', //选择框和数字区间二选一
+      selectNumchoseData:[],
 
       //   表格数据
       tableData: [],
@@ -154,6 +182,35 @@ export default {
     this.getlistDataFn()
   },
   methods: {
+    // 弹框数字区间和选择框选择
+    changesSelectFn() {
+      if (this.selectNum == '1') {
+        // this.selectNumchoseData = this.selectData.property_select;
+        console.log(this.properties)
+        this.selectNumchoseData = [];
+        this.properties.forEach(item =>{
+          
+          if(item.rule === 1){
+            console.log(item.property_name)
+            this.selectNumchoseData.push(item)
+          }else if(item.rule === 2){
+            console.log(item.property_name)
+            this.selectNumchoseData.push(item)
+          }
+        })
+        console.log(this.selectNumchoseData)
+      } else if (this.selectNum == '2') {
+        console.log(this.properties)
+        this.selectNumchoseData = [];
+        this.properties.forEach(item =>{
+          if(item.rule !== 1 && item.rule !== 2){
+            this.selectNumchoseData.push(item)
+          }
+        })
+        console.log(this.selectNumchoseData)
+        // this.selectNumchoseData = this.selectData.property_num;
+      }
+    },
     // 获取选择类型
     getTypelist() {
       let params = {
@@ -213,6 +270,13 @@ export default {
         this.isShowProperty = true
         this.properties = data.data
       }
+      this.selectNum = '1';
+      this.selectNumchoseData = [];
+      this.properties.forEach(item =>{
+        if(item.rule === 1 || item.rule === 2){
+          this.selectNumchoseData.push(item)
+        }
+      })
       console.log(data.data)
     },
     // 分页
@@ -292,6 +356,20 @@ export default {
           margin-right: 10px;
         }
       }
+    }
+  }
+  .showinfo{
+    .boxsh{
+        margin-top: 10px;
+        padding: 4px;
+        box-shadow: 5px 5px 45px #b4bfc3;
+        border-radius: 5px;
+    }
+    .el-radio__input{
+      display: none;
+    }
+    .el-tag{
+      margin-right: 10px;
     }
   }
 }

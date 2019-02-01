@@ -98,7 +98,7 @@
               class-name="table_scope">
               <template slot-scope="scope">
                 <div class="scope_btm">
-                  <el-button size="medium" type="text">学科目录</el-button>
+                  <el-button size="medium" type="text" @click="viewSubjectCatalogue(scope.row)">学科目录</el-button>
                   <el-button size="medium" type="text">查看内容</el-button>
                 </div>
               </template>
@@ -113,6 +113,20 @@
             >
           </el-pagination>
         </div>
+        <!-- 查看学科目录弹框 -->
+        <el-dialog
+          title="查看学科目录"
+          :visible.sync="centerDialogVisible"
+          width="40%"
+          center>
+          <div class="allDirectoryDialog_box" v-for="(item,index) in subjectData" :key="index">
+            <el-tag v-for="(e,i) in item" :key="i" style="margin-right:10px;">{{e.name}}</el-tag>
+          </div>
+          <span slot="footer" class="dialog-footer">
+            <el-button @click="centerDialogVisible = false">取 消</el-button>
+            <el-button type="primary" @click="centerDialogVisible = false">确 定</el-button>
+          </span>
+        </el-dialog>
       </div>
     </div>
 
@@ -153,15 +167,29 @@
         idSearch: '',  // id搜索
 
         tableData: [],
+        subjectData:[],
         //分页
         total:null,
         currentPage:1,
+
+        centerDialogVisible:false,//查看学科目录弹框
       }
     },
     mounted(){
       this.getUserHistoryList();
     },
     methods:{
+      // 查看学科目录
+      viewSubjectCatalogue(row){
+        console.log(row)
+        this.centerDialogVisible = true;
+        this.HttpClient.post('/admin/behavior/menuMajorInfo',{record_id:row.record_id}).then(res => {
+          console.log(res)
+          if(res.data.code === 200){
+            this.subjectData = res.data.data;
+          }
+        })
+      },
       //ID搜索
       handleIdSearch(){
           this.getUserHistoryList();
@@ -310,6 +338,11 @@
             text-align: center;
             margin-top: 20px;
           }
+        }
+        .allDirectoryDialog_box{
+          display: flex;
+          flex-wrap: nowrap;
+          margin-bottom: 10px;
         }
 
       }

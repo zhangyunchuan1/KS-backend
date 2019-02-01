@@ -12,7 +12,7 @@
       <div class="content">
         <div class="content_header">
           <div class="content_header_search">
-            <el-input placeholder="活动ID搜索" v-model="idSearch" class="input-with-select">
+            <el-input placeholder="活动ID搜索" v-model="idSearch" clearable @change="handleIDSearch" class="input-with-select">
               <el-button slot="append" icon="el-icon-search" @click="handleIDSearch"></el-button>
             </el-input>
           </div>

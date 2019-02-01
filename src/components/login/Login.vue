@@ -32,7 +32,7 @@
           </div>
         </div>
 
-        <div class="login_Landing" @click="login">登陆</div>
+        <div class="login_Landing" @click="login">登录</div>
       </div>
     </div>
 </template>
@@ -91,6 +91,7 @@
                         if(res.data.code===200){
                             this.$message.success(res.data.msg);
                             window.localStorage.setItem('token',res.data.data.token);
+                            window.localStorage.setItem('userid',res.data.data.uid);
                             console.log(window.localStorage.getItem('token'));
                             this.$router.push({
                                 path:'/index/home',
@@ -158,7 +159,7 @@
       background: rgba(0,0,0,.4);
     }
 
-    /*登陆盒子*/
+    /*登录盒子*/
     .login_box::after{
       content: '';
       position: absolute;
@@ -202,11 +203,11 @@
         }
       }
 
-      /*登陆主体*/
+      /*登录主体*/
       .login_content{
         width: 80%;
         margin: 50px auto;
-        /*登陆列表*/
+        /*登录列表*/
         .login_box_list{
           display: flex;
           justify-content: center;
@@ -262,7 +263,7 @@
         }
       }
 
-      /*登陆按钮*/
+      /*登录按钮*/
       .login_Landing{
         width: 80%;
         margin: 0 auto;

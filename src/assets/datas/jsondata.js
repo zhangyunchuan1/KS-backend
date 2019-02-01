@@ -42,7 +42,7 @@ export default {
     },
     // {
     //   id: 2002,
-    //   title: '菜单权限',
+    //   title: '菜单列表',
     //   urls: '/index/system/menu-jurisdiction',
     //   icons: 'icon-shouye',
     // }
@@ -100,36 +100,38 @@ export default {
       icons: 'icon-fenlei',
     },{
       id: 4004,
-      title: '定时活动状态',
+      title: '活动状态',
       urls: '/index/activity/timed-active-state',
       icons: 'icon-fenlei',
-    },{
+    }
+    // ,{
+    //   id: 4005,
+    //   title: '长期活动状态',
+    //   urls: '/index/activity/long-term-activity',
+    //   icons: 'icon-fenlei',
+    // }
+    ,{
       id: 4005,
-      title: '长期活动状态',
-      urls: '/index/activity/long-term-activity',
-      icons: 'icon-fenlei',
-    },{
-      id: 4006,
       title: '票务管理',
       urls: '/index/activity/ticket-management',
       icons: 'icon-fenlei',
     },{
-      id: 4007,
+      id: 4006,
       title: '查看报名',
       urls: '/index/activity/activity-seeSignUp',
       icons: 'icon-fenlei',
     },{
-      id: 4008,
+      id: 4007,
       title: '活动被修改',
       urls: '/index/activity/activity-modify',
       icons: 'icon-fenlei',
     },{
-      id: 4009,
+      id: 4008,
       title: '评价',
       urls: '/index/activity/activity-evaluate',
       icons: 'icon-fenlei',
     },{
-      id: 4010,
+      id: 4009,
       title: '置顶活动',
       urls: '/index/activity/topping-activity',
       icons: 'icon-fenlei',
@@ -646,24 +648,26 @@ export default {
         title:'商品审核',
         urls:'/index/mall/mallProduct/mall-review',
         icons:'icon-menu',
-      },{
-        id:15103,
-        title:'商品预览',
-        urls:'/index/mall/mallProduct/product-preview',
-        icons:'icon-menu',
-      },{
-        id:15104,
-        title:'商品修改',
-        urls:'/index/mall/mallProduct/product-modify',
-        icons:'icon-menu',
-      },{
+      },
+      // {
+      //   id:15103,
+      //   title:'商品预览',
+      //   urls:'/index/mall/mallProduct/product-preview',
+      //   icons:'icon-menu',
+      // },{
+      //   id:15104,
+      //   title:'商品修改',
+      //   urls:'/index/mall/mallProduct/product-modify',
+      //   icons:'icon-menu',
+      // },
+      {
         id:15105,
         title:'专业目录分配',
         urls:'/index/mall/mallProduct/mall-distribution',
         icons:'icon-menu',
       },{
         id:15106,
-        title:'目录分配情况',
+        title:'专业目录分配情况',
         urls:'/index/mall/mallProduct/mall-contents',
         icons:'icon-menu',
       },{
@@ -840,17 +844,19 @@ export default {
         title:'淘货商品审核',
         urls:'/index/market/marketProduct/product-review',
         icons:'icon-menu',
-      },{
-        id:16103,
-        title:'淘货商品预览',
-        urls:'/index/market/marketProduct/product-preview',
-        icons:'icon-menu',
-      },{
-        id:16104,
-        title:'淘货商品修改',
-        urls:'/index/market/marketProduct/product-modify',
-        icons:'icon-menu',
-      }]
+      },
+      // {
+      //   id:16103,
+      //   title:'淘货商品预览',
+      //   urls:'/index/market/marketProduct/product-preview',
+      //   icons:'icon-menu',
+      // },{
+      //   id:16104,
+      //   title:'淘货商品修改',
+      //   urls:'/index/market/marketProduct/product-modify',
+      //   icons:'icon-menu',
+      // }
+    ]
     },{
       id:16002,
       title:'淘货订单',
@@ -1100,6 +1106,26 @@ export default {
         id:18004,
         title:'搜索排行',
         urls:'/index/dataGather/search-ranking',
+        icons:'icon-menu'
+      },{
+        id:18005,
+        title:'头部消息队列',
+        urls:'/index/dataGather/header-message-queue',
+        icons:'icon-menu'
+      },{
+        id:18006,
+        title:'电量燃料统计',
+        urls:'/index/dataGather/electric-fuel-statistics',
+        icons:'icon-menu'
+      },{
+        id:18007,
+        title:'关键词统计',
+        urls:'/index/dataGather/keyword-statistics',
+        icons:'icon-menu'
+      },{
+        id:18008,
+        title:'点赞记录',
+        urls:'/index/dataGather/praise-record',
         icons:'icon-menu'
       }
     ]},{

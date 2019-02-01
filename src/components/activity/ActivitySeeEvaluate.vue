@@ -6,7 +6,7 @@
         <div class="content_contain">
             <div class="conditions">
                 <div class="activityname">{{title}}</div>
-                <div>玩出酷耍生命力，挑战720度回转寿司</div>
+                <!-- <div>玩出酷耍生命力，挑战720度回转寿司</div> -->
                 <div>{{city_name}}</div>
             </div>
         <div class="tables">
@@ -18,11 +18,13 @@
               <el-table-column
                 prop="id"
                 label="用户ID"
+                align="center"
                 width="100">
               </el-table-column>
               <el-table-column
                 label="联系人"
                 min-width="100"
+                align="center"
                 prop="pollinfo.conducts">
                  <template slot-scope="scope">
                   <span v-if="scope.row.pollinfo.conducts === null">无</span>
@@ -32,6 +34,7 @@
               <el-table-column
                 prop="pollinfo.telphone"
                 label="联系电话"
+                align="center"
                 width="120">
                 <template slot-scope="scope">
                   <span v-if="scope.row.pollinfo.telphone === null">无</span>
@@ -41,6 +44,7 @@
               <el-table-column
                 prop="pollinfo.quantity"
                 label="购买票数"
+                align="center"
                 width="150">
                 <template slot-scope="scope">
                   <span v-if="scope.row.pollinfo.quantity === null">无</span>
@@ -50,6 +54,7 @@
               <el-table-column
                 prop="pollinfo.use_num"
                 label="已使用票数"
+                align="center"
                 width="100">
                 <template slot-scope="scope">
                   <span v-if="scope.row.pollinfo.use_num === null">无</span>
@@ -59,6 +64,7 @@
               <el-table-column
                 prop="pollinfo.refund_num"
                 label="退票数"
+                align="center"
                 width="120">
                 <template slot-scope="scope">
                   <span v-if="scope.row.pollinfo.refund_num === null">无</span>
@@ -68,11 +74,13 @@
               <el-table-column
                 prop="content"
                 label="评价内容"
+                align="center"
                 width="250">
               </el-table-column>
               <el-table-column
                 prop="attachment"
                 label="图片"
+                align="center"
                 width="120">
                 <template slot-scope="scope">
                   <img style="width:100px;" :src="scope.row.attachment" alt="">
@@ -80,33 +88,37 @@
               </el-table-column>
               <el-table-column
                 label="打分"
+                align="center"
                 width="120"
                 prop="score">
               </el-table-column>
               <el-table-column
                 prop="created_at"
                 label="评论时间"
+                align="center"
                 width="120">
               </el-table-column>
               <el-table-column
                 label="操作"
                 width="240"
+                align="center"
                 fixed="right">
                 <template slot-scope="scope">
                   <el-button size="small" type="text" @click="handleOpenDelete(scope.row.answer_id)">删除</el-button>
                 </template>
               </el-table-column>
             </el-table>
+            <el-pagination
+                v-if="total"
+                layout="prev, pager, next"
+                :total="total"
+                :page-size="25"
+                @current-change="currentChange">
+            </el-pagination>
           </div>
         </div>
       </div>
-      <el-pagination
-          v-if="total"
-          layout="prev, pager, next"
-          :total="total"
-          :page-size="25"
-          @current-change="currentChange">
-      </el-pagination>
+      
       <!--删除弹窗-->
       <el-dialog
         width="470px"

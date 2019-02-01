@@ -1,6 +1,6 @@
 <template>
   <div class="videoModify">
-    <div class="videoModify_header">如何修改一个视频 - 修改</div>
+    <div class="videoModify_header">{{modifyData.title}} - 修改</div>
 
     <div class="videoModify_main">
       <div class="videoModify_List">
@@ -267,7 +267,7 @@ export default {
       teachingBtm: false, // 教学视频开关
 
       // fileList: [{name: 'food.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'}, {name: 'food2.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'}],
-      // fileList:[],
+      fileList:[],
       modifyData: {}, //修改信息
       newName: "", //新名称
       modifyImgUrl:'', //修改后的图片地址，半路径，用于上传
@@ -410,12 +410,17 @@ export default {
     //保存所有
     handleSaveAll() {
         //处理上传封面图片格式
+        console.log(this.modifyData.cover)
+        console.log(this.imageUrl)
+        if(this.modifyData.cover[0].path !== this.imageUrl){
+          this.modifyData.cover[0].path = 'http://cdn.kushualab.com/' + this.modifyData.cover[0].path;
+        }
         // this.modifyData.cover = this.imageUrl;
         // let resa = this.modifyData.cover.indexOf('http');
         // if(resa !== -1){
           // this.modifyData.cover = this.imageUrl.substring(25)
         // }
-        console.log(this.modifyData)
+        // console.log(this.modifyData)
         // 处理上传附件格式
         let attr = [];
         for(let i in this.modifyData.attachment){
@@ -453,6 +458,8 @@ export default {
           setTimeout(() => {
             this.$router.go(-1);
           }, 500);
+        }else{
+          this.$router.go(-1);
         }
       });
     },
@@ -536,12 +543,14 @@ export default {
         this.modifyData = res.data.data;
         this.content = this.modifyData.description ;
         // 处理图片
-        this.modifyData.cover = JSON.parse(this.modifyData.cover);
+        console.log(this.modifyData.cover)
+        // this.modifyData.cover[0].path = JSON.parse(this.modifyData.cover);
+        console.log(this.modifyData.cover)
         this.imageUrl = this.Tools.handleImg(this.modifyData.cover[0].path);
         // 处理附件格式
-        if (this.modifyData.attachment !== null) {
+        if (this.modifyData.attachment) {
           console.log("chuli");
-          this.modifyData.attachment =  JSON.parse(this.modifyData.attachment);
+          // this.modifyData.attachment =  JSON.parse(this.modifyData.attachment);
         } else {
           this.modifyData.attachment = [];
         }
@@ -552,6 +561,7 @@ export default {
         } else {
           this.modifyData.is_course = false;
         }
+        // console.log(this.modifyData);
       });
     },
     handleAvatarSuccess(res, file) {
@@ -559,7 +569,7 @@ export default {
     },
     //图片上传
     beforeAvatarUpload(file) {
-      console.log(file)
+      console.log(file.name)
       const isJPG = file.type === "image/jpeg";
       const isLt5M = file.size / 1024 / 1024 < 10;
       if (isJPG) {
@@ -576,7 +586,7 @@ export default {
                 path:res.data.path
               })
               this.$message.success(res.data.msg);
-              // this.modifyData.cover[0].name = file.name;
+              this.modifyData.cover[0].name = file.name;
               // this.modifyData.cover = res.data.path;
             }
           });

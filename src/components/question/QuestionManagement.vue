@@ -82,7 +82,7 @@
               <span v-if="scope.row.user_type === 1">个人用户</span>
             </template>
           </el-table-column>
-          <el-table-column label="创建时间" align="center" width="130" prop="created_at" sortable></el-table-column>
+          <el-table-column label="创建时间" align="center" width="160" prop="created_at" sortable></el-table-column>
           <el-table-column
             label="通过状态"
             align="center"
@@ -252,6 +252,11 @@ export default {
       questionId: null, //暂存需要操作的问题ID
       rejectList: [], //驳回类别
       rejectData: null, //选中的驳回类别
+
+      // 分页
+      total:null,
+      pageSize:25,
+      currentPage:1,
     };
   },
   mounted() {
@@ -259,6 +264,11 @@ export default {
     this.getFolders()
   },
   methods: {
+    // 分页
+    currentChange(p){
+      this.currentPage = p;
+      this.getQuestionList();
+    },
     // 获取板块列表
     async getFolders () {
       let res = await this.HttpClient.post('/admin/menu/getList', {menu_type: 2, type: 0})
@@ -387,10 +397,13 @@ export default {
         end_time:this.contentTime[1],
         folder_id:this.folder_id,
         nickname: this.nickname,
-        title: this.title
+        title: this.title,
+        size:this.pageSize,
+        page:this.currentPage
       }).then(res => {
         console.log(res);
         this.tableData = res.data.data.data;
+        this.total = res.data.data.total;
       });
     },
     filterPlate(value, row, column) {

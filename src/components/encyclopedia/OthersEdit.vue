@@ -147,13 +147,13 @@
                                 align="center"
                                 class-name="survey_scope">
                             <template slot-scope="scope">
-                                <div class="survey_btm">
-                                    <el-button @click="rejectButton(scope.row.encyclopedia_id)">驳回</el-button>
-                                    <el-button @click="agreeButton(scope.row.encyclopedia_id)">批准</el-button>
-                                    <el-button @click="deleteButton(scope.row.encyclopedia_id)">删除</el-button>
-                                    <el-button @click="previewButton(scope.row.encyclopedia_id)">预览</el-button>
-                                    <el-button @click="currentButton(scope.row.source_int_id)">当前百科</el-button>
-                                </div>
+                                <!-- <div class="survey_btm"> -->
+                                    <el-button type="primary" plain size="mini" v-if="scope.row.status===2 || scope.row.status===1" @click="rejectButton(scope.row.encyclopedia_id)">驳回</el-button>
+                                    <el-button type="primary" plain size="mini" v-if="scope.row.status===2 || scope.row.status===3" @click="agreeButton(scope.row.encyclopedia_id)">批准</el-button>
+                                    <el-button type="primary" plain size="mini" v-if="scope.row.status===3" @click="deleteButton(scope.row.encyclopedia_id)">删除</el-button>
+                                    <el-button type="primary" plain size="mini" @click="previewButton(scope.row)">预览</el-button>
+                                    <el-button type="primary" plain size="mini" v-if="scope.row.status !== 1" @click="currentButton(scope.row.source_int_id)">当前百科</el-button>
+                                <!-- </div> -->
                             </template>
                         </el-table-column>
                     </el-table>
@@ -190,7 +190,7 @@
             <div class="disable_dialog_box">
                 <div class="disable_dialog_left">类别：</div>
                 <div class="disable_dialog_right">
-                    <el-radio border v-model="rejectValue" :label="item.review_id" v-for="item in rejectList" :key="item.id">{{item.name}}</el-radio>
+                    <el-radio border v-model="rejectValue" :label="item" v-for="item in rejectList" :key="item.id">{{item.name}}</el-radio>
                 </div>
             </div>
             <span slot="footer" class="dialog-footer">
@@ -216,11 +216,25 @@
         </el-dialog>
 
         <!--删除弹窗-->
-        <DeleteModal ref="delete"></DeleteModal>
+        <!-- <DeleteModal ref="delete"></DeleteModal> -->
+        <el-dialog
+                :visible.sync="deleteDialog"
+                width="470px"
+                custom-class="approveDialog">
+            <span slot="title" class="approveDialog_title"><i class="iconfont icon-huaban4"></i></span>
+            <div class="approveDialog_main">
+                <i class="iconfont icon-warning-circle"></i>
+                <div class="approveDialog_text">确认删除吗？</div>
+            </div>
+            <span slot="footer" class="dialog-footer">
+          <el-button @click="deleteDialog = false">取 消</el-button>
+          <el-button type="primary" @click="deleteConfirm">确 定</el-button>
+        </span>
+        </el-dialog>
 
         <!--预览弹窗-->
         <el-dialog
-                width="800px"
+                min-width="800px"
                 custom-class="viewDialog"
                 :visible.sync="viewDialog">
             <span slot="title" class="viewDialog_title"><i class="iconfont icon-chakan"></i>预览</span>
@@ -403,10 +417,12 @@
                 disableDialog: false, // 驳回弹窗
                 rejectList: [],// 驳回类别列表
                 rejectReason: '',// 驳回理由
-                rejectValue: '',// 驳回类别
+                rejectValue: {},// 驳回类别
 
                 viewDialog: false,  // 预览弹窗
                 viewDialogChildren: false, //子弹窗
+
+                deleteDialog:false,//删除弹框
 
                 id:'',// 百科id
                 previewData:{},// 预览百科数据
@@ -484,8 +500,10 @@
                     status:status,
                 };
                 if(status===3){
+                    console.log(this.rejectValue)
                     parameters.refuse=this.rejectReason;
-                    parameters.review_id=this.rejectValue;
+                    parameters.review_id=this.rejectValue.review_id;
+                    parameters.review_name=this.rejectValue.name;
                 }
                 this.HttpClient.post('/admin/encyclopedias/changeStatus', parameters)
                     .then(res => {
@@ -501,6 +519,8 @@
                                 this.disableDialog = false;
                                 this.rejectValue='';
                                 this.rejectReason='';
+                            }else if(status===0){
+                                this.deleteDialog = false;
                             }
                         }else{
                             this.$message.error(res.data.msg)
@@ -514,8 +534,9 @@
                         console.log(res)
                         if(res.data.code===200){
                             this.previewData=res.data.data;
-                            this.previewData.cover = this.Tools.handleImg(JSON.parse(this.previewData.cover)[0].path);
-                            // console.log(this.previewData);
+                            // this.previewData.cover = this.Tools.handleImg(JSON.parse(this.previewData.cover)[0].path);
+                            this.previewData.cover = this.Tools.handleImg(this.previewData.cover[0].path);
+                            console.log(this.previewData);
                             this.firstCatalogue=Object.values(this.previewData.menu);
                             this.secondCatalogue=this.firstCatalogue[0].child
                         }
@@ -535,17 +556,19 @@
             //删除按钮
             deleteButton(id){
                 this.id=id;
-                this.$refs.delete.deleteDialog=true;
+                this.deleteDialog=true;
             },
             //预览按钮
-            previewButton(id){
+            previewButton(row){
+                console.log(row)
                 this.viewDialog=true;
-                this.checkInfo(id)
+                this.checkInfo(row.id)
             },
             //当前百科按钮
             currentButton(id){
-                this.viewDialog=true;
-                this.checkInfo(id)
+                // this.viewDialog=true;
+                // this.checkInfo(id)
+                alert('跳转前台页面')
             },
             // 驳回框确认按钮
             rejectConfirm() {
@@ -557,6 +580,7 @@
             },
             //确认删除
             deleteConfirm(bool){
+                console.log(bool)
                 if(bool){
                     this.changeStatus(0)
                 }
@@ -844,30 +868,30 @@
                     }
 
                     /*操作按钮*/
-                    .survey_scope {
-                        padding: 0;
-                        .cell {
-                            line-height: unset;
-                            .survey_btm {
-                                display: flex;
-                                align-items: center;
-                                .el-button:not(:last-child) {
-                                    border-right: 1px solid #ebeef5;
-                                }
-                                .el-button {
-                                    min-height: 47px;
-                                    height: 100%;
-                                    flex: 1;
-                                    display: flex;
-                                    justify-content: center;
-                                    align-items: center;
-                                    cursor: pointer;
-                                    border: none;
-                                    background: transparent;
-                                }
-                            }
-                        }
-                    }
+                    // .survey_scope {
+                    //     padding: 0;
+                    //     .cell {
+                    //         // line-height: unset;
+                    //         // .survey_btm {
+                    //         //     display: flex;
+                    //         //     align-items: center;
+                    //         //     .el-button:not(:last-child) {
+                    //         //         border-right: 1px solid #ebeef5;
+                    //         //     }
+                    //         //     .el-button {
+                    //         //         min-height: 47px;
+                    //         //         height: 100%;
+                    //         //         flex: 1;
+                    //         //         display: flex;
+                    //         //         justify-content: center;
+                    //         //         align-items: center;
+                    //         //         cursor: pointer;
+                    //         //         border: none;
+                    //         //         background: transparent;
+                    //         //     }
+                    //         // }
+                    //     }
+                    // }
                 }
             }
         }

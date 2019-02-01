@@ -9,7 +9,7 @@
       <div class="trees">
           <div class="tree_left">
               <div v-for="(menu,index) in menu_list" :key="index">
-                <menuTrees :child="menu.child" :depth="0" :label="menu.folder_name" :id="menu.folder_id" :type="menu.type" :name="menu.name" :pid="menu.pid" :folder_id="menu.folder_id" @ee="getMenu" @pp="getMenulist"></menuTrees>
+                <menuTrees :child="menu.child" :depth="0" :label="menu.folder_name" :id="menu.folder_id" :type="menu.type" :name="menu.name" :pid="menu.pid" :folder_id="menu.folder_id" @ee="getMenu" @pp="getMenulist" @transmitMenuInfo="transmitMenuInfo"></menuTrees>
               </div>
           </div>
           <!-- <div class="tree_right">
@@ -82,14 +82,23 @@
                   <el-button size="mini" v-if="type === 1" type="primary" plain>{{ label }}</el-button>
                   <el-button size="mini" v-if="type === 2" type="info" plain>{{ label }}</el-button>
                 </div>  
-                  <el-button size="mini" type="primary" icon="el-icon-plus" circle @click="openMenuModal(id,type,pid,folder_id)"></el-button>
-                  <el-button size="mini" type="danger" icon="el-icon-delete" circle @click="deleteMenu(id,type)"></el-button>
-                  <el-button v-if="type !== undefined" size="mini" type="info" icon="el-icon-edit" circle @click="editMenu(id,type,pid,folder_id)"></el-button>
+                  <el-tooltip class="item" effect="dark" content="添加子目录" placement="top">
+                    <el-button size="mini" type="primary" icon="el-icon-plus" circle @click="openMenuModal(id,type,pid,folder_id)"></el-button>
+                  </el-tooltip>
+                  <el-tooltip class="item" effect="dark" content="禁用" placement="top">
+                    <el-button v-if="type !== undefined && currentStauts === 1" size="mini" type="danger" icon="el-icon-close" circle @click="deleteMenu(id,type,status)"></el-button>
+                  </el-tooltip>
+                  <el-tooltip class="item" effect="dark" content="恢复" placement="top">
+                    <el-button v-if="type !== undefined && currentStauts === 0" size="mini" type="success" icon="el-icon-check" circle @click="recoveryMenu(id,type,status)"></el-button>
+                  </el-tooltip>
+                  <el-tooltip class="item" effect="dark" content="修改" placement="top">
+                    <el-button v-if="type !== undefined" size="mini" type="info" icon="el-icon-edit" circle @click="editMenu(id,type,pid,folder_id)"></el-button>
+                  </el-tooltip>
                 </div>
               </div>
               <div class="xjez">
                 <tree-menu v-if="showChildren" v-for="item in child" :child="item.child" 
-                  :label="item.name" :depth="depth + 1" :key="item.id" :id="item.id" :type="item.type" :pid="item.pid" @ee="xx" :folder_id="folder_id" @pp="ppp">
+                  :label="item.name" :depth="depth + 1" :key="item.id" :id="item.id" :type="item.type" :pid="item.pid" @ee="xx" :folder_id="folder_id" :status="item.status" @pp="ppp" @transmitMenuInfo="transmitMenuInfo">
                 </tree-menu>
               </div>
               <el-dialog
@@ -98,18 +107,33 @@
                 :visible.sync="deleteDialog"
                 center>
                 <span slot="title" class="deleteDialog_title"><i class="iconfont icon-huaban4"></i></span>
-                <div class="deleteDialog_box">
+                <div class="deleteDialog_box" >
                   <i class="iconfont icon-warning-circle"></i>
-                  <p>确定删除 " {{ label }} " 吗？</p>
+                  <p>确定禁用 " {{ label }} " 吗？</p>
                 </div>
                 <span slot="footer" class="dialog-footer">
                     <el-button @click="deleteDialog = false">取 消</el-button>
                     <el-button type="primary" @click="handleSureDelete">确 定</el-button>
                   </span>
               </el-dialog>
+              <el-dialog
+                width="470px"
+                custom-class="deleteDialog"
+                :visible.sync="recoveryDialog"
+                center>
+                <span slot="title" class="deleteDialog_title"><i class="iconfont icon-huaban4"></i></span>
+                <div class="deleteDialog_box">
+                  <i class="iconfont icon-warning-circle"></i>
+                  <p>确定恢复 " {{ label }} " 吗？</p>
+                </div>
+                <span slot="footer" class="dialog-footer">
+                    <el-button @click="recoveryDialog = false">取 消</el-button>
+                    <el-button type="primary" @click="handleSureRecovery">确 定</el-button>
+                  </span>
+              </el-dialog>
             </div>
           `,
-        props: ['child', 'label', 'depth','id','type','name','pid','folder_id'],
+        props: ['child', 'label', 'depth','id','type','name','pid','folder_id','status'],
         data() {
           return {
             showChildren: false,
@@ -119,14 +143,19 @@
             menu_pid:null,
             menu_folderId:null,
             deleteDialog:false,
+            recoveryDialog:false,
             //删除的id与type
             deId:null,
             deType:null,
+            currentStauts:null,  //当前菜单的状态
           }
+        },
+        created(){
+          this.currentStauts = this.status;
         },
         computed: {
           indent() {
-            return {transform: `translate(${this.depth * 20}px)`}
+            return {transform: `translate(${this.depth * 20}px)`} 
           }
         },
         methods: {
@@ -140,7 +169,7 @@
             this.showChildren = !this.showChildren;
           },
           //点击加号添加菜单
-          openMenuModal: function (id,type,pid,folder_id) {
+          openMenuModal: function (id,type,pid,folder_id){
               console.log(id,type,pid,folder_id)
               this.menu_visible = true;
               this.menu_id = id;
@@ -152,59 +181,111 @@
               this.$store.dispatch('getMenuInfo',{id:this.menu_id,menu_visible:this.menu_visible,type:this.menu_type,source:1,pid:this.menu_pid,folder_id:this.menu_folderId}).then(res=>{         
               });    
           },
-          //点击删除菜单
-          deleteMenu: function (id,type){
+          //点击禁用菜单
+          deleteMenu(id,type,status){
             this.deleteDialog = true;
-            console.log(id,type);
+            console.log(id,type,status);
             this.deId = id;
-            if(type){
-              this.deType = null;
-            }else{
-              this.deType = type;
-            }
+            // if(type){
+            //   this.deType = null;
+            // }else{
+            //   this.deType = type;
+            // }
           },
-          //确定删除菜单
+          //确定禁用菜单
           handleSureDelete(){
-            //首先判断是删除菜单文件夹，还是菜单（菜单文件夹的type值为undefined）
-            if(this.deType === undefined){
-              // console.log("我是菜单文件夹")
-              this.HttpClient.post('/admin/folder/destroy',{
-                  id:this.deId
-              })
-              .then(res=>{
-                  if(res.data.code === 200){
-                    this.$message.success(res.data.msg)
-                    setTimeout(() => {
-                        this.$emit('pp');
-                    }, 500);
-                  }else{
-                    this.$message.error(res.data.msg)
-                  }
-              })
-            }else{
-              // console.log("我是菜单")
-              this.HttpClient.post('/admin/menu/destroy',{
+            console.log(this.deId)
+              this.HttpClient.post('/admin/menu/changeStatus',{
+                  menu_type:0,
                   id:this.deId,
-                  // menu_type:0   
+                  status:0
               })
               .then(res=>{
-                  console.log(res);
-                  if(res.data.code === 200){
-                    this.$message.success(res.data.msg)
-                    setTimeout(() => {
-                        this.$emit('pp');
-                    }, 500);
-                  }else{
-                    this.$message.error(res.data.msg)
-                  }
+                console.log(res);
+                if(res.data.code === 200){
+                  this.deleteDialog = false;
+                  this.$message.success("禁用成功！");
+                  this.currentStauts = 0;
+                }else{
+                  this.$message.error("禁用失败！")
+                }
               })
-            }
+            // //首先判断是删除菜单文件夹，还是菜单（菜单文件夹的type值为undefined）
+            // if(this.deType === undefined){
+            //   // console.log("我是菜单文件夹")
+            //   this.HttpClient.post('/admin/menu/changeStatus',{
+            //       id:this.deId
+            //   })
+            //   .then(res=>{
+            //       if(res.data.code === 200){
+            //         this.$message.success(res.data.msg)
+            //         setTimeout(() => {
+            //             this.$emit('pp');
+            //         }, 500);
+            //       }else{
+            //         this.$message.error(res.data.msg)
+            //       }
+            //   })
+            // }else{
+            //   // console.log("我是菜单")
+            //   this.HttpClient.post('/admin/menu/changeStatus',{
+            //       id:this.deId,
+            //       // menu_type:0   
+            //   })
+            //   .then(res=>{
+            //       console.log(res);
+            //       if(res.data.code === 200){
+            //         this.$message.success(res.data.msg)
+            //         setTimeout(() => {
+            //             this.$emit('pp');
+            //         }, 500);
+            //       }else{
+            //         this.$message.error(res.data.msg)
+            //       }
+            //   })
+            // }
+          },
+          // 点击恢复菜单
+          recoveryMenu(id,type,status){
+            this.recoveryDialog = true;
+            console.log(id,type,status);
+            this.deId = id;
+          },
+          //确定恢复菜单
+          handleSureRecovery(){
+            console.log(this.deId)
+            this.HttpClient.post('/admin/menu/changeStatus',{
+                  menu_type:0,
+                  id:this.deId,
+                  status:1
+              })
+              .then(res=>{
+                console.log(res);
+                if(res.data.code === 200){
+                  this.recoveryDialog = false;
+                  this.$message.success("恢复成功！");
+                  this.currentStauts = 1;
+                }else{
+                  this.$message.error("恢复失败！")
+                }
+              })
           },
           //点击修改菜单
-          editMenu: function (id,type,pid,folder_id){
+          async editMenu(id,type,pid,folder_id){
+            let  currentInfo = {};
             if(pid === undefined){
                 this.$message.success('菜单文件夹不能修改')
             }else{
+              await  this.HttpClient.get('/admin/menu/edit',{
+                  menu_type:0,
+                  id:id,
+              })
+              .then(res=>{
+                console.log(res)
+                currentInfo = res.data.data;
+              })
+              console.log(currentInfo)
+                this.$emit('transmitMenuInfo',currentInfo)
                 console.log('修改菜单')
                 console.log(id,type,pid,folder_id)
                 this.menu_visible = true;
@@ -213,14 +294,18 @@
                 this.menu_pid = pid;
                 this.menu_folderId = folder_id;
                 console.log(this.menu_pid+'父级ID')
-                this.$emit('ee',this.menu_type);
+                this.$emit('ee', this.menu_type);
                 this.$store.dispatch('getMenuInfo',{id:this.menu_id,menu_visible:this.menu_visible,type:this.menu_type,source:2,pid:this.menu_pid,folder_id:this.menu_folderId}).then(res=>{});
             }
             
           },
           xx: function () {
             this.$emit('ee',{id:this.menu_id,menu_visible:this.menu_visible,type:this.menu_type});
-          }
+          },
+          transmitMenuInfo(data){
+            console.log('qqqqqqqqqqq',data)
+            this.$emit('transmitMenuInfo',data)
+          },
         }
       }
     },
@@ -252,6 +337,7 @@
         }],
         treeData: {},
         editVisible:false,
+        editMenuInfo:{},
       }
     },
     mounted(){
@@ -263,7 +349,7 @@
       // },
       //请求菜单列表
       getMenulist(){
-          this.HttpClient.post('/admin/menu/getList',{})
+          this.HttpClient.post('/admin/menu/getListWithDel',{})
           .then(res=>{
               console.log(res);
               this.menu_list = res.data.data;
@@ -294,6 +380,7 @@
           })
       },
       getMenu(data) {
+        console.log(data);
         setTimeout(()=>{
           let childrenData = this.$store.state.menu.menu;
           this.menuVisible = childrenData.menu_visible;
@@ -376,7 +463,13 @@
           })
         }       
       },
-    }
+      transmitMenuInfo(data){
+        console.log('iiiiiii',data)
+        this.menuName = data.name;
+        this.menuUrl = data.url;
+        this.menuIcon = data.icon;
+      },
+    },
   }
 </script>
 
@@ -526,6 +619,18 @@
     .icon_left{
       color: #009afe;
     }
+    .deleteDialog_box{
+        text-align: center;
+        i{
+          font-size: 80px;
+          color: #15bafe;
+        }
+        p{
+          font-size: 14px;
+          color: #000;
+          margin-top: 20px;
+        }
+      }
   }
 
 </style>

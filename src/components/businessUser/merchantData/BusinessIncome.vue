@@ -261,7 +261,9 @@ export default {
         end: this.searchTime?this.searchTime[1]:'',
         nickname: this.nickNameSearch,
         user_id:this.merchantIDSearch,
-        user_status: ""
+        user_status: "",
+        size:this.pageSize,
+        page:this.currentPage
       };
       this.HttpClient.post("/admin/revenues/lists",params).then(res => {
         console.log(res.data);

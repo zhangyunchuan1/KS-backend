@@ -12,10 +12,10 @@
       <div class="content">
         <div class="content_header">
           <div class="content_header_search">
-            <el-input placeholder="公司对外名称搜索" v-model="companyNameSearch" class="input-with-select">
+            <el-input placeholder="公司注册全称搜索" v-model="companyNameSearch" class="input-with-select">
               <el-button slot="append" icon="el-icon-search" @click="handleCompanyNameSearch"></el-button>
             </el-input>
-            <el-input placeholder="公司注册名称搜索" v-model="accountSearch" class="input-with-select">
+            <el-input placeholder="公司昵称搜索" v-model="accountSearch" class="input-with-select">
               <el-button slot="append" icon="el-icon-search" @click="handleAccountSearch"></el-button>
             </el-input>
             <el-input placeholder="手机搜索" v-model="phoneNumberSearch" class="input-with-select">

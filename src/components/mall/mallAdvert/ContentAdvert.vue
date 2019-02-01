@@ -163,7 +163,7 @@
       <el-upload
         class="avatar-uploader"
         action="http://test.kslab.com/api/article/null"
-        :show-file-list="true"
+        :show-file-list="false"
         :before-upload="beforeAvatarUpload"
       >
         <img v-if="imageUrl" :src="imageUrl" class="avatar">
@@ -173,36 +173,47 @@
         <el-form-item label="广告标题">
           <el-input v-model="title"></el-input>
         </el-form-item>
-        <el-form-item label="选择链接">
-          <el-select v-model="choseValue" placeholder="请选择">
-            <el-option
-              v-for="item in options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-
-        <div v-if="choseValue == 1">
-          <el-form-item label="图片链接">
-            <el-input v-model="url"></el-input>
+        <!-- 产品搜索 -->
+        <div class="search_product">
+          <el-form-item label="商城板块">
+            <el-select v-model="mall" placeholder="活动区域" @change="handleChangePalte">
+              <el-option v-for="tmp in tmps" :key="tmp.id" :label="tmp.name" :value="tmp.menu_id"></el-option>
+            </el-select>
           </el-form-item>
+         
+          <el-form-item label="产品搜索">
+              <div class="flex">
+                <el-input v-model="product_int" placeholder="输入产品ID"></el-input>&nbsp;
+                <el-button type="primary" @click="searchID">搜索</el-button>
+              </div>
+            </el-form-item>
         </div>
-        <div v-if="choseValue == 2">
-          <el-form-item label="产品id">
-            <div class="flex">
-              <el-input v-model="product_int"></el-input>&nbsp;
-              <el-button type="primary" @click="searchID">搜索</el-button>
-            </div>
-          </el-form-item>
-        </div>
-        <el-form-item label="商城板块">
-          <el-select v-model="mall" placeholder="活动区域">
-            <el-option v-for="tmp in tmps" :key="tmp.id" :label="tmp.name" :value="tmp.id"></el-option>
-          </el-select>
-        </el-form-item>
       </el-form>
+      <!-- 搜索结果 -->
+      <div v-if="searchResult">
+        <div class="search_resault">
+          <div class="search_resault_left">
+            <p>商品图片</p>
+            <img :src="productCover" alt="">
+          </div>
+          <div class="search_resault_right">
+            <span class="resault_title">产品名称</span>
+            <p class="resault_value">{{products.title}}</p>
+            <span class="resault_title">商家名称</span>
+            <p class="resault_value">{{products.company_name}}</p>
+            <div class="sure_resault">
+              <el-button v-if="bot" type="primary" size="mini" @click="handleSureSelect">选择该商品</el-button>
+              <el-button v-else size="mini" @click="handleDeselected">取消选择</el-button>
+            </div>
+          </div>
+        </div>
+        
+        
+      </div>
+      <div v-else class="search_resault_tips">
+        {{tips}}
+      </div>
+      
       <span slot="footer" class="dialog-footer">
         <el-button @click="RemarksDialog = false">取 消</el-button>
         <el-button type="primary" @click="handleSubmitNewAdv">确 定</el-button>
@@ -268,16 +279,16 @@ export default {
       ],
       tableData: [],
       tmps: [],
-      options: [
-        {
-          value: 1,
-          label: "图片外部链接"
-        },
-        {
-          value: 2,
-          label: "产品ID搜索"
-        }
-      ],
+      // options: [
+      //   {
+      //     value: 1,
+      //     label: "图片外部链接"
+      //   },
+      //   {
+      //     value: 2,
+      //     label: "产品ID搜索"
+      //   }
+      // ],
       choseValue: "",
       //弹框
       RemarksDialog: false,
@@ -290,13 +301,24 @@ export default {
       mall: "", // 商城板块
       isShowProductDialog: false,
       products: {},
-      productCover: ""
+      productCover: "",
+      searchResult:false,
+      bot:true,
+      tips:'请在上面搜索商品。',
+      uploadId:null,
+      uploadTitle:null,
+      uploadName:null,
+      uploadUrl:null,
     };
   },
   mounted() {
     this.getMessageList();
   },
   methods: {
+    //选择板块
+    handleChangePalte(){
+      console.log(this.mall)
+    },
     // 获取列表
     getMessageList() {
       this.HttpClient.get("/admin/advertisement").then(res => {
@@ -310,6 +332,7 @@ export default {
     //打开创建广告弹窗
     handleOpenAddAd() {
       this.RemarksDialog = true;
+      this.searchResult = false;
       this.getMallTmp();
     },
     // 获取商城板块
@@ -318,6 +341,7 @@ export default {
         menu_type: 1,
         type: 0
       }).then(res => {
+        console.log(res)
         const { code, data } = res.data;
         if (code === 200) {
           this.tmps = data;
@@ -329,15 +353,20 @@ export default {
       this.HttpClient.post("/admin/marketProduct/baseInfo", {
         id: this.product_int
       }).then(res => {
+        console.log(res)
         const { code, msg, data } = res.data;
         console.log(msg);
         if (code === 200) {
           this.products = data;
-          this.isShowProductDialog = true;
+          // this.isShowProductDialog = true;
           let img = data.show_picture[0].path;
           this.productCover = `${cfg.imageUrl}${img}`;
+          // this. = data.title;
+          this.searchResult = true;
         } else {
+          this.searchResult = false;
           this.$message.error("暂无此ID");
+          this.tips = '没有搜索到该商品！'
         }
       });
     },
@@ -397,28 +426,36 @@ export default {
         }
       );
     },
+    /** 
+     * 2019/2/1
+     * ZhangYunChuan
+     * 确定选择该商品
+    */
+    handleSureSelect(){
+      this.bot = false;
+      this.uploadId = this.product_int;
+      this.uploadTitle = this.products.title;
+      this.uploadName = this.products.company_name;
+    },
+    // 取消选择
+    handleDeselected(){
+      this.searchResult = false;
+      this.bot = true;
+      this.uploadId = null;
+      this.uploadTitle = null;
+      this.uploadName = null;
+    },  
     // 确定添加新广告
     handleSubmitNewAdv() {
-      if (this.choseValue === 1) {
-        var data = {
-          title: this.title,
-          image: this.imageUrl,
-          url: this.url,
-          // product_int: this.product_int,
-          // product_name: this.products.title?this.products.title:'',
-          // company_name: this.products.company_name,
-          layout: 2
-        };
-      } else {
-        var data = {
-          title: this.title,
-          image: this.imageUrl,
-          // url: this.url,
-          product_int: this.product_int,
-          product_name: this.products.title ? this.products.title : "",
-          company_name: this.products.company_name,
-          layout: 2
-        };
+
+      let data = {
+        title:this.title,
+        image:this.imageUrl,
+        product_int:this.uploadId,
+        product_name:this.uploadTitle,
+        company_name:this.uploadName,
+        folder_id:this.mall,
+        layout:'2'
       }
       console.log(data);
       this.HttpClient.post("/admin/advertisement", data).then(res => {
@@ -429,10 +466,9 @@ export default {
           this.title = "";
           this.choseValue = "";
           this.mall = "";
-          this.url = "";
-          this.product_int = "";
-          this.product_name = "";
-          this.company_name = "";
+          this.uploadId = null;
+          this.uploadTitle = null;
+          this.uploadName = null;
           setTimeout(() => {
             this.getMessageList();
           }, 500);
@@ -552,12 +588,13 @@ export default {
       text-align: center;
     }
     .avatar {
-      width: 178px;
+      width: 710px;
       height: 178px;
       display: block;
     }
     .el-dialog__body {
       padding-top: 0;
+      height: 600px;
     }
     .RemarksDialog_title {
       display: flex;
@@ -616,6 +653,88 @@ export default {
 }
 .flex {
   display: flex;
+}
+.search_product{
+  // border: 1px solid #000;
+  padding: 5px 5px 5px 0;
+  box-shadow: 3px 3px 25px #888888;
+}
+.el-form-item{
+  margin-top: 10px;
+}
+.no_show{
+  display: none;
+}
+@keyframes fade-in {  
+    0% {opacity: 0;}/*初始状态 透明度为0*/  
+    40% {opacity: 0;}/*过渡状态 透明度为0*/  
+    100% {opacity: 1;}/*结束状态 透明度为1*/  
+}  
+@-webkit-keyframes fade-in {/*针对webkit内核*/  
+    0% {opacity: 0;}  
+    40% {opacity: 0;}  
+    100% {opacity: 1;}  
+}  
+.search_resault {    
+    animation: fade-in;/*动画名称*/  
+    animation-duration: 1s;/*动画持续时间*/  
+    -webkit-animation:fade-in 1s;/*针对webkit内核*/  
+}
+
+.search_resault_tips{
+  height: 150px;
+  margin-top: 20px;
+  text-align: center;
+  line-height: 150px;
+  font-size: 20px;
+  color:#8c939d;
+}
+.search_resault{
+  height: 200px;
+  // border:1px solid #000;
+  box-shadow: 3px 3px 25px #888888;
+  margin-top: 20px;
+  display: flex;
+  .search_resault_left{
+    width: 20%;
+    p{
+      background: #15bafe;
+      color: #fff;
+      height:29px;
+      line-height: 29px;
+      text-align: center;
+    }
+    img{
+      width: 140px;
+      height: 140px;
+    }
+  }
+  .search_resault_right{
+    width: 80%;
+    padding-left: 10px;
+    .sure_resault{
+      text-align: right;
+      padding-right: 5px;
+    }
+    .resault_title{
+      background: #15bafe;
+      color: #fff;
+      display: block;
+      width: 150px;
+      text-align:center;
+      padding: 5px 10px;
+    }
+    .resault_value{
+      border:1px solid #e1e2e4;
+      height: 30px;
+      margin: 10px 0px;
+      margin-right: 20px;
+      color: #000;
+      padding: 0 5px;
+      line-height: 30px;
+      border-radius: 4px;
+    }
+  }
 }
 .product-cover {
   display: block;

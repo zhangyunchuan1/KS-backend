@@ -1,5 +1,5 @@
 <template>
-  <div class="newInformation">
+  <div class="DialogueManagement">
     <!--面包屑-->
     <BreadCrumb class="bread" :breadData="breadData"></BreadCrumb>
     <!--主体内容-->
@@ -77,7 +77,7 @@
                 class-name="mallReview_scope">
                 <template slot-scope="scope">
                   <div class="mallReview_btm">
-                    <el-button @click="chatDialog = true">对话</el-button>
+                    <el-button @click="viewChatRowData(scope.row)">对话</el-button>
                     <el-button
                       @click="openModalAndGetRowData('shieldDialog', scope.row)"
                     >
@@ -113,54 +113,37 @@
       custom-class="chatDialog">
       <span slot="title" class="chatDialog_title"><i class="iconfont icon-mail"></i>对话- 是个狼人</span>
       <div class="chatDialog_main">
-        <div class="main_content">
-          <!--用户-->
-          <div class="user_chat chat_list">
-            <span>2018/12/6 17:12</span>
-            <p>我要退款，你发我两只左脚的鞋</p>
-          </div>
+        <div style="border: 1px solid #dedede;">
+          <div class="main_content chatrecord_content" v-for="(item,index) in MessageList" :key="index">
+            <!--用户-->
+            <div class="user_chat chat_list" v-if="item.send_id == listID">
+              <span>{{item.send_time}}</span>
+              <p>{{item.content}}</p>
+            </div>
 
-          <!--客服-->
-          <div class="service_chat chat_list">
-            <p class="service_message">
-              <span class="service_serviceName">是个猛男</span>
-              <span class="service_time">2018/12/6 17:13</span>
-            </p>
-            <p class="chat_content">亲亲，不能退款呢，我们的脚都是长那样的呢，穿不了是您的问题呢</p>
-          </div>
+            <!--客服-->
+            <div class="service_chat chat_list" v-if="item.send_id !== listID">
+              <span class="service_time">{{item.send_time}}</span>
+              <p class="service_message">
+                <span class="service_serviceName">{{item.send_nickname}}</span>
+              </p>
+              <p class="chat_content">{{item.content}}</p>
+            </div>
 
-          <!--用户-->
-          <div class="user_chat chat_list">
-            <span>2018/12/6 17:15</span>
-            <p>我要退款，你发我两只左脚的鞋</p>
           </div>
-          <!--用户-->
-          <div class="user_chat chat_list">
-            <span>2018/12/6 17:15</span>
-            <p>我要退款，你发我两只左脚的鞋</p>
-          </div>
-          <!--用户-->
-          <div class="user_chat chat_list">
-            <span>2018/12/6 17:15</span>
-            <p>我要退款，你发我两只左脚的鞋</p>
-          </div>
-          <!--用户-->
-          <div class="user_chat chat_list">
-            <span>2018/12/6 17:16</span>
-            <p>我要退款，你发我两只左脚的鞋。我要退款，你发我两只左脚的鞋我要退款，你发我两只左脚的鞋。我要退款，你发我两只左脚的鞋</p>
-          </div>
-          <!--客服-->
-          <div class="service_chat chat_list">
-            <p class="service_message">
-              <span class="service_serviceName">是个猛男</span>
-              <span class="service_time">2018/12/6 17:16</span>
-            </p>
-            <p class="chat_content">亲亲，我退你ma</p>
-          </div>
-
         </div>
+        
+        <!-- 分页 -->
+        <el-pagination
+          v-if="chatTotal"
+          layout="prev, pager, next"
+          :total="chatTotal"
+          :page-size="chatpageSize"
+          @current-change="chatCurrentChange"
+        ></el-pagination>
         <div class="char_input">
           <el-input
+          v-model="charContent"
             type="textarea"
             resize="none"
             placeholder="输入回复内容，请文明用语"
@@ -169,7 +152,7 @@
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="chatDialog = false">取 消</el-button>
-        <el-button type="primary">回 复</el-button>
+        <el-button type="primary" @click="handleReply">回 复</el-button>
       </span>
     </el-dialog>
 
@@ -325,6 +308,12 @@
 
           tableData:[],
 
+          // 对话历史列表分页
+          chatpageSize: 5,
+          chatCurrentpage: 1,
+          chatTotal: 0,
+
+          MessageList:[],//查看对话数据
 
           // 聊天框
           chatDialog: false,
@@ -340,13 +329,98 @@
           taskMarks: '',    // 任务备注
           taskReason: '',  // 任务申请原因
           taskType: '',  // 任务类型
-          row: {}
+          row: {},
+          listID:'',//当前对话用户的uid
+          charContent:'',//回复内容
+          managerID:'',
         }
       },
       mounted () {
         this.getTableData()
       },
       methods: {
+        // 获取当前时间
+        dateFtt() {
+          var d=new Date();
+          var year=d.getFullYear();
+          var month=change(d.getMonth()+1);
+          var day=change(d.getDate());
+          var hour=change(d.getHours());
+          var minute=change(d.getMinutes());
+          var second=change(d.getSeconds());
+          function change(t){
+            if(t<10){
+            return "0"+t;
+            }else{
+            return t;
+            }
+          }
+          var time=year+'-'+month+'-'+day+' '+hour+':'+minute+':'+second;
+          return time;
+        },
+        // 查看当前对话
+        viewChatRowData(row){
+          console.log(row)
+          this.chatDialog = true;
+          this.listID = row.uid;
+          this.managerID = row.manager_id;
+          let params = {
+            manager_id: this.managerID,
+            content: this.charContent,
+            send_time: this.dateFtt()
+          };
+          console.log(params);
+          // this.HttpClient.post("/admin/receive/message", params).then(res => {
+          //   console.log(res.data);
+          //   if (res.data.code === 200) {
+          //     this.charContent = "";
+          //     setTimeout(() => {
+                this.getchatList();
+          //     }, 500);
+          //   }
+          // });
+        },
+        chatCurrentChange(p) {
+          this.chatCurrentpage = p;
+          this.getchatList();
+        },
+        getchatList() {
+          let params = {
+            cs_id: localStorage.getItem("userid"),
+            list_uid: this.listID,
+            page_size: this.chatpageSize,
+            page: this.chatCurrentpage
+          };
+          this.HttpClient.post("/admin/message/info", params).then(res => {
+            console.log(res.data);
+            this.MessageList = res.data.data.data;
+            this.chatTotal = res.data.data.total;
+          });
+        },
+        //回复
+    handleReply(component) {
+      // return console.log(component, text)
+      //   this.items.push({
+      //     component: name,
+      //     text: text
+      //   })
+      // console.log(component)
+      let params = {
+        manager_id: this.managerID,
+        content: this.charContent,
+        send_time: this.dateFtt()
+      };
+      console.log(params);
+      this.HttpClient.post("/admin/receive/message", params).then(res => {
+        console.log(res.data);
+        if (res.data.code === 200) {
+          this.charContent = "";
+          setTimeout(() => {
+            this.getchatList();
+          }, 500);
+        }
+      });
+    },
         // 获取列表数据
         getTableData () {
           this.HttpClient.post('/admin/message/manager')
@@ -442,7 +516,7 @@
 </script>
 
 <style lang="less">
-  .newInformation{
+  .DialogueManagement{
     text-align: left;
     .bread{
       margin: 10px;
@@ -549,6 +623,7 @@
             margin-bottom: 5px;
             padding-left: 15px;
             display: block;
+            text-align: center;
           }
           p{
             background: #15bafe;
@@ -564,6 +639,14 @@
         /*客服聊天*/
         .service_chat{
           text-align: right;
+          span{
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+            padding-left: 15px;
+            display: block;
+            text-align: center;
+          }
           .service_message{
             margin-bottom: 10px;
             display: flex;
@@ -592,6 +675,10 @@
             text-align: justify;
           }
         }
+      }
+      .chatrecord_content{
+        height: auto;
+        border: 0;
       }
       .char_input{
         margin-top: 20px;

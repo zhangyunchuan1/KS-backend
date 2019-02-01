@@ -1,4 +1,4 @@
-<template>
+/admin/question/getListByMajorMenuId<template>
     <div class="questionContents">
       <BreadCrumb class="bread" :breadData="breadData"></BreadCrumb>
 
@@ -133,7 +133,12 @@
                 align="center"
                 width="110"
                 show-overflow-tooltip
-                prop="model">
+                prop="menu">
+                <template slot-scope="scope">
+                  <div v-for="(item,index) in scope.row.menu" :key="index">
+                    <span v-if="item.type===0">{{item.name}}</span>
+                  </div>
+                </template>
               </el-table-column>
 
               <el-table-column
@@ -142,6 +147,11 @@
                 width="200"
                 show-overflow-tooltip
                 prop="firstMenu">
+                <template slot-scope="scope">
+                  <div v-for="(item,index) in scope.row.menu" :key="index">
+                    <span v-if="item.type===1">{{item.name}}</span>
+                  </div>
+                </template>
               </el-table-column>
 
               <el-table-column
@@ -150,6 +160,11 @@
                 width="200"
                 show-overflow-tooltip
                 prop="secondMenu">
+                <template slot-scope="scope">
+                  <div v-for="(item,index) in scope.row.menu" :key="index">
+                    <span v-if="item.type===2">{{item.name}}</span>
+                  </div>
+                </template>
               </el-table-column>
 
               <el-table-column
@@ -158,6 +173,11 @@
                 width="200"
                 show-overflow-tooltip
                 prop="threeMenu">
+                <template slot-scope="scope">
+                  <div v-for="(item,index) in scope.row.menu" :key="index">
+                    <span v-if="item.type===3">{{item.name}}</span>
+                  </div>
+                </template>
               </el-table-column>
 
               <el-table-column
@@ -362,8 +382,8 @@
         }
         let res = await this.HttpClient.post('/admin/question/getListByMajorMenuId', params);
         console.log('res.data is:', res.data)
-        if (res.data.data.length) {
-          this.tableData = dealWithTable(res.data.data.data);
+        if (res.data.code === 200) {
+          this.tableData = res.data.data.data;
           this.total = res.data.data.total;
         }
         console.log('tableData:', this.tableData);

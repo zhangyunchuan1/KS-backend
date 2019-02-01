@@ -101,12 +101,12 @@
                     <div class="inc">
                         <div class="color1"></div>
                         <span class="sp1">增长数：</span>
-                        <span class="sp2">{{dataList.product_total}}</span>
+                        <span class="sp2">{{dataList.product_total_increase}}</span>
                     </div>
                     <div class="tot">
                         <div class="color2"></div>
                         <span class="sp1">总数&nbsp;&nbsp;&nbsp;&nbsp;：</span>
-                        <span class="sp3">{{dataList.product_total_increase}}</span>
+                        <span class="sp3">{{dataList.product_total}}</span>
                     </div>
                 </div>
             </div>

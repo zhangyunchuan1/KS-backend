@@ -58,7 +58,7 @@
           <el-table
             :data="tableData"
             :border="true"
-            style="width: 100%">
+            style="width: 95%">
             <el-table-column
               label="ID"
               prop="id"
@@ -69,6 +69,7 @@
             <el-table-column
               label="服务名称"
               align="center"
+              show-overflow-tooltip
               width="180">
               <template slot-scope="scope">
                   <p>{{ scope.row.title}}</p>
@@ -78,9 +79,11 @@
             <el-table-column
               label="公司对外名称"
               align="center"
+              show-overflow-tooltip
               width="180">
               <template slot-scope="scope">
-                <p>{{ scope.row.company_name}}</p>
+                <p v-if="scope.row.company_name">{{scope.row.company_name}}</p>
+                <p v-else class="sortout_color">无</p>
               </template>
             </el-table-column>
 
@@ -88,6 +91,7 @@
               label="价格"
               prop="price"
               align="center"
+              show-overflow-tooltip
               width="100"
               sortable>
             </el-table-column>
@@ -96,15 +100,18 @@
               label="板块"
               align="center"
               column-key="date"
+              show-overflow-tooltip
               width="100">
               <template slot-scope="scope">
-                <p>{{ scope.row.folder}}</p>
+                <p v-if="scope.row.folder">{{ scope.row.folder}}</p>
+                <p v-else class="sortout_color">无</p>
               </template>
             </el-table-column>
 
             <el-table-column
               label="二级"
               align="center"
+              show-overflow-tooltip
               width="100">
               <template slot-scope="scope">
                 <p>{{ scope.row.menu_name}}</p>
@@ -114,6 +121,7 @@
             <el-table-column
               label="城市"
               align="center"
+              show-overflow-tooltip
               width="120">
               <template slot-scope="scope">
                 <p>{{ scope.row.city_name}}</p>
@@ -124,19 +132,24 @@
               label="申请时间"
               prop="created_at"
               align="center"
-              width="130"
+              show-overflow-tooltip
+              width="160"
               sortable>
             </el-table-column>
 
             <el-table-column
               label="状态"
               align="center"
+              show-overflow-tooltip
               width="130">
               <template slot-scope="scope">
-                <p>
-                    {{scope.row.status===0?'删除':scope.row.status===1?'正常':scope.row.status===2?'下架':
-                    scope.row.status===3?'待提交':scope.row.status===4?'未通过':'待审核'}}
-                </p>
+                <p v-if="scope.row.status===0" class="sortout_color">删除</p>
+                <p v-else-if="scope.row.status===1" class="normal_color">正常</p>
+                <p v-else-if="scope.row.status===2" class="sortout_color">下架</p>
+                <p v-else-if="scope.row.status===3" class="audit_color">待提交</p>
+                <p v-else-if="scope.row.status===4" class="notpass_color">未通过</p>
+                <p v-else-if="scope.row.status===5">待审核</p>
+                <p v-else class="sortout_color">无</p>
               </template>
             </el-table-column>
 
@@ -150,7 +163,7 @@
                 <div class="service_btm">
                   <div  @click="basicButton(scope.row.id)">基本信息</div>
                   <div @click="rejectButton(scope.row.id)" v-if="scope.row.status===4">查看反馈</div>
-                  <div>预览服务</div>
+                  <div @click="previewButton(scope.row)">预览服务</div>
                   <div v-if="scope.row.status===3 || scope.row.status===4" @click="examineButton(scope.row.service_id)">提交审核</div>
                   <div @click="deleteButton(scope.row.service_id)" v-if="scope.row.status===4">删除</div>
                   <div @click="remarkButton(scope.row.service_id)">添加备注</div>
@@ -571,6 +584,10 @@
           //             this.$message.success(res.data.msg)
           //         }
           //     })
+      },
+      // 预览
+      previewButton(row){
+        console.log(row)
       },
       //提交审核按钮事件
       examineButton(id){

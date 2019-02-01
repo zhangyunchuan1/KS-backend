@@ -52,10 +52,10 @@
         </div>
         <div>
           <div class="conditions">
-            <el-input class="select_normal" v-model="searchObj.nickName" placeholder="昵称" size="mini">
+            <el-input class="select_normal" v-model="searchObj.nickName" clearable placeholder="昵称">
               <el-button slot="append" @click="search" icon="el-icon-search"></el-button>
             </el-input>
-            <el-input class="select_normal" v-model="searchObj.useaName" placeholder="用户名" size="mini">
+            <el-input class="select_normal" v-model="searchObj.useaName" clearable placeholder="用户名">
               <el-button slot="append" @click="search" icon="el-icon-search"></el-button>
             </el-input>
             <!-- <el-input class="select_normal" v-model="searchObj.type" placeholder="类别选择" size="mini"> </el-input>
@@ -68,7 +68,7 @@
               end-placeholder="结束日期"
               @change="search">
             </el-date-picker>
-            <el-input class="select_normal" v-model="searchObj.serviceName" placeholder="服务名称" size="mini">
+            <el-input class="select_normal" v-model="searchObj.serviceName" placeholder="服务名称">
               <el-button slot="append" @click="search" icon="el-icon-search"></el-button>
             </el-input>
         </div>
@@ -77,7 +77,7 @@
               :data="tableData"
               border
               :stripe="true"
-              style="width: 90%">
+              style="width: 95%">
               <el-table-column
                 prop="id"
                 label="ID"
@@ -92,7 +92,13 @@
               <el-table-column
                 prop="menu_pname"
                 label="类别"
+                :filters="typelistData"
+                :filter-method="filterTag"
                 width="120">
+                <template slot-scope="scope">
+                  <span v-if="scope.row.menu_pname">{{scope.row.menu_pname}}</span>
+                  <span v-else class="sortout_color">暂无</span>
+                </template>
               </el-table-column>
               <el-table-column
                 prop="menu_name"
@@ -126,11 +132,15 @@
                 label="禁用类别"
                 width="120"
                 show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <span v-if="scope.row.review_type">{{scope.row.review_type}}</span>
+                  <span v-else class="sortout_color">暂无</span>
+                </template>
               </el-table-column>
               <el-table-column
                 prop="created_at"
                 label="评论时间排序"
-                width="120"
+                width="160"
                 show-overflow-tooltip>
               </el-table-column>
               <el-table-column
@@ -147,10 +157,10 @@
                 class-name="table_title"
                 fixed="right">
                 <template slot-scope="scope">
-                  <el-button size="small" type="text" v-if="scope.row.status === 1" @click="forbiddenModal(scope.row)">禁用</el-button>
-                  <el-button size="small" type="text" @click="deleteModal(scope.row)">删除</el-button>
-                  <el-button size="small" type="text" @click="viewModal(scope.row)">预览</el-button>
-                  <el-button size="small" type="text" v-if="scope.row.status === 3" @click="renewModal(scope.$index)">恢复</el-button>
+                  <el-button type="text" v-if="scope.row.status === 1" @click="forbiddenModal(scope.row)">禁用</el-button>
+                  <el-button type="text" @click="deleteModal(scope.row)">删除</el-button>
+                  <el-button type="text" @click="viewModal(scope.row)">预览</el-button>
+                  <el-button type="text" v-if="scope.row.status === 3" @click="renewModal(scope.$index)">恢复</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -297,14 +307,38 @@
             icon: 'icon-home'
           }],
           rejectData:[],  //驳回类别
+          typelistData:[],
         }
       },
       created() {
         this.init(null);
         this.getRejectList();
         this.getAvarge();
+        this.getTypeList();
       },
       methods: {
+        getTypeList(){
+          let parameters = {
+            menu_type:2,
+            type:3
+          }
+          this.HttpClient.post('/admin/menu/getList',parameters).then(res => {
+            if(res.data.code === 200){
+              Object.values(res.data.data).forEach(item => {
+                var obj = {};
+                obj.text = item.name;
+                obj.value = item.name;
+                console.log(obj)
+                this.typelistData.push(obj);
+              })
+              console.log(this.typelistData)
+            }
+          })
+        },
+        filterTag(value, row, column) {
+          const property = column['property'];
+            return row[property] === value;
+        },
         search() {
             this.init(this.searchObj);
         },
@@ -434,6 +468,7 @@
                     this.scoreObj.motorcycle = this.markTableData[i].total_score;
                     this.commentObj.motorcycle = this.markTableData[i].total_count;
                 }else if(this.markTableData[i].name === '无人机') {
+                  console.log(this.markTableData[i].total_score)
                     this.scoreObj.plane = this.markTableData[i].total_score;
                     this.commentObj.plane = this.markTableData[i].total_count;
                 }else if(this.markTableData[i].name === '智能设备') {
@@ -451,8 +486,20 @@
 <style lang="less">
 .serviceEvaluation{
   box-sizing: border-box;
+
+    .content::-webkit-scrollbar {display:none}
+    .content{
+      margin-left: 10px;
+      margin-top: 10px;
+      background: #fff;
+      height: calc(100vh - 110px);
+      width: calc(100vw - 240px);
+      border-radius: 2px;
+      overflow-y: auto;
+    }
+
     .date_normal{
-      height: 28px;
+      // height: 28px;
       width: 230px;
       margin-right: 10px;
       .el-input__icon {
@@ -666,6 +713,9 @@
       background-color: #15bafe;
       .cell{
         color: #fff;
+        .el-icon-arrow-down:before{
+          color: #fff;
+        }
       }
     }
     .has-gutter {

@@ -3,12 +3,17 @@
       <BreadCrumb class="bread" :breadData="breadData"></BreadCrumb>
       <div class="content">
         <p class="title">活动被修改</p>
-        <div>
+        <div class="content_contain">
           <div class="conditions">
-            <el-input class="select_normal" v-model="searchObj.activityName" placeholder="活动名称" size="mini"> </el-input>
-            <el-input class="search_length" v-model="searchObj.companyName" placeholder="商家对外名称" size="mini">
-              <el-button slot="append" @click="search" icon="el-icon-search"></el-button>
-            </el-input>
+            <div class="select_normal">
+                <el-input v-model="searchObj.activityName" placeholder="活动名称" clearable  @change="search"> </el-input>
+                <el-button slot="append" @click="search" icon="el-icon-search"></el-button>
+            </div>
+            <div class="select_normal">
+                <el-input v-model="searchObj.companyName" placeholder="商家对外名称" clearable  @change="search"></el-input>
+                <el-button slot="append" @click="search" icon="el-icon-search"></el-button>
+            </div>
+            
         </div>
         <div class="tables">
             <el-table
@@ -19,51 +24,72 @@
               <el-table-column
                 prop="id"
                 label="ID"
+                align="center"
                 width="50"
                 show-overflow-tooltip>
               </el-table-column>
               <el-table-column
                 prop="title"
                 label="活动名称"
+                align="center"
                 width="200"
                 show-overflow-tooltip>
               </el-table-column>
               <el-table-column
                 prop="city_name"
                 label="城市"
+                align="center"
                 width="120"
                 show-overflow-tooltip>
               </el-table-column>
               <el-table-column
                 prop="company_name"
                 label="商家对外名称"
+                align="center"
                 width="120"
                 show-overflow-tooltip>
               </el-table-column>
               <el-table-column
                 prop="initial_status"
                 label="修改前状态"
+                align="center"
                 width="120"
                 show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <span v-if="scope.row.initial_status == 1" class="wait_color">等待开始</span>
+                  <span v-if="scope.row.initial_status == 2" class="start_color">已开始</span>
+                  <span v-if="scope.row.initial_status == 3" class="audit_color">待审核</span>
+                  <span v-if="scope.row.initial_status == 4" class="end_color">已结束</span>
+                  <span v-if="scope.row.initial_status == 5" class="cancel_color">已取消</span>
+                </template>
               </el-table-column>
               <el-table-column
                 prop="updated_at"
                 label="修改时间"
+                align="center"
                 width="180"
                 show-overflow-tooltip>
               </el-table-column>
               <el-table-column
                 label="操作"
-                width="240"
+                align="center"
                 fixed="right">
                 <template slot-scope="scope">
-                  <el-button size="small" type="text" @click="viewActivity">预览活动</el-button>
-                  <el-button size="small" type="text" @click="passModal(scope.$index)">通过</el-button>
-                  <el-button size="small" type="text" @click="rejectInfo(scope.$index)">驳回</el-button>
-                  <el-button size="small" type="text" @click="basicInfo(scope.$index)">基本信息</el-button>
+                  <el-button type="text" @click="viewActivity">预览活动</el-button>
+                  <el-button type="text" @click="passModal(scope.$index)">通过</el-button>
+                  <el-button type="text" @click="rejectInfo(scope.$index)">驳回</el-button>
+                  <el-button type="text" @click="basicInfo(scope.$index)">基本信息</el-button>
                 </template>
               </el-table-column>
             </el-table>
+            <el-pagination
+            layout="prev, pager, next"
+            :total="total"
+            :current-page.sync="currentPage"
+            :page-size="25"
+            @current-change="handleCurrentChange"
+          >
+          </el-pagination>
           </div>
         </div>
       </div>
@@ -74,8 +100,8 @@
         </div>
         <div slot="footer">
           <el-row class="row_e">
-            <el-button size="small" @click="passVisible = false">取消</el-button>
-            <el-button size="small" type="primary" @click="pass">提交</el-button>
+            <el-button @click="passVisible = false">取消</el-button>
+            <el-button type="primary" @click="pass">提交</el-button>
           </el-row>
         </div>
       </el-dialog>
@@ -89,15 +115,15 @@
           <el-input v-model="rejectReason" type="textarea" rows="3" max="300px" class="reject_input space_bottom" clearable size="mini"/>
           <p class="space_bottom">驳回类别选择</p>
           <div>
-            <el-button size="small" v-for="reject in rejectData" @click="handleReject(reject)" :key="reject.id" :class="reject.id===rejectValue?'btns_s':'btns'">
+            <el-button v-for="reject in rejectData" @click="handleReject(reject)" :key="reject.id" :class="reject.id===rejectValue?'btns_s':'btns'">
               {{reject.name}}
             </el-button>
           </div>
         </div>
         <div slot="footer">
           <el-row class="row_e">
-            <el-button class="btn_deletes" size="small" @click="rejectVisible = false">取消</el-button>
-            <el-button type="primary" size="small"  class="btn_delete" @click="reject">提交</el-button>
+            <el-button class="btn_deletes" @click="rejectVisible = false">取消</el-button>
+            <el-button type="primary"  class="btn_delete" @click="reject">提交</el-button>
           </el-row>
         </div>
       </el-dialog>
@@ -201,7 +227,9 @@
             icon: 'icon-home'
           }],
           rejectData: [],
-          tableData:[]
+          tableData:[],
+          total: 0,
+          currentPage: 1
         }
       },
       created() {
@@ -261,7 +289,10 @@
         //获取修改后待审核的活动列表
         async init(param) {
           let params = {
-            status: 2
+            // status: 2,
+            size:25,
+            page:this.currentPage,
+            is_edit:true,
           }
           if(param) {
             params['title'] = param.activityName;
@@ -270,7 +301,12 @@
           let res = await this.HttpClient.post('/admin/actives/lists', params);
           console.log(res)
           this.tableData = res.data.data.data;
-        }
+          this.total = res.data.data.total;
+        },
+        handleCurrentChange(val) {
+          this.currentPage = val;
+          this.init(); 
+        },
       }
     }
 </script>
@@ -306,10 +342,14 @@
   }
   .title{
     text-align: left;
-    padding: 10px;
-    padding-left: 20px;
-    font-size: 14px;
+    /* padding: 10px; */
+    line-height: 70px;
+    padding-left: 50px;
+    font-size: 20px;
     border-bottom: 1px solid #f2f2f2;
+  }
+  .content_contain{
+    padding-left: 50px;
   }
   .conditions{
     display: flex;
@@ -317,7 +357,8 @@
     margin-top: 20px;
   }
   .select_normal{
-    width: 120px;
+    // width: 120px;
+    display: flex;
     margin-right: 10px;
   }
   .tables{

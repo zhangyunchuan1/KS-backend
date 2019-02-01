@@ -84,7 +84,12 @@
             width="120"
             show-overflow-tooltip>
             <template slot-scope="scope">
+              <div v-if="scope.row.roles.length !== 0">
                 <p v-for="(item,index) in scope.row.roles" :key="index">{{item.name}}</p>
+              </div>
+              <div v-else>
+                <p style="color:red">未分配</p>
+              </div>
             </template>
           </el-table-column>
           <el-table-column
@@ -107,12 +112,12 @@
           </el-table-column>
           <el-table-column
             label="操作"
-            width="240"
+            min-width="255"
             fixed="right">
             <template slot-scope="scope">
-              <el-button size="small" type="text" @click="showUserDialog(scope.row)">修改</el-button>
-              <el-button size="small" type="text"  @click="handleDeleteUser(scope.row)">删除</el-button>
-              <el-button size="small" type="text" @click="handleJumpToJurisdiction(scope.row)">角色分配</el-button>
+              <el-button type="primary" plain size="mini" @click="showUserDialog(scope.row)">修改</el-button>
+              <el-button type="primary" plain size="mini" @click="handleDeleteUser(scope.row)">删除</el-button>
+              <el-button type="primary" plain size="mini" @click="handleJumpToJurisdiction(scope.row)">角色分配</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -327,8 +332,6 @@
                 if(code===200){
                     this.tableData=data.data;
                     this.total=data.total
-                }else{
-                    this.$message.error(msg)
                 }
             })
       },

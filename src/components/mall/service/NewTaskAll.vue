@@ -7,7 +7,7 @@
       <!--标题-->
       <div class="title">
         <p>新任务-所有</p>
-        <p style="cursor:pointer;">
+        <p style="cursor:pointer;" @click="refreshList">
           <i class="iconfont icon-shuaxin"></i>
           刷新
         </p>
@@ -27,6 +27,7 @@
                 align="center"
                 width="200"
                 prop="nickname"
+                show-overflow-tooltip
                 sortable>
               </el-table-column>
 
@@ -34,6 +35,7 @@
                 label="用户类型"
                 align="center"
                 width="150"
+                show-overflow-tooltip
                 prop="user_type">
                 <template slot-scope="scope">
                     <span v-if="scope.row.user_type === 1">用户</span>
@@ -45,6 +47,7 @@
                 label="援助申请时间"
                 align="center"
                 width="200"
+                show-overflow-tooltip
                 prop="created_at">
               </el-table-column>
 
@@ -52,6 +55,7 @@
                 label="任务类别"
                 align="center"
                 width="150"
+                show-overflow-tooltip
                 prop="task_type">
                 <template slot-scope="scope">
                     <span v-if="scope.row.task_type === 1">商城</span>
@@ -65,33 +69,33 @@
                 label="援助申请者"
                 align="center"
                 width="150"
+                show-overflow-tooltip
                 prop="convtent">
               </el-table-column>
               <el-table-column
                 label="申请原因"
                 align="reasons"
                 width="150"
+                show-overflow-tooltip
                 prop="reasons">
               </el-table-column>
 
               <el-table-column
                 label="备注"
                 align="center"
-                width="350"
+                width="320"
+                show-overflow-tooltip
                 prop="remarks">
               </el-table-column>
 
               <el-table-column
                 label="操作"
                 align="center"
-                class-name="mallReview_scope"
-                fixed="right"
-              >
-                <template slot-scope="scope">
-                  <div class="mallReview_btm">
-                    <el-button @click="handleOpenReceive(scope.row)">领取任务</el-button>
-                    <el-button @click="handleOpenRemarks(scope.row)">查看备注</el-button>
-                  </div>
+                min-width="250"
+                fixed="right">
+                <template slot-scope="scope">    
+                    <el-button type="primary" plain size="mini" @click="handleOpenReceive(scope.row)">领取任务</el-button>
+                    <el-button type="primary" plain size="mini" @click="handleOpenRemarks(scope.row)">查看备注</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -195,13 +199,22 @@
         this.getMessageList()
     },
     methods:{
+        //刷新列表
+        refreshList(){
+          this.getMessageList();
+        },
         // 获取任务列表
         getMessageList(){
-          this.HttpClient.post('/admin/task/list')
+          this.HttpClient.post('/admin/task/list',{
+            page:this.currentPage,
+            page_size:20
+          })
           .then(res => {
+            console.log(res)
             const { code, data } = res.data
             if (code === 200) {
-              this.tableData = res.data.data
+              this.tableData = res.data.data.data;
+              this.total = res.data.data.total;
             }
           })
         },
@@ -225,7 +238,10 @@
               const { code, msg } = res.data
               if (code === 200) {
                 this.$message.success(msg)
-                this.deleteDialog = false
+                setTimeout(() => {
+                    this.deleteDialog = false;
+                    this.getMessageList();
+                }, 500);
               } else {
                 this.$message.error(msg)
               }
@@ -233,8 +249,10 @@
         },
 
         //分页
-        handleCurrentChange(e){
-            console.log(e)
+        handleCurrentChange(p){
+            console.log(p)
+            this.currentPage = p;
+            this.getMessageList();
         }
     }
   }

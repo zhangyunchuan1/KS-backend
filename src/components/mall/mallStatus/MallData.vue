@@ -105,7 +105,7 @@
                                     show-overflow-tooltip
                                     sortable>
                                     <template slot-scope="scope">
-                                        <span v-if="scope.row.average_sale">{{scope.row.average_sale}}</span>
+                                        <span v-if="scope.row.average_sale">{{(scope.row.average_sale).toFixed(2)}}</span>
                                         <span v-else class="sortout_color">无</span>
                                     </template>
                             </el-table-column>

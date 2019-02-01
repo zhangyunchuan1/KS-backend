@@ -1,1 +1,0 @@
-webpackJsonp([219],{AmbE:function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var r={render:function(){var e=this.$createElement,t=this._self._c||e;return t("div",{staticClass:"video"},[t("router-view")],1)},staticRenderFns:[]};var i=n("VU/8")({name:"Video"},r,!1,function(e){n("WGPV")},"data-v-177eb3c4",null);t.default=i.exports},WGPV:function(e,t){}});

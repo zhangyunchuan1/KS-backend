@@ -12,8 +12,6 @@
             <div class="main_box">
               <el-radio-group v-model="plateRadio" @change="changePlateFn">
                 <el-radio border :label="item.menu_id" v-for="(item,index) in plateRadioData" :key='index'>{{item.name}}</el-radio>
-                <!-- <el-radio @change="plateBtm" border :label="2">汽车 <span>1221</span></el-radio>
-                <el-radio @change="plateBtm" border :label="3">无人机 <span>131</span></el-radio> -->
               </el-radio-group>
             </div>
           </div>
@@ -24,9 +22,6 @@
               <div class="main_box">
                 <el-radio-group v-model="brandRadio" @change="brandBtm">
                   <el-radio border :label="item.brand_id" v-for="(item,index) in brandRadioData" :key="index">{{item.name}}</el-radio>
-                  <!-- <el-radio @change="brandBtm" border :label="2">陆丰 <span>254</span></el-radio>
-                  <el-radio @change="brandBtm" border :label="3">众泰 <span>354</span></el-radio>
-                  <el-radio @change="brandBtm" border :label="4">比亚迪 <span>454</span></el-radio> -->
                 </el-radio-group>
               </div>
             </div>
@@ -38,9 +33,6 @@
               <div class="main_box">
                 <el-radio-group v-model="seriesRadio" @change="seriesBtm">
                   <el-radio border :label="item.series_id" v-for="(item,index) in seriesRadioData" :key="index">{{item.name}}</el-radio>
-                  <!-- <el-radio @change="seriesBtm" border :label="2">火系 <span>254</span></el-radio>
-                  <el-radio @change="seriesBtm" border :label="3">木系 <span>354</span></el-radio>
-                  <el-radio @change="seriesBtm" border :label="4">水系 <span>454</span></el-radio> -->
                 </el-radio-group>
               </div>
             </div>
@@ -52,9 +44,6 @@
               <div class="main_box">
                 <el-radio-group v-model="firstRadio" @change="firstBtm">
                   <el-radio border :label="item.menu_id" v-for="(item,index) in firstRadioData" :key="index">{{item.name}}</el-radio>
-                  <!-- <el-radio @change="firstBtm" border :label="2">电池 <span>254</span></el-radio>
-                  <el-radio @change="firstBtm" border :label="3">灯泡 <span>354</span></el-radio>
-                  <el-radio @change="firstBtm" border :label="4">雨刮片 <span>454</span></el-radio> -->
                 </el-radio-group>
               </div>
             </div>
@@ -66,9 +55,6 @@
               <div class="main_box">
                 <el-radio-group v-model="secondRadio" @change="secondBtm">
                   <el-radio border :label="item.menu_id" v-for="(item,index) in secondRadioData" :key="index">{{item.name}}</el-radio>
-                  <!-- <el-radio @change="secondBtm" border :label="2">零部件 <span>254</span></el-radio>
-                  <el-radio @change="secondBtm" border :label="3">车载技术 <span>354</span></el-radio>
-                  <el-radio @change="secondBtm" border :label="4">汽车维修 <span>454</span></el-radio> -->
                 </el-radio-group>
               </div>
             </div>
@@ -80,9 +66,6 @@
               <div class="main_box">
                 <el-radio-group v-model="threeRadio" @change="threeBtm">
                   <el-radio border :label="item.menu_id" v-for="(item,index) in threeRadioData" :key="index">{{item.name}}</el-radio>
-                  <!-- <el-radio @change="threeBtm" border :label="2">通用雨刮片 <span>254</span></el-radio>
-                  <el-radio @change="threeBtm" border :label="3">电池维护 <span>354</span></el-radio>
-                  <el-radio @change="threeBtm" border :label="4">油漆和底漆 <span>454</span></el-radio> -->
                 </el-radio-group>
               </div>
             </div>
@@ -94,9 +77,6 @@
               <div class="main_box">
                 <el-radio-group v-model="productType" @change="productTypeBtm">
                   <el-radio border :label="item.id" v-for="(item,index) in productTypeData" :key="index">{{item.name}}</el-radio>
-                  <!-- <el-radio border :label="2">传动 <span>254</span></el-radio>
-                  <el-radio border :label="3">保养零件 <span>354</span></el-radio>
-                  <el-radio border :label="4">冷却和加热 <span>454</span></el-radio> -->
                 </el-radio-group>
               </div>
             </div>

@@ -34,7 +34,7 @@
                         </div>
                     </div>
 
-                    <div class="table" style="width:80%">
+                    <div class="table" style="width:90%">
                         <el-table
                                 :data="tableData"
                                 :border="true">

@@ -447,13 +447,17 @@
         .then((res) => {
             if(res.data.code === 200){
                 this.$message.success(res.data.msg);
-                this.getBusinessLists();
-                this.modifyLicenseDialog = false;
+                setTimeout(() => {
+                    this.getBusinessLists();
+                    this.modifyLicenseDialog = false;
+                    this.reviewDialog = false;
+                }, 500);
+            }else{
+              this.$message.error(res.data.msg);
             }
         })
         this.approval = false;
         this.turnDown = true;
-        this.reviewDialog = false;
       },
       //打开修改资质弹窗
       handleModifyQualification(company_id){
@@ -470,7 +474,8 @@
       handleSaveModify(){
         this.HttpClient.post('/admin/business/editProfile',{
             company_id:this.modifyObj.company_id,
-            nickname:this.modifyObj.name,
+            name:this.modifyObj.name,
+            nickname:this.modifyObj.register_logo,
             register_logo:this.modifyObj.register_logo,
             license_num:this.modifyObj.license_num,
             legal_person:this.modifyObj.legal_person,

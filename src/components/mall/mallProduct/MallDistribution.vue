@@ -76,7 +76,8 @@
             align="center"
             width="110">
             <template slot-scope="scope">
-              <span>{{scope.row.category}}</span>
+              <span v-if="scope.row.category">{{scope.row.category}}</span>
+              <span v-else class="sortout_color">暂无</span>
             </template>
           </el-table-column>
 
@@ -98,8 +99,8 @@
             prop='is_distribution'
             width="130">
             <template slot-scope="scope">
-              <span v-if="scope.row.is_distribution == 1">已分配</span>
-              <span v-if="scope.row.is_distribution == 0">未分配</span>
+              <span v-if="scope.row.is_distribution == 1" class="normal_color">已分配</span>
+              <span v-if="scope.row.is_distribution == 0" class="sortout_color">未分配</span>
             </template>
           </el-table-column>
 
@@ -149,13 +150,16 @@
             label="操作"
             align="center"
             fixed="right"
-            class-name="question_scope">
+            min-width="300">
             <template slot-scope="scope">
-              <div class="question_btm">
+              <el-button type="primary" plain size="mini" @click="handleOpenAddCatalog(scope.row.product_id)">添加目录</el-button>
+              <el-button type="primary" plain size="mini" @click="handleOpenAll(scope.row.menu)">所有目录</el-button>
+              <el-button type="primary" plain size="mini" @click="handlePreview">预览</el-button>
+              <!-- <div class="question_btm">
                 <div @click="handleOpenAddCatalog(scope.row.product_id)">添加目录</div>
                 <div>预览</div>
                 <div @click="handleOpenAll(scope.row.menu)">所有目录</div>
-              </div>
+              </div> -->
             </template>
           </el-table-column>
         </el-table>
@@ -327,9 +331,13 @@
         this.getSubjectCatalog();
     },
     methods:{
+      //预览
+      handlePreview(){
+        this.$message.warning('此功能跳转前台页面，暂未开放！')
+      },
       //打开所有目录
       handleOpenAll(menu){
-          console.log(menu)
+          // console.log(menu)
           this.menu = menu;
           this.allDirectoryDialog = true;
       },
@@ -357,10 +365,10 @@
       },
       //获取下一级目录
       qq(i){
-          console.log(i)
+          // console.log(i)
           this.menuId = i.menu_id;
           if(i.type === 1){ //当切换一级目录的时候，就清空二级和三级目录
-          console.log(1111111111111)
+          // console.log(1111111111111)
               this.twoCatalog = [];
               this.threeCatalog = [];
               this.fourCatalog = [];
@@ -373,18 +381,18 @@
               this.fourCatalog = [];
           }
           if(i.type === 4){  //如果点击的是三级目录，就清空四级目录
-              console.log('点击了4及')
+              // console.log('点击了4及')
           }
           this.getNextCatalog(i.menu_id,i.type);
       },
       //选择学科板块后
       tt(i){
-        console.log(52464545454545)
+        // console.log(52464545454545)
           this.oneCatalog = [];
           this.twoCatalog = [];
           this.threeCatalog = [];
           this.fourCatalog = [];
-          console.log(i)
+          // console.log(i)
           this.getChildeCatalogList(i);
       },
       //打开添加目录的的弹窗
@@ -404,7 +412,7 @@
               menu_type:3
           })  
           .then(res=>{
-              console.log(res)
+              // console.log(res)
               if(res.data.code === 200){
                   if(type === 1){ //判断选择的是几级目录，如果是一级，那么这个请求的就是二级目录
                       this.twoCatalog = res.data.data.child;
@@ -424,13 +432,13 @@
       },
       // 获取学科下的一级目录
       getChildeCatalogList(i){
-        console.log(i)
+        // console.log(i)
           this.HttpClient.post('/admin/menu/getOneChild',{
               menu_id:i.menu_id,
               menu_type:3
           })  
           .then(res=>{
-              console.log(res.data.data.child)
+              // console.log(res.data.data.child)
               // if(i.type === 0){
                 this.oneCatalog = res.data.data.child;
               // }else if(i.type === 1){
@@ -458,7 +466,7 @@
               menu_type:3
           })  
           .then(res=>{
-              console.log(res)
+              // console.log(res)
               this.subjectData = res.data.data;
           })
       },
@@ -474,15 +482,15 @@
           };
           this.HttpClient.post('/admin/marketProduct/getListsWithMajorMenu',params)  
           .then(res=>{
-              console.log(res)
+              // console.log(res)
               this.tableData = res.data.data.data; 
               this.total = res.data.data.total;
               for(let j=0;j<res.data.data.data.length;j++){
                   if(res.data.data.data[j].menu.length !== 0){
                       this.tableData[j].is_distribution = 1;  //添加是否分配区分
                       for(let m=0;m<res.data.data.data[j].menu[0].length;m++){
-                        console.log(res.data.data.data[j].menu[0].length)
-                        console.log(res.data.data.data[j].menu[0][m]);
+                        // console.log(res.data.data.data[j].menu[0].length)
+                        // console.log(res.data.data.data[j].menu[0][m]);
                         let y = res.data.data.data[j].menu[0][m].type;
                         if(y == 0){
                             this.tableData[j].subject =  res.data.data.data[j].menu[0][m].name;
@@ -529,7 +537,7 @@
       },
       // 改变当前页
       handleCurrentChange(e){
-          console.log(e);
+          // console.log(e);
           this.currentPage = e;
           this.getPassQuestionList();
       },
@@ -542,12 +550,12 @@
         return row[property] === value;
       },
       filterDistribution(value, row, column) {
-        console.log(value, row, column)
+        // console.log(value, row, column)
         const property = column['property'];
         return row[property] === value;
       },
       handleRemove(file, fileList) {
-        console.log(file, fileList);
+        // console.log(file, fileList);
       },
       handlePictureCardPreview(file) {
         this.dialogImageUrl = file.url;
@@ -642,7 +650,66 @@
         //   //   }
         //   // }
         // }
+        .el-table {
+                    thead {
+                        color: #fff;
+                        th, tr {
+                            background-color: #15bafe;
+                            .el-input--suffix .el-input__inner{
+                                color:#fff;
+                                font-size:12px;
+                                font-weight:900;
+                                border:none;
+                                padding:0;
+                                background:#15bafe;
+                            }
+                            .el-input__inner::placeholder{
+                                font-size:12px!important;
+                                // color:#000!important;
+                                font-weight:900!important;
+                            }
+                            .el-input__inner::-webkit-input-placeholder{
+                                font-size:12px!important;
+                                color:#fff!important;
+                                font-weight:900!important;
+                            }
+                            .el-input__inner::-moz-placeholder{  //不知道为何火狐的placeholder的颜色是粉红色，怎么改都不行，希望有大牛路过帮忙指点
+                                font-size:12px!important;
+                                color:#fff!important;
+                                font-weight:900!important;
+                            }
+                            .el-input__inner:-ms-input-placeholder{  //由于我的IE刚好是IE9，支持不了placeholder，所以也测试不了(⊙﹏⊙)，有IE10以上的娃可以帮我试试
+                                font-size:12px!important;
+                                color:#fff!important;
+                                font-weight:900!important;
+                            }
+                            .el-input__suffix{
+                                right:-1px;
+                                // .el-select__caret{
+                                //     color:#fff;
+                                // }
+                                .el-input__icon{
+                                    width:14px;
+                                    color:#fff;
+                                    font-size: 14px;
+                                }
+                            }
+                            .el-select{
+                                position:relative;
+                                padding-left: 8px;
+                                top:2px;
+                            }
+                        }
+                    }
+                    tbody{
+                        .created_at{
+                            .cell{
+                                padding:0 15px;
+                            }
+                        }
 
+                    }
+                }
         /*操作按钮*/
         .question_scope{
           padding: 0;
@@ -689,7 +756,9 @@
           display: flex;
           align-items: center;
           margin-bottom: 10px;
-          // border-bottom:1px solid  #dfdede;
+          border:1px solid  #dfdede;
+          box-shadow: 5px 5px 15px #888888;
+          padding: 5px;
           .box_list_title{
             width: 90px;
             text-align: left;

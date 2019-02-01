@@ -287,7 +287,12 @@ export default {
       carviewArticle: [], //汽车文章统计
       motorviewArticle: [], //摩托文章统计
       planeviewArticle: [], //无人机文章统计
-      intelligentviewArticle: [] //智能设备文章统计
+      intelligentviewArticle: [], //智能设备文章统计
+
+      carMenuID: "", //汽车ID
+      motorMenuID: "", //摩托ID
+      planeMenuID: "", //无人机ID
+      intelligentMenuID: "", //智能设备ID
     };
   },
   methods: {
@@ -583,7 +588,7 @@ export default {
           this.planeArticle = [];
           this.intelligentArticle = [];
           this.articleDate.map(item => {
-            if (item.folder_type === "2709ce46-98e2-4279-90fb-e60d7f0831cd") {
+            if (item.folder_type === this.carMenuID) {
               this.carArticle.push(item);
               if (item.user_type === 1) {
                 this.car.normal += Number(item.articles);
@@ -592,7 +597,7 @@ export default {
                 this.car.business += Number(item.articles);
                 this.totalByDate += Number(item.articles);
               }
-            } else if (item.folder_type === "fc3f6b9d-3433-4846-a580-ad25e5fb22d3") {
+            } else if (item.folder_type === this.motorMenuID) {
               this.motorArticle.push(item);
               if (item.user_type === 1) {
                 this.motorcycle.normal += Number(item.articles);
@@ -601,7 +606,7 @@ export default {
                 this.motorcycle.business += Number(item.articles);
                 this.totalByDate += Number(item.articles);
               }
-            } else if (item.folder_type === "dc015c79-15a4-4f4a-a737-4541aa722f54") {
+            } else if (item.folder_type === this.planeMenuID) {
               this.planeArticle.push(item);
               if (item.user_type === 1) {
                 this.plane.normal += Number(item.articles);
@@ -610,7 +615,7 @@ export default {
                 this.plane.business += Number(item.articles);
                 this.totalByDate += Number(item.articles);
               }
-            } else if (item.folder_type === "5b884d03-23b2-4477-a79e-31870d07e961") {
+            } else if (item.folder_type === this.intelligentMenuID) {
               this.intelligentArticle.push(item);
               if (item.user_type === 1) {
                 this.intelligent.normal += Number(item.articles);
@@ -653,7 +658,7 @@ export default {
           this.planeviewArticle = [];
           this.intelligentviewArticle = [];
           this.articleviewDate.map(item => {
-            if (item.folder_type === "2709ce46-98e2-4279-90fb-e60d7f0831cd") {
+            if (item.folder_type === this.carMenuID) {
               this.carviewArticle.push(item);
               if (item.user_type === 1) {
                 this.carview.normal += Number(item.articles_view);
@@ -662,7 +667,7 @@ export default {
                 this.carview.business += Number(item.articles_view);
                 this.totalByDateview +=Number(item.articles_view)
               }
-            } else if (item.folder_type === "fc3f6b9d-3433-4846-a580-ad25e5fb22d3") {
+            } else if (item.folder_type === this.motorMenuID) {
               this.motorviewArticle.push(item);
               if (item.user_type === 1) {
                 this.motorcycleview.normal += Number(item.articles_view);
@@ -671,7 +676,7 @@ export default {
                 this.motorcycleview.business += Number(item.articles_view);
                 this.totalByDateview +=Number(item.articles_view)
               }
-            } else if (item.folder_type === "dc015c79-15a4-4f4a-a737-4541aa722f54") {
+            } else if (item.folder_type === this.planeMenuID) {
               this.planeviewArticle.push(item);
               if (item.user_type === 1) {
                 this.planeview.normal += Number(item.articles_view);
@@ -680,7 +685,7 @@ export default {
                 this.planeview.business += Number(item.articles_view);
                 this.totalByDateview +=Number(item.articles_view)
               }
-            } else if (item.folder_type === "5b884d03-23b2-4477-a79e-31870d07e961") {
+            } else if (item.folder_type === this.intelligentMenuID) {
               this.intelligentviewArticle.push(item);
               if (item.user_type === 1) {
                 this.intelligentview.normal += Number(item.articles_view);
@@ -796,7 +801,7 @@ export default {
             new Date((month>=12?year+1+'-01':year + "-" + (month<10?'0' + (month+1):month + 1)) + "-" + date).getTime() ===
               new Date(item.created_at.split(" ")[0]).getTime()
           ) {
-            console.log(item)
+            // console.log(item)
             carNumview += Number(item.articles_view);
             //按用户类型搜索
             if (item.user_type === 1) {
@@ -1027,7 +1032,17 @@ export default {
       // console.log(res);
       if (res.data.code === 200) {
         this.articleNum = res.data.data;
+        console.log(res.data.data)
         this.articleNum.map(item => {
+          if (item.name == "汽车") {
+              this.carMenuID = item.menu_id;
+            } else if (item.name == "摩托") {
+              this.motorMenuID = item.menu_id;
+            } else if (item.name == "模型") {
+              this.planeMenuID = item.menu_id;
+            } else if (item.name == "智能设备") {
+              this.intelligentMenuID = item.menu_id;
+            }
           item.number = 0;
           item.number += Number(item.analysis.company_articles);
           item.number += Number(item.analysis.normal_articles);
@@ -1035,7 +1050,7 @@ export default {
           item.numberview += Number(item.analysis.company_articles_view);
           item.numberview += Number(item.analysis.normal_articles_view);
           this.articleTotal += item.number;
-          this.articleviewTotal += item.numberview
+          this.articleviewTotal += item.numberview;
         });
         // console.log(this.articleTotal);
         // console.log(this.articleNum);

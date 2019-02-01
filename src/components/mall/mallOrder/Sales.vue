@@ -72,7 +72,7 @@
                         </el-input>
                     </div>
                 </div>
-                <div class="encyclopedia_content" style="width:80%">
+                <div class="encyclopedia_content" style="width:100%">
                     <el-table
                         :data="tableData"
                         :border="true">
@@ -97,6 +97,10 @@
                         width="180"
                         show-overflow-tooltip
                         prop="nickname">
+                        <template slot-scope="scope">
+                            <span v-if="scope.row.nickname">{{scope.row.nickname}}</span>
+                            <span class="sortout_color" v-else>无</span>
+                        </template>
                         </el-table-column>
 
                         <el-table-column
@@ -179,7 +183,10 @@
                         prop="status"
                         sortable>
                         <template slot-scope="scope">
-                            <span>{{scope.row.status==1?'上架':scope.row.status==2?'下架':scope.row.status==3?'待审核':scope.row.status==0?'删除':''}}</span>
+                            <span v-if="scope.row.status==1" class="normal_color">上架</span>
+                            <span v-if="scope.row.status==2" class="sortout_color">下架</span>
+                            <span v-if="scope.row.status==3" class="audit_color">待审核</span>
+                            <span v-if="scope.row.status==0" class="delete_color">删除</span>
                         </template>
                         </el-table-column>
 

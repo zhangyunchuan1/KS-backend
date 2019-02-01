@@ -5,7 +5,7 @@
       <p class="title">长期活动状态</p>
       <div class="content_contain">
         <div class="conditions">
-          <el-select size="mini" class="select_normal" v-model="statusValue" placeholder="状态">
+          <el-select class="select_normal" v-model="statusValue" placeholder="状态">
             <el-option
               v-for="item in statusOptions"
               :key="item.value"
@@ -13,7 +13,7 @@
               :value="item.value">
             </el-option>
           </el-select>
-          <el-select size="mini" class="select_normal" v-model="enrolmentValue" placeholder="报名人数">
+          <el-select class="select_normal" v-model="enrolmentValue" placeholder="报名人数">
             <el-option
               v-for="item in enrolmentOptions"
               :key="item.value"
@@ -21,7 +21,7 @@
               :value="item.value">
             </el-option>
           </el-select>
-          <el-select size="mini" class="select_normal" v-model="ticketSalesValue" placeholder="按售票人数">
+          <el-select class="select_normal" v-model="ticketSalesValue" placeholder="按售票人数">
             <el-option
               v-for="item in ticketSalesOptions"
               :key="item.value"
@@ -31,15 +31,13 @@
           </el-select>
           <el-input
             class="select_normal"
-            placeholder="活动名称"
-            size="mini"
+            placeholder="活动名称"          
             suffix-icon="el-icon-search"
             v-model="activity_name">
           </el-input>
           <el-input
             class="select_normal"
             placeholder="定时活动状态"
-            size="mini"
             suffix-icon="el-icon-search"
             v-model="time_status">
           </el-input>
@@ -429,14 +427,18 @@
   }
   .title{
     text-align: left;
-    padding: 10px;
-    padding-left: 20px;
-    font-size: 14px;
+    // padding: 10px;
+    line-height: 70px;
+    padding-left: 50px;
+    font-size: 20px;
     border-bottom: 1px solid #f2f2f2;
+  }
+  .content_contain{
+    padding-left: 50px;
   }
   .conditions{
     display: flex;
-    margin-left: 10px;
+    // margin-left: 10px;
     margin-top: 20px;
   }
   .select_normal{
@@ -444,7 +446,7 @@
     margin-right: 10px;
   }
   .tables{
-    margin: 20px 10px;
+    margin: 20px 0px;
   }
   .el_drop{
     margin-right: 10px;

@@ -18,7 +18,7 @@
             </div>
             <div style="padding: 14px;">
               <p>{{item.name}}</p>
-              <el-button type="text" class="button" @click="amendList(item)">修改</el-button>
+              <el-button type="primary" class="el-icon-edit" @click="amendList(item)"></el-button>
             </div>
           </div>
         </div>
@@ -35,7 +35,7 @@
 
       <!-- 修改弹框 -->
       <div>
-        <el-dialog title="修改" :visible.sync="centerDialogVisible" width="50%" center>
+        <el-dialog title="修改" :visible.sync="centerDialogVisible" width="900px" center>
           <div class="productname">
             <span>属性名称：</span><el-input placeholder="请输入内容" v-model="amendname" clearable style="width:30%;"></el-input>
           </div>
@@ -1049,12 +1049,26 @@ export default {
         text-align: center;
         border: 1px solid #dedede;
         border-radius: 4px;
-        font-size: 14px;
+        font-size: 12px;
         margin-right: 10px;
+        color:#fff;
+        background: #409eff;
       }
       .imgAndwordBox {
         border: 1px solid #dedede;
         margin: 20px;
+        p{
+          font-size: 14px;
+          color: #636679;
+          width: 100px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .el-button--primary{
+          width: 100%;
+          border-radius: 0px;
+        }
         .imgbox {
           width: 100px;
           height: 100px;
@@ -1074,9 +1088,16 @@ export default {
       position: relative;
       .el-input {
         width: 60%;
+        .el-input__inner{
+          height: 34px;
+          border-bottom-right-radius: 0px;
+          border-top-right-radius: 0px;
+        }
       }
       .el-button {
         padding: 10px 15px !important;
+        border-bottom-left-radius: 0px;
+        border-top-left-radius: 0px;
       }
       ul{
         position: absolute;

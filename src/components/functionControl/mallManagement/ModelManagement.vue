@@ -149,7 +149,7 @@
                 console.log(res.data)
                 if(res.data.code === 200){
                     Object.values(res.data.data).forEach(item => {
-                        if(item.name === '汽车1' || item.name === '摩托车'){
+                        if(item.name === '汽车' || item.name === '摩托车'){
                             this.carList.push(item)
                         }
                     })

@@ -13,13 +13,13 @@
                     <el-input class="list_main" v-model="updateInfo.title"></el-input>
                 </div>
 
-                <div class="productModify_list">
+                <!-- <div class="productModify_list">
                     <div class="list_title">标签</div>
                     <div class="list_tags" v-for="(item,index) in tags" :key="index">
                         <p @click="updateTag(index)">{{item}}</p>
                         <span @click="deleteButton(index)"></span>
                     </div>
-                </div>
+                </div> -->
 
                 <div class="productModify_list richText">
                     <div class="list_title">商品详情</div>
@@ -87,26 +87,33 @@
                     <div class="list_title">产品属性</div>
                     <div class="list_attributes">
                         <div class="attributes_box" v-for="(item,index) in property" :key="item.id">
-                            <div class="attributes_title">{{item.property_name}}</div>
+                            <div class="big_box">
+                                <div class="attributes_title">{{item.property_name}}</div> 
+                                <div class="small_box2">
+                                    <span v-if="item.selective === 1">选填</span>
+                                    <span v-else>必填</span>
+                                </div>
+                                <div class="small_box1">
+                                    <span v-if="item.rule === 2">多选</span>
+                                    <span v-else-if="item.rule === 1">单选</span>
+                                    <span v-else>单位：{{item.property_unit}}</span>
+                                </div>
+                            </div>
+                            <!-- 单选 -->
                             <div v-if="item.rule===1">
-                                <el-radio-group
-                                        v-model="item.radioSelect"
-                                        class="brandList"
-                                        @change="updateProperty(index,item)">
-                                    <el-radio border :label="tmp.pc_id" v-for="tmp in item.values" :key="tmp.pc_id">{{tmp.value}}</el-radio>
+                                <el-radio-group v-model="item.radioSelect" class="brandList" @change="updateProperty(index,item,$event)">
+                                    <el-radio border :label="tmp.value_id" v-for="tmp in item.values" :key="tmp.value_id">{{tmp.value}}</el-radio>
                                 </el-radio-group>
                             </div>
+                            <!-- 多选 -->
                             <div v-else-if="item.rule===2">
-                                <el-checkbox-group
-                                        v-model="item.checkList"
-                                        @change="updateProperty(index,item)">
-                                    <el-checkbox border :label="tmp.pc_id" v-for="tmp in item.values" :key="tmp.pc_id">{{tmp.value}}</el-checkbox>
+                                <el-checkbox-group v-model="item.checkList" @change="updateProperty(index,item)">
+                                    <el-checkbox border :label="tmp.value_id" v-for="tmp in item.values" :key="tmp.pc_id">{{tmp.value}}</el-checkbox>
                                 </el-checkbox-group>
                             </div>
+                            <!-- 整数 -->
                             <div v-else-if="item.rule===3">
-                                <el-input
-                                        v-model="item.intValue"
-                                        @change="updateProperty(index,item)">
+                                <el-input v-model="item.intValue" @change="updateProperty(index,item)">
                                 </el-input>
                                 <span>{{item.values}}</span>
                                 <!--<el-select v-model="item.unit" placeholder="请选择单位" @change="updateProperty(index,item)">-->
@@ -118,10 +125,11 @@
                                     <!--</el-option>-->
                                 <!--</el-select>-->
                             </div>
+                            <!-- 小数 -->
                             <div v-else>
                                 <el-input
                                         v-model="item.floatValue"
-                                        @change="updateProperty(index,item.property_id,item.category_id,item.floatValue)">
+                                        @change="updateProperty(index,item)">
                                 </el-input>
                             </div>
                         </div>
@@ -241,7 +249,12 @@
                 property:[],// 属性列表
                 properties:[],// 属性值列表
                 // value:'',
-
+                /** 
+                 * 2019/1/30
+                 * 商品属性修改（改为统一接口修改）
+                 * author:ZhangYunChuan
+                */
+                uploadProperties:[],  //上传的属性容器
             }
         },
         methods: {
@@ -290,8 +303,14 @@
                         if(res.data.code===200){
                             this.$message.success(res.data.msg);
                             this.videoUrl=res.data.path;
-                            this.updateInfo.video[0].path = res.data.path;
-                            this.updateInfo.video[0].name = file.name 
+                            if(!this.updateInfo.video){
+                                this.updateInfo.video = [];
+                                this.updateInfo.video.push({
+                                    path : res.data.path,
+                                    name : file.name
+                                })
+                                
+                            }
                             console.log(this.updateInfo.video)
                         }else{
                             this.$message.error(res.data.msg)
@@ -390,6 +409,7 @@
                             this.updateInfo.description=description;
                             this.updateInfo.stock = res.data.data.stock;
                             this.updateInfo.price = res.data.data.price;
+                            this.updateInfo.category_id = res.data.data.category_id;
                             if(video){
                                 this.videoUrl=this.Tools.handleImg(video[0].path);
                                 this.updateInfo.video[0].name=res.data.data.video[0].name;
@@ -410,11 +430,13 @@
                             }
                             console.log(this.attachment)
                             console.log(tags)
-                            this.tags=tags;
-                            for(let i=0;i<this.tags.length;i++){
-                                this.tags[i] = this.tags[i].name;
-                            }
+                            // this.tags=tags;
+                            // for(let i=0;i<this.tags.length;i++){
+                            //     this.tags[i] = this.tags[i].name;
+                            // }
                             this.property=cate_property;
+                            console.log(this.property);
+                            
                             this.property.map(item=>{
                                 if(item.rule===1){
                                     item.radioSelect=''
@@ -429,22 +451,26 @@
                                 map_property.map(tmp=>{
                                     if(tmp.property_id===item.property_id){
                                         if(item.rule===1){
-                                            item.radioSelect=tmp.pc_id;
+                                            item.radioSelect=tmp.value_id;
                                             value=[item.radioSelect]
                                         }else if(item.rule===2){
-                                            item.checkList.push(tmp.pc_id);
+                                            item.checkList.push(tmp.value_id);
+                                            console.log(item.checkList)
                                             value=item.checkList
                                         }else if(item.rule===3){
                                             item.intValue=tmp.property_value;
+                                            item.property_unit = tmp.property_unit;
                                             value=[item.intValue,item.values]
                                         }else{
                                             item.floatValue=tmp.property_value;
+                                            item.property_unit = tmp.property_unit;
                                             value=[item.floatValue,item.values]
                                         }
 
                                         console.log(value);
                                     }
                                 });
+                                
                                 if(this.properties.length>0){
                                     this.properties.map((tmp,i)=>{
                                         if(tmp.id===item.property_id){
@@ -465,13 +491,80 @@
                                     }
                                 }
                             });
+                            console.log(this.property)
+                            //提出需要上传的属性值
+                            // this.property.forEach(item => {
+                            //     if(item.rule === 1){  //单选
+                            //         console.log(item.radioSelect)
+                            //         this.uploadProperties.push({
+                            //             id:item.property_id,
+                            //             selective:item.selective,
+                            //             val:[
+                            //                 item.radioSelect
+                            //             ]
+                            //         })
+                            //     }else if(item.rule === 2){  //多选
+                            //         let arr = [];
+                            //         item.checkList.forEach(chel => {
+                            //             arr.push(chel)
+                            //         });
+                            //         this.uploadProperties.push({
+                            //             id:item.property_id,
+                            //             selective:item.selective,
+                            //             val:arr
+                            //         })
+                                    
+                            //     }else if(item.rule === 3){  //整数
+                            //         console.log(item.intValue)
+                            //         this.uploadProperties.push({
+                            //             id:item.property_id,
+                            //             selective:item.selective,
+                            //             val:[
+                            //                 item.intValue
+                            //             ]
+                            //         })
+                            //     }else{  //浮点数
+                            //         this.uploadProperties.push({
+                            //             id:item.property_id,
+                            //             selective:item.selective,
+                            //             val:[
+                            //                 item.floatValue
+                            //             ]
+                            //         })
+                            //     }
+                            // });
                             console.log(this.properties);
                             console.log(this.updateInfo.video);
                         }
                     })
             },
             //属性视图更新
-            updateProperty(index,item){
+            updateProperty(index,item,e){
+                console.log(index,item,e)
+                // let {property_id,category_id,rule} = item;
+                // let value=[];
+                // if(rule===1){
+                //     if(item.radioSelect){
+                //         value=[item.radioSelect]
+                //     }
+                //     this.uploadProperties.forEach(str => {
+                //         if(str.id === property_id){
+                //             str.val[0] = e;
+                //         }
+                //     });
+                // }else if(rule===2){
+                //     value=item.checkList
+                // }else if(rule===3){
+                //     if(item.intValue){
+                //         value=[item.intValue,item.values]
+                //     }
+                // }else{
+                //     if(item.floatValue){
+                //         value=[item.floatValue,item.values]
+                //     }
+                // }
+
+
                 this.$set(this.property,index,this.property[index]);
                 let {property_id,category_id,rule} = item;
                 let value=[];
@@ -480,12 +573,14 @@
                         value=[item.radioSelect]
                     }
                 }else if(rule===2){
-                    value=item.checkList
+                    value=item.checkList;
+                    console.log(item.checkList)
                 }else if(rule===3){
                     if(item.intValue){
                         value=[item.intValue,item.values]
                     }
                 }else{
+                    console.log('值',e)
                     if(item.floatValue){
                         value=[item.floatValue,item.values]
                     }
@@ -523,22 +618,22 @@
                 }
                 this.properties=arr;
                 console.log(this.properties);
-                if(this.properties.length>0){
-                    let parameters={
-                        product_id:this.$route.query.id,
-                        category_id:category_id,
-                        properties:this.properties
-                    };
-                    this.HttpClient.post('/admin/marketProduct/editProperty',parameters)
-                        .then(res=>{
-                            console.log(res);
-                            if(res.data.code===200){
-                                this.$message.success(res.data.msg)
-                            }else{
-                                this.$message.error(res.data.msg)
-                            }
-                        })
-                }
+                // if(this.properties.length>0){
+                //     let parameters={
+                //         product_id:this.$route.query.id,
+                //         category_id:category_id,
+                //         properties:this.properties
+                //     };
+                //     // this.HttpClient.post('/admin/marketProduct/editProperty',parameters)
+                //     //     .then(res=>{
+                //     //         console.log(res);
+                //     //         if(res.data.code===200){
+                //     //             this.$message.success(res.data.msg)
+                //     //         }else{
+                //     //             this.$message.error(res.data.msg)
+                //     //         }
+                //     //     })
+                // }
             },
             //上传修改
             updateProduct(){
@@ -550,7 +645,7 @@
                         path:this.picture[i].path
                     })
                 }
-                this.updateInfo.image = arr;
+                this.updateInfo.show_picture = arr;
                 this.updateInfo.tags = this.tags;
                 console.log(arr,this.updateInfo)
                 // this.updateInfo.attachment = null;
@@ -558,17 +653,23 @@
                     for(let i in this.attachment){
                         this.updateInfo.attachment.push({
                             name:this.attachment[i].name,
-                            path:this.attachment[i].url
+                            path:this.attachment[i].path
                         })
                     }
                 }
+                if(this.properties.length>0){
+                    this.updateInfo.properties = this.properties
+                }
+                this.updateInfo.integrity = 95;
+                console.log(this.updateInfo)
+                // console.log('这是商品属性',this.property,this.uploadProperties)
                 this.HttpClient.post('/admin/marketProduct/edit',this.updateInfo)
                     .then(res=>{
                         if(res.data.code===200){
                             this.$message.success(res.data.msg);
                             setTimeout(()=>{
                                 this.getProductInfo();
-                                $router.go(-1);
+                                // this.$router.go(-1);
                             },500)
                         }else{
                             this.$message.error(res.data.msg)
@@ -770,17 +871,36 @@
                     }
 
                     .attributes_box{
-
-                        .attributes_title{
-                            width: 120px;
-                            height: 35px;
-                            line-height: 35px;
-                            text-align: center;
-                            background: #15bafe;
-                            color: #fff;
-                            margin-bottom: 10px;
+                        .big_box{
+                            display: flex;
+                            .small_box1{
+                                span{
+                                    color:#888888;
+                                    margin-left: 10px;
+                                    padding-bottom: 10px;
+                                    padding-top: 15px;
+                                    font-size: 12px;
+                                }
+                            }
+                            .small_box2{
+                                span{
+                                    color:red;
+                                    margin-left: 10px;
+                                    padding-bottom: 10px;
+                                    padding-top: 15px;
+                                    font-size: 12px;
+                                }
+                            }
+                            .attributes_title{
+                                width: 120px;
+                                height: 35px;
+                                line-height: 35px;
+                                text-align: center;
+                                background: #15bafe;
+                                color: #fff;
+                                margin-bottom: 10px;
+                            }
                         }
-
                         .el-radio__input,
                         .el-checkbox__input{
                             display: none;

@@ -66,13 +66,23 @@
         </div>
       </div>
 
-      <div class="mallReview_content_box" style="width: 80%">
+      <div class="mallReview_content_box" style="width: 93%">
         <el-table :data="tableData" :border="true" style="width: 100%">
           <el-table-column label="订单ID" align="center" width="100" prop="id" show-overflow-tooltip sortable></el-table-column>
 
-          <el-table-column label="商品名称" align="center" width="160" prop="title" show-overflow-tooltip></el-table-column>
+          <el-table-column label="商品名称" align="center" width="160" prop="title" show-overflow-tooltip>
+            <template slot-scope="scope">
+              <span v-if="scope.row.title">{{scope.row.title}}</span>
+              <span v-else class="sortout_color">无</span>
+            </template>
+          </el-table-column>
 
-          <el-table-column label="公司名称" align="center" width="200" prop="company_name" show-overflow-tooltip></el-table-column>
+          <el-table-column label="公司名称" align="center" width="200" prop="company_name" show-overflow-tooltip>
+            <template slot-scope="scope">
+              <span v-if="scope.row.company_name">{{scope.row.company_name}}</span>
+              <span v-else class="sortout_color">无</span>
+            </template>
+          </el-table-column>
 
           <el-table-column label="订单时间" align="center" width="200" sortable prop="created_at" show-overflow-tooltip></el-table-column>
 

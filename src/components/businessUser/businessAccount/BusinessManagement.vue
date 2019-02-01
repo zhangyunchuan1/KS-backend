@@ -264,8 +264,7 @@ export default {
             this.imageUrl = res.data.path;
             this.isshowoldimg = false;
           }
-        }
-      );
+      });
     },
     // 点击修改基本信息
     modifybasicInfoFn(row) {
@@ -280,23 +279,18 @@ export default {
     // 保存修改基本信息
     savemodifyInfoFn() {
       // console.log(this.rowData.avatar)
-      var str = this.imageUrl
-      str=str.replace("http://cdn.kushualab.com/","");
+      var str = this.imageUrl.substring(25);
+      console.log(str)
+      // str=str.replace("http://cdn.kushualab.com/","");
       // console.log(this.imageUrl)
 
       let params = {
-        company_id: this.rowData.company_id,
-        nickname: this.rowData.company_name,
-        register_logo: "",
-        license: this.rowData.license,
-        legal_person: this.rowData.legal_person,
-        address_register: "",
-        address_manage: "",
-        duty: "",
-        avatar: str || this.rowData.avatar,
+        uid: this.rowData.uid,
+        avatar: str,
         signature: this.signature
       };
-      this.HttpClient.post("/admin/business/editProfile", params).then(res => {
+      this.HttpClient.post("/admin/business/updateAvatar", params).then(res => {
+        console.log(res)
         if(res.data.code === 200){
           this.$message.success(res.data.msg)
           this.modifyInformationDialog = false;

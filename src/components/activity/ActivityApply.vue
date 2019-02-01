@@ -5,7 +5,7 @@
         <p class="title">新活动申请</p>
         <div class="content_contain">
           <div class="conditions">
-            <el-select size="mini" class="select_normal" clearable @change="plateChange" @clear="getApplyList" v-model="plateValue" placeholder="板块">
+            <el-select class="select_normal" clearable @change="plateChange" @clear="getApplyList" v-model="plateValue" placeholder="板块">
               <el-option label="全部" :value="null"></el-option>
               <el-option
                 v-for="(item,index) in plateOptions"
@@ -14,7 +14,7 @@
                 :value="index">
               </el-option>
             </el-select>
-            <el-select size="mini" class="select_normal" clearable @change="getApplyList" @clear="getApplyList" v-model="levelValue" placeholder="二级" v-if="plateValue!==''">
+            <el-select class="select_normal" clearable @change="getApplyList" @clear="getApplyList" v-model="levelValue" placeholder="二级" v-if="plateValue!==''">
               <el-option
                 v-for="item in levelOptions"
                 :key="item.menu_id"
@@ -22,7 +22,7 @@
                 :value="item.menu_id">
               </el-option>
             </el-select>
-            <el-select size="mini" class="select_normal" clearable @change="getApplyList" @clear="getApplyList" v-model="statusValue" placeholder="状态">
+            <el-select class="select_normal" clearable @change="getApplyList" @clear="getApplyList" v-model="statusValue" placeholder="状态">
               <el-option label="全部" :value="null"></el-option>
               <el-option
                 v-for="item in statusOptions"
@@ -49,7 +49,7 @@
               </el-table-column>
               <el-table-column
                 label="活动名称"
-                width="200"
+                width="180"
                 show-overflow-tooltip>
                 <template slot-scope="scope">
                   <span class="row_activity">{{scope.row.title}}</span>
@@ -58,30 +58,30 @@
               <el-table-column
                 prop="company_name"
                 label="商家昵称"
-                width="120"
+                width="110"
                 show-overflow-tooltip>
               </el-table-column>
               <el-table-column
                 prop="active_date_start"
                 label="开始时间"
-                width="180"
+                width="160"
                 show-overflow-tooltip>
               </el-table-column>
               <el-table-column
                 prop="active_date_end"
                 label="报名截止时间"
-                width="180">
+                width="160">
               </el-table-column>
               <el-table-column
                 prop="folder"
                 label="板块"
-                width="150"
+                width="100"
                 show-overflow-tooltip>
               </el-table-column>
               <el-table-column
                 prop="menu_name"
                 label="二级"
-                width="150"
+                width="120"
                 show-overflow-tooltip>
               </el-table-column>
               <el-table-column
@@ -113,16 +113,15 @@
               </el-table-column>
               <el-table-column
                 label="操作"
-                width="280"
                 fixed="right">
                 <template slot-scope="scope">
-                  <el-button size="small" type="text" @click="basicButton(scope.row.id)">基本信息</el-button>
-                  <el-button size="small" type="text" @click="rejectButton(scope.row.id)">查看反馈</el-button>
-                  <el-button size="small" type="text">预览活动</el-button>
-                  <el-button size="small" v-if="scope.row.status!==7" @click="examineButton(scope.row.active_id)" type="text">提交审核</el-button>
-                  <el-button size="small" type="text" v-if="isShowDelete(scope.row.created_at) && scope.row.status===3" @click="deleteButton(scope.row.active_id)"> 删除</el-button>
-                  <el-button size="small" type="text" @click="remarkButton(scope.row.active_id)">添加备注</el-button>
-                  <el-button size="small" type="text" @click="checkMerchantButton(scope.row.company_id)">查看商家资质</el-button>
+                  <el-button type="primary" plain size="mini" @click="basicButton(scope.row.id)">基本信息</el-button>
+                  <el-button type="primary" plain size="mini" @click="rejectButton(scope.row.id)">查看反馈</el-button>
+                  <el-button type="primary" plain size="mini">预览活动</el-button>
+                  <el-button type="primary" plain size="mini" v-if="scope.row.status!==7" @click="examineButton(scope.row.active_id)">提交审核</el-button>
+                  <el-button type="primary" plain size="mini" v-if="isShowDelete(scope.row.created_at) && scope.row.status===3" @click="deleteButton(scope.row.active_id)"> 删除</el-button>
+                  <el-button type="primary" plain size="mini" @click="remarkButton(scope.row.active_id)">添加备注</el-button>
+                  <el-button type="primary" plain size="mini" @click="checkMerchantButton(scope.row.company_id)">查看商家资质</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -684,10 +683,13 @@
   }
   .title{
     text-align: left;
-    padding: 10px;
-    padding-left: 20px;
-    font-size: 14px;
+    line-height: 70px;
+    padding-left: 30px;
+    font-size: 20px;
     border-bottom: 1px solid #f2f2f2;
+  }
+  .content_contain{
+    padding-left: 30px;
   }
   .conditions{
     display: flex;
@@ -695,7 +697,7 @@
     margin-top: 20px;
   }
   .select_normal{
-    width: 100px;
+    /* width: 100px; */
     margin-right: 10px;
   }
   .tables{
@@ -896,6 +898,12 @@
     .el-table th>.cell{
       text-align: center;
     }
+    
+  .cell{
+    button{
+      margin: 5px 0;
+    }
+  }
     .el-upload-list{
       height: 85px;
       /*overflow: auto;*/

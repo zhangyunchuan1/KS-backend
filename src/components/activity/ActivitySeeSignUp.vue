@@ -6,7 +6,7 @@
         <div class="content_contain">
             <div class="conditions">
                 <div class="activityname" style="background:#15bafe;color:#fff;">{{headData.title}}</div>
-                <div style="background:#15bafe;color:#fff;">玩出酷耍生命力，挑战720度回转寿司</div>
+                <!-- <div style="background:#15bafe;color:#fff;">玩出酷耍生命力，挑战720度回转寿司</div> -->
                 <div style="background:#15bafe;color:#fff;">{{headData.city_name}}</div>
             </div>
         <div class="tables">
@@ -23,50 +23,60 @@
               <el-table-column
                 prop="id"
                 label="ID"
+                align="center"
                 width="50">
               </el-table-column>
               <el-table-column
                 label="联系人"
                 width="100"
+                align="center"
                 prop="conducts">
               </el-table-column>
               <el-table-column
                 prop="telphone"
                 label="联系电话"
+                align="center"
                 width="120">
               </el-table-column>
               <el-table-column
                 prop="quantity"
+                align="center"
                 label="购买票数"
                 width="150">
               </el-table-column>
               <el-table-column
                 prop="price"
+                align="center"
                 label="单价"
                 width="120">
               </el-table-column>
               <el-table-column
                 prop="use_num"
                 label="已使用票数"
+                align="center"
                 width="100">
               </el-table-column>
               <el-table-column
                 prop="refund_num"
                 label="退票数"
+                align="center"
                 width="120">
               </el-table-column>
               <el-table-column
                 prop="pay_time"
+                align="center"
                 label="购票时间"
                 width="180">
               </el-table-column>
               <el-table-column
                 prop="endTime"
                 label="活动截止时间"
+                align="center"
                 width="180">
               </el-table-column>
               <el-table-column
                 label="状态"
+                align="center"
                 width="120">
                 <template slot-scope="scope">
                     <span class="stop_color" v-if="scope.row.quantity === scope.row.use_num">已使用</span>
@@ -75,12 +85,13 @@
                 </template>
               </el-table-column>
               <el-table-column
-                label="操作">
+                label="操作"
+                align="center">
                 <template slot-scope="scope">
                   <el-button size="small" type="text" @click="handleRefund(scope.row)">退款</el-button>
                   <el-button size="small" type="text" @click="privateLetterVisible = true">私信用户</el-button>
                   <el-button size="small" type="text" @click="handleInspectTicket(scope.row)">验票</el-button>
-                  <el-button size="small" type="text" @click="handleUserAuthentication(scope.row.created_id)">用户身份认证</el-button>
+                  <el-button size="small" type="text" @click="handleUserAuthentication(scope.row.created_id)">用户身份</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -208,10 +219,10 @@
         <el-dialog :visible.sync="identityConfirmVisible" width="345px">
           <div slot="title" class="dialog_delete_head_title">
                 <i class="iconfont icon-edit-square delete_icon"></i>
-                <span>用户身份确认</span>
+                <span>用户身份</span>
             </div>
               <div class="demo-input-suffix">
-                商家电话：
+                用户电话：
                 <el-input  v-model="userinfo.phone"></el-input>  
               </div>
               <div class="demo-input-suffix">

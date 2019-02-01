@@ -30,16 +30,19 @@
           </div>
 
 
-          <div class="productPreview_list">
+          <!-- <div class="productPreview_list">
             <div class="list_title">标签</div>
             <div class="list_main" v-for="item in productInfo.tags" :key="item.tag_id">{{item.name}}</div>
-          </div>
+          </div> -->
 
           <div class="productPreview_list">
             <div class="list_title">轮播图</div>
             <div class="list_swiper">
               <div class="list_swiper_img">
-                <img :src="Tools.handleImg(item.path)" alt="" v-for="(item,index) in productInfo.show_picture" :key="index">
+                <div v-for="(item,index) in productInfo.show_picture" :key="index">
+                  <img :src="Tools.handleImg(item.path)" alt="">
+                </div>
+                
               </div>
             </div>
           </div>
@@ -47,7 +50,8 @@
           <div class="productPreview_list">
             <div class="list_title">视频</div>
             <div class="list_video">
-              <video controls :src="Tools.handleImg(productInfo.video)"></video></div>
+              <video controls :src="Tools.handleImg(productInfo.video[0].path)"></video>
+            </div>
           </div>
 
           <div class="productPreview_list richText">
@@ -75,9 +79,7 @@
           <div class="productPreview_list">
             <div class="list_title">附件</div>
             <div class="list_upload">
-              <ul>
-                <li v-for="(item,index) in productInfo.attachment" :key="index"><i class="iconfont icon-wenjian"></i>{{item.name}}</li>
-              </ul>
+              <p v-for="(item,index) in productInfo.attachment" :key="index"><a :href="item.path+'?attname='"><i class="iconfont icon-wenjian"></i>{{item.name}}<i class="xiaz el-icon-download"></i></a></p>
             </div>
           </div>
         </div>
@@ -204,6 +206,9 @@
                     console.log(res);
                     if(res.data.code===200){
                         this.productInfo=res.data.data;
+                        if(!this.productInfo.video){
+                          this.productInfo.video = ['',''];
+                        }
                     }
                 })
         },
@@ -364,7 +369,7 @@
         /*轮播*/
         .list_swiper{
           box-sizing: border-box;
-          height: 220px;
+          // height: 220px;
           border: 1px dashed #dedede;
           padding: 10px;
           width: 700px;
@@ -376,11 +381,12 @@
             margin-right: 20px;
           }
           .list_swiper_img{
-            flex: 1;
-            height: 100%;
-            width: 200px;
-            display: inline-block;
-            overflow: hidden;
+            // flex: 1;
+            // height: 100%;
+            // width: 200px;
+            // display: inline-block;
+            // overflow: hidden;
+            display: flex;
             img{
               width: 100%;
             }
@@ -402,15 +408,36 @@
           border: 1px solid #dedede;
           width: 700px;
           min-height:40px;
-          li:not(:last-child){
+          p{
+            position: relative;
             margin-bottom: 10px;
-          }
-          li{
-            list-style:none;
             i{
-              margin-right: 10px;
+              font-size: 20px;
+              margin-right: 15px;
+            }
+            a{
+              font-size: 14px;
+              width: 668px;
+              display: block;
+            }
+            .xiaz{
+              position: absolute;
+              right:0px;
+              bottom:0px;
             }
           }
+          p:hover{
+            background: #dee1e2;
+          }
+          // li:not(:last-child){
+          //   margin-bottom: 10px;
+          // }
+          // li{
+          //   list-style:none;
+          //   i{
+          //     margin-right: 10px;
+          //   }
+          // }
         }
 
         /*视频*/

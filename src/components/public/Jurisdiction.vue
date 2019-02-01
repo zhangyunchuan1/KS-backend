@@ -12,11 +12,11 @@
         <p class="right_title">{{menu_name}}</p>
         <div class="item_contain" :style="menuVisible?{display:'block'}:{display:'none'}">
           <div class="jurisdiction_content">
-            <el-checkbox class="all_check" :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange">全选</el-checkbox>
+            <!-- <el-checkbox class="all_check" :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange">全选</el-checkbox> -->
             <div style="margin: 15px 0;"></div>
             <el-checkbox-group class="check_group" v-model="checkedJurisdiction" @change="handleCheckedCitiesChange">
               <el-checkbox class="check_item" v-for="item in jurisdictionData" :label="item" :key="item.id" @change="handleChange(item.id)">
-                <span class="check_lab">{{item.label}}{{item.id}}<span class="line"></span>{{item.name}}</span>
+                <span class="check_lab">{{item.label}}<span class="line"></span>{{item.name}}</span>
               </el-checkbox>
             </el-checkbox-group>
           </div>
@@ -100,7 +100,7 @@ export default {
                 <div :style="indent" class="parent_menu" style="display:flex;align-items:center;">
                 <div class="menu_label">
                   <i @click="toggleChildren(id,label)" v-if="child" class="iconfont icon_left" :class="showChildren?'icon-jian-xianxingfangkuang':'icon-jia-xianxingfangkuang'"></i>
-                  <span @click="handleSelect(id,label,child)" :style="depth===0?{background:'#1A67AB'}:depth===1?{background:'#1E86E5'}:depth===2?{background:'#4DACFE'}:{background:'#26C0D5'}" class="lbl_menu">{{ label }}/{{id}}</span>
+                  <span @click="handleSelect(id,label,child)" :style="depth===0?{background:'#1A67AB'}:depth===1?{background:'#1E86E5'}:depth===2?{background:'#4DACFE'}:{background:'#26C0D5'}" class="lbl_menu">{{ label }}</span>
                 </div>
                   <i @click="addCurrentJur" class="iconfont icon-plus-square-fill icon_add" v-if="(child === undefined)?true:false"></i>
                 </div>

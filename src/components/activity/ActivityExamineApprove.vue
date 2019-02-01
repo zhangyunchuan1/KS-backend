@@ -5,7 +5,7 @@
       <p class="title">活动审批</p>
       <div class="content_contain">
         <div class="conditions">
-          <el-select size="mini" class="select_normal" clearable v-model="plateValue" placeholder="板块" @change="plateChange">
+          <el-select class="select_normal" clearable v-model="plateValue" placeholder="板块" @change="plateChange">
             <el-option
               v-for="(item,index) in plateOptions"
               :key="index"
@@ -13,7 +13,7 @@
               :value="index">
             </el-option>
           </el-select>
-          <el-select size="mini" class="select_normal" clearable v-model="levelValue" placeholder="二级" v-if="plateValue!==''" @change="getApprove">
+          <el-select class="select_normal" clearable v-model="levelValue" placeholder="二级" v-if="plateValue!==''" @change="getApprove">
             <el-option
               v-for="item in levelOptions"
               :key="item.menu_id"
@@ -25,7 +25,6 @@
             class="select_normal"
             placeholder="活动名称"
             clearable
-            size="mini"
             suffix-icon="el-icon-search"
             v-model="activity_name"
             @change="getApprove"
@@ -76,14 +75,13 @@
             </el-table-column>
             <el-table-column
               label="操作"
-              width="340"
               fixed="right">
               <template slot-scope="scope">
-                <el-button size="small" type="text">预览活动</el-button>
-                <el-button size="small" type="text" @click="basicButton(scope.row.id)">基本信息</el-button>
-                <el-button size="small" type="text" @click="examineButton(scope.row.id,scope.row.active_id)">查看协议</el-button>
-                <el-button size="small" type="text" @click="rejectButton(scope.row.active_id)">驳回</el-button>
-                <el-button size="small" type="text" @click="remarkButton(scope.row.active_id)">添加备注</el-button>
+                <el-button type="primary" plain size="mini">预览活动</el-button>
+                <el-button type="primary" plain size="mini" @click="basicButton(scope.row.id)">基本信息</el-button>
+                <el-button type="primary" plain size="mini" @click="examineButton(scope.row.id,scope.row.active_id)">查看协议</el-button>
+                <el-button type="primary" plain size="mini" @click="rejectButton(scope.row.active_id)">驳回</el-button>
+                <el-button type="primary" plain size="mini" @click="remarkButton(scope.row.active_id)">添加备注</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -522,14 +520,18 @@
   }
   .title{
     text-align: left;
-    padding: 10px;
-    padding-left: 20px;
-    font-size: 14px;
+    // padding: 10px;
+    line-height: 70px;
+    padding-left: 50px;
+    font-size: 20px;
     border-bottom: 1px solid #f2f2f2;
+  }
+  .content_contain{
+    padding-left: 50px;
   }
   .conditions{
     display: flex;
-    margin-left: 10px;
+    // margin-left: 10px;
     margin-top: 20px;
   }
   .select_normal{
@@ -537,7 +539,7 @@
     margin-right: 10px;
   }
   .tables{
-    margin: 20px 10px;
+    margin: 20px 0px;
   }
   .dialog_head_title{
     text-align: start;

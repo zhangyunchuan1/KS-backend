@@ -84,6 +84,10 @@
               width="200"
               prop="surplusDay"
               sortable>
+              <template slot-scope="scope">
+                <span v-if="scope.row.status === 1">0</span>
+                <span v-else>{{scope.row.surplusDay}}</span>
+              </template>
             </el-table-column>
 
             <el-table-column
@@ -92,6 +96,10 @@
               show-overflow-tooltip
               width="160"
               prop="disable_name">
+              <template slot-scope="scope">
+                <span v-if="scope.row.disable_name">{{scope.row.disable_name}}</span>
+                <span v-else class="sortout_color">暂无</span>
+              </template>
             </el-table-column>
 
             <el-table-column
@@ -100,6 +108,10 @@
               show-overflow-tooltip
               width="160"
               prop="disable_reason">
+              <template slot-scope="scope">
+                <span v-if="scope.row.disable_reason">{{scope.row.disable_reason}}</span>
+                <span v-else class="sortout_color">暂无</span>
+              </template>
             </el-table-column>
 
             <el-table-column
@@ -153,12 +165,12 @@
               <el-radio border v-model="disableDialogRadio" v-for="(item,index) in examineList" :label="item" :key="index">{{item.name}}</el-radio>
             </div>
           </div>
-          <div class="disable_dialog_box">
+          <!-- <div class="disable_dialog_box">
             <div class="disable_dialog_left">自定义：</div>
             <div class="disable_dialog_right">
               <el-input type="number" v-model="forbiddenDays" placeholder="输入自定义禁用天数"></el-input>
             </div>
-          </div>
+          </div> -->
         </div>
         <div class="disableDialog_right">
           <p>上传截图：</p>
@@ -255,7 +267,7 @@
         imageUrl: '',  // 上传截图
         uploadImgUrl:'',  //上传后返回的地址
         examineList:[],  //禁用类别
-        forbiddenDays:null,  //禁用天数
+        // forbiddenDays:null,  //禁用天数
 
         restoreDialog: false,  // 恢复弹窗
 
@@ -299,10 +311,11 @@
       },
       //确认禁用
       handleSaveProhibit(){
+        console.log(this.disableDialogRadio)
         this.HttpClient.post('/admin/forbidden/create',{
             uid:this.currentObj.uid,
             content:this.textarea,
-            limit_day:this.forbiddenDays,
+            limit_day:this.disableDialogRadio.limit_day,
             review_id:this.disableDialogRadio.review_id,
             review_name:this.disableDialogRadio.name,
             images:this.uploadImgUrl
@@ -313,7 +326,7 @@
               this.$message.success(res.data.msg);
               this.textarea = '';
               this.disableDialogRadio = '';
-              this.forbiddenDays = '';
+              // this.forbiddenDays = '';
               this.imageUrl = '';
               setTimeout(() => {
                   this.getUserStatusList();

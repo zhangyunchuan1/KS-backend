@@ -168,12 +168,11 @@
           <el-table-column
             label="操作"
             align="center"
-            class-name="reply_scope">
+            fixed="right"
+            min-width="250">
             <template slot-scope="scope">
-              <div class="reply_btm">
-                <div>查看视频</div>
-                <div>进入个人主页</div>
-              </div>
+                <el-button type="primary" plain size="mini" @click="handleSeeVideo(scope.row)">查看视频</el-button>
+                <el-button type="primary" plain size="mini" @click="handlePersonal(scope.row)">进入个人主页</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -226,6 +225,19 @@
         this.getVideoList();
     },
     methods:{
+      /** 
+       * 2019/1/31
+       * ZhangYunChuan
+       * 跳转视频详情页
+      */
+     handleSeeVideo(i){
+      console.log(i)
+      console.log(this.Urls.frontUrl)
+      window.open(this.Urls.frontUrl+"home/videoDetail?video="+i.video_id);  
+     },
+     handlePersonal(i){
+       window.open(this.Urls.frontUrl+"home/others-users?uid="+i.created_id);  
+     },
       //题目搜索
       handleSearchTitle(){
           console.log(this.topicSearch)

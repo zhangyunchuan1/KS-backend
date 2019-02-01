@@ -27,10 +27,10 @@
                     </div>
                 </div>
 
-                <div class="productModify_list">
+                <!-- <div class="productModify_list">
                     <div class="list_title">商品简介</div>
                     <el-input type="textarea" resize="none" class="list_textarea" v-model="updateInfo.description"></el-input>
-                </div>
+                </div> -->
 
                 <div class="productModify_list richText">
                     <div class="list_title">商品详情</div>

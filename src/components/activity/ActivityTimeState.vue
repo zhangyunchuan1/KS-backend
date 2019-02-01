@@ -12,7 +12,7 @@
             <div class="content_contain">
                 <div class="search-top">
                     <!-- 活动时间 -->
-                    <el-select size="mini" class="select_normal" v-model="typeValue" placeholder="活动状态" @change=changeSearchStatus($event)>
+                    <el-select class="select_normal" v-model="typeValue" placeholder="活动状态" @change="changeSearchStatus($event)">
                         <el-option v-for="item in TypeOptions" :key="item.value" :label="item.label" :value="item.value" class="hei"></el-option>
                     </el-select>
                     <!-- 活动开始时间区间选择 -->
@@ -24,46 +24,38 @@
                         end-placeholder="结束日期"
                         @change="selectTime">
                     </el-date-picker>
-                    <el-input class="select_normal" placeholder="活动名称" size="mini" suffix-icon="el-icon-search" v-model="name" @blur="searchName()"></el-input>
+                    <el-input class="select_normal" placeholder="活动名称" clearable v-model="name" @change="searchName"></el-input>
+                    <el-button icon="el-icon-search" @click="searchName()"></el-button>
                 </div>
                 <div class="tables">
                     <el-table   :data="tableData" border :stripe="true" :header-row-style="{height:'40px'}" :header-cell-style="{padding:0,background:'#15bafe',color:'white'}" :row-style="{height:'40px'}" :cell-style="{padding:0}" style="width: 100%">
-                        <el-table-column prop="id" label="ID" width="50"></el-table-column>
-                        <el-table-column prop="title" label="活动名称" width="150" show-overflow-tooltip></el-table-column>
-                        <el-table-column prop="city_name" label="城市" width="80" show-overflow-tooltip> </el-table-column>
-                        <el-table-column prop="company_name" label="公司对外名称" width="120" show-overflow-tooltip> </el-table-column>
-                        <el-table-column prop="active_date_start" label="活动开始时间" width="160" show-overflow-tooltip> </el-table-column>
-                        <el-table-column prop="active_date_end" label="活动截止时间" width="160" show-overflow-tooltip> </el-table-column>
-                        <el-table-column prop="registration_deadline" label="报名截止时间" width="160" show-overflow-tooltip></el-table-column>
-                        <el-table-column prop="enrollment" label="报名人数" width="100" show-overflow-tooltip></el-table-column>
-                        <el-table-column prop="sale_num" label="售票数量" width="100" show-overflow-tooltip> </el-table-column>
-                        <el-table-column prop="view_num" label="浏览人数" width="100" show-overflow-tooltip> </el-table-column>
-                        <el-table-column prop="score" label="评价分数" width="80" show-overflow-tooltip> </el-table-column>
-                        <el-table-column prop="status" label="状态" width="108" show-overflow-tooltip> 
+                        <el-table-column align="center" prop="id" label="ID" width="50"></el-table-column>
+                        <el-table-column align="center" prop="title" label="活动名称" width="150" show-overflow-tooltip></el-table-column>
+                        <el-table-column align="center" prop="city_name" label="城市" width="80" show-overflow-tooltip> </el-table-column>
+                        <el-table-column align="center" prop="company_name" label="公司对外名称" width="120" show-overflow-tooltip> </el-table-column>
+                        <el-table-column align="center" prop="active_date_start" label="活动开始时间" width="160" show-overflow-tooltip> </el-table-column>
+                        <el-table-column align="center" prop="active_date_end" label="活动截止时间" width="160" show-overflow-tooltip> </el-table-column>
+                        <el-table-column align="center" prop="registration_deadline" label="报名截止时间" width="160" show-overflow-tooltip></el-table-column>
+                        <el-table-column align="center" prop="enrollment" label="报名人数" width="100" show-overflow-tooltip></el-table-column>
+                        <el-table-column align="center" prop="sale_num" label="售票数量" width="100" show-overflow-tooltip> </el-table-column>
+                        <el-table-column align="center" prop="view_num" label="浏览人数" width="100" show-overflow-tooltip> </el-table-column>
+                        <el-table-column align="center" prop="score" label="评价分数" width="80" show-overflow-tooltip> </el-table-column>
+                        <el-table-column align="center" prop="score" label="报名状态" width="80" show-overflow-tooltip>
                             <template slot-scope="scope">
-                                <span class="normal_color" v-if="scope.row.status === 1">报名中</span>
-                                <span class="audit_color" v-if="scope.row.status === 2">待审核</span>
-                                <span class="wait_color" v-if="scope.row.status === 3">等待开始</span>
-                                <span class="cancel_color" v-if="scope.row.status === 4">已取消</span>
-                                <span class="stop_color" v-if="scope.row.status === 5">停止报名</span>
-                                <!-- <span v-if="scope.row.status === 6">已暂停</span> -->
-                                <span class="start_color" v-if="scope.row.status === 7">已开始</span>
-                                <span class="top_color" v-if="scope.row.status === 10">置顶</span>
-                                <!-- <span v-if="scope.row.status === 2">待审核</span>
-                                <span v-if="scope.row.status === 3">等待开始</span>
-                                <span v-if="scope.row.status === 1 && (new Date().valueOf()) < ts(scope.row.active_date_start)">等待开始</span>
-                                <span v-if="scope.row.status === 10 && (new Date().valueOf()) < ts(scope.row.active_date_start)">等待开始</span>
-                                <span v-if="scope.row.status === 4">已取消</span>
-                                <span v-if="scope.row.status === 5">停止报名</span>
-                                <span v-if="scope.row.status === 6" style="color:red">已暂停</span>
-                                <span v-if="scope.row.status === 7">已开始</span>
-                                <span v-if="scope.row.status === 10 && (new Date().valueOf()) > ts(scope.row.active_date_start) && (new Date().valueOf()) < ts(scope.row.active_date_end)">已开始</span>
-                                <span v-if="scope.row.status === 1 && (new Date().valueOf()) > ts(scope.row.active_date_start) && (new Date().valueOf()) < ts(scope.row.active_date_end)">已开始</span>
-                                <span v-if="scope.row.status === 1 && ts(scope.row.active_date_end) < (new Date().valueOf())">已结束</span>
-                                <span v-if="scope.row.status === 10 && ts(scope.row.active_date_end) < (new Date().valueOf())">已结束</span> -->
+                                <span class="normal_color" v-if="ts(scope.row.registration_deadline) > (new Date().valueOf())">正常</span>
+                                <span class="sortout_color" v-if="ts(scope.row.registration_deadline) < (new Date().valueOf())">报名停止</span>
                             </template>
                         </el-table-column>
-                        <el-table-column label="操作" width="240" fixed="right">
+                        <el-table-column align="center" prop="status" label="活动状态" width="108" show-overflow-tooltip> 
+                            <template slot-scope="scope">
+                                <span class="wait_color" v-if="scope.row.status === 1">等待开始</span>
+                                <span class="start_color" v-if="scope.row.status === 2">已开始</span>
+                                <span class="audit_color" v-if="scope.row.status === 3">待审核</span>
+                                <span class="end_color" v-if="scope.row.status === 4">已结束</span>
+                                <span class="cancel_color" v-if="scope.row.status === 5">已取消</span>
+                            </template>
+                        </el-table-column>
+                        <el-table-column align="center" label="操作" width="240" fixed="right">
                             <template slot-scope="scope">
                                 <el-button size="small" type="text">
                                     <el-dropdown trigger="click">
@@ -84,46 +76,13 @@
                                     </el-dropdown>
                                 </el-button>
                                 <el-button size="small" type="text" @click="openRemarks(scope.row.active_id)" >添加备注</el-button>
-                                <!--取消活动 -->
-                                <!-- <el-button size="small" type="text" v-if="scope.row.status === 3" @click="openRemarks(scope.row.active_id)" >取消活动</el-button>
-                                <el-button size="small" type="text" v-if="scope.row.status === 1 && ts(scope.row.active_date_start) > (new Date().valueOf())" @click="openRemarks(scope.row.active_id)" >取消活动</el-button>
-                                <el-button size="small" type="text" v-if="scope.row.status === 1 && ts(scope.row.active_date_start) < (new Date().valueOf())" @click="openRemarks(scope.row.active_id)" >取消活动</el-button> -->
-                                <!--停止报名 -->
-                                <!-- <el-button size="small" type="text" v-if="scope.row.status === 1 && ts(scope.row.registration_deadline) > (new Date().valueOf())" @click="openRemarks(scope.row.active_id)" >停止报名</el-button>
-                                <el-button size="small" type="text" v-if="scope.row.status === 1 && ts(scope.row.registration_deadline) < (new Date().valueOf())" @click="openRemarks(scope.row.active_id)" >停止报名</el-button> -->
-                                <!--恢复报名 -->
-                                <!-- <el-button size="small" type="text" v-if="scope.row.status === 1 && ts(scope.row.registration_deadline) > (new Date().valueOf())" @click="openRemarks(scope.row.active_id)" >恢复报名</el-button>
-                                <el-button size="small" type="text" v-if="scope.row.status === 1 && ts(scope.row.registration_deadline) < (new Date().valueOf())" @click="openRemarks(scope.row.active_id)" >恢复报名</el-button> -->
-                                <!--修改 -->
-                                <!-- <el-button size="small" type="text" v-if="scope.row.status === 1 && ts(scope.row.registration_deadline) > (new Date().valueOf())" @click="handleModify(scope.row.id)">修改</el-button> -->
-                                <!--删除活动，活动天数大于10天，就硬删 -->
-                                <!-- <el-button size="small" type="text" v-if="scope.row.status === 1 && ts(scope.row.active_date_end) < (new Date().valueOf()) && getDateDiff(scope.row.active_date_end).valueOf() > 10" @click="deleteActcity(scope.row.id)">删除</el-button> -->
-                                <el-button size="small" type="text" @click="openRemarks(scope.row.active_id)" >添加备注</el-button>
-                                <el-button size="small" type="text" v-if="scope.row.status === 6" @click="cancelActivity(scope.row.active_id)" >取消活动</el-button>
-                                <el-button size="small" type="text" v-if="scope.row.status === 3 && ts(scope.row.active_date_start) > (new Date().valueOf())" @click="cancelActivity(scope.row.active_id)" >取消活动</el-button>
-                                <el-button size="small" type="text" v-if="scope.row.status === 1 && ts(scope.row.registration_deadline) < (new Date().valueOf()) && (new Date().valueOf()) < ts(scope.row.active_date_start)" @click="cancelActivity(scope.row.active_id)" >取消活动</el-button>
-                                <el-button size="small" type="text" v-if="scope.row.status === 7" @click="cancelActivity(scope.row.active_id)" >取消活动</el-button>
-                                <el-button size="small" type="text" v-if="scope.row.status === 1 && ts(scope.row.active_date_start) < (new Date().valueOf()) < ts(scope.row.active_date_end)" @click="cancelActivity(scope.row.active_id)" >取消活动</el-button>
-                                <el-button size="small" type="text" v-if="scope.row.status === 2" @click="cancelActivity(scope.row.active_id)" >取消活动</el-button>
-                                <!--恢复报名 -->
-                                <el-button size="small" type="text" v-if="scope.row.status === 3 && ts(scope.row.registration_deadline) > (new Date().valueOf())" @click="handleResumeApplication(scope.row.active_id)">恢复报名</el-button>
-                                <el-button size="small" type="text" v-if="scope.row.status === 1 && (new Date().valueOf()) < ts(scope.row.active_date_start) && (new Date().valueOf()) < ts(scope.row.active_date_end) && ts(scope.row.registration_deadline) > (new Date().valueOf())" @click="handleResumeApplication(scope.row.active_id)">恢复报名</el-button>
-                                <el-button size="small" type="text" v-if="scope.row.status === 7 && ts(scope.row.registration_deadline) > (new Date().valueOf())" @click="handleResumeApplication(scope.row.active_id)">恢复报名</el-button>
-                                <el-button size="small" type="text" v-if="scope.row.status === 1 && (new Date().valueOf()) > ts(scope.row.active_date_start) && (new Date().valueOf()) < ts(scope.row.active_date_end) && ts(scope.row.registration_deadline) > (new Date().valueOf())" @click="handleResumeApplication(scope.row.active_id)">恢复报名</el-button>
-                                <el-button size="small" type="text" v-if="scope.row.status === 10 && (new Date().valueOf()) > ts(scope.row.active_date_start) && (new Date().valueOf()) < ts(scope.row.active_date_end) && ts(scope.row.registration_deadline) > (new Date().valueOf())" @click="handleResumeApplication(scope.row.active_id)">恢复报名</el-button>
-                                <!--停止报名 -->
-                                <el-button size="small" type="text" v-if="scope.row.status === 3 && ts(scope.row.registration_deadline) > (new Date().valueOf())" @click="handleStopSigningUp(scope.row.active_id)">停止报名</el-button>
-                                <el-button size="small" type="text" v-if="scope.row.status === 1 && (new Date().valueOf()) < ts(scope.row.active_date_start) && (new Date().valueOf()) < ts(scope.row.active_date_end) && ts(scope.row.registration_deadline) > (new Date().valueOf())" @click="handleStopSigningUp(scope.row.active_id)">停止报名</el-button>
-                                <el-button size="small" type="text" v-if="scope.row.status === 7 && ts(scope.row.registration_deadline) > (new Date().valueOf())" @click="handleStopSigningUp(scope.row.active_id)">停止报名</el-button>
-                                <el-button size="small" type="text" v-if="scope.row.status === 1 && (new Date().valueOf()) > ts(scope.row.active_date_start) && (new Date().valueOf()) < ts(scope.row.active_date_end) && ts(scope.row.registration_deadline) > (new Date().valueOf())" @click="handleStopSigningUp(scope.row.active_id)">停止报名</el-button>
-                                <el-button size="small" type="text" v-if="scope.row.status === 10 && (new Date().valueOf()) > ts(scope.row.active_date_start) && (new Date().valueOf()) < ts(scope.row.active_date_end) && ts(scope.row.registration_deadline) > (new Date().valueOf())" @click="handleStopSigningUp(scope.row.active_id)">停止报名</el-button>
-                                <!--修改 -->
-                                <el-button size="small" type="text" v-if="scope.row.status === 3 && ts(scope.row.registration_deadline) > (new Date().valueOf())" @click="handleModify(scope.row.id)">修改</el-button>
-                                <el-button size="small" type="text" v-if="scope.row.status === 1 && ts(scope.row.registration_deadline) > (new Date().valueOf()) && (new Date().valueOf()) < ts(scope.row.active_date_start)" @click="handleModify(scope.row.id)">修改</el-button>
-                                <!--删除活动，活动天数大于10天，就硬删 -->
-                                <el-button size="small" type="text" v-if="scope.row.status === 1 && ts(scope.row.active_date_end) < (new Date().valueOf()) && getDateDiff(scope.row.active_date_end).valueOf() > 10" @click="deleteActcity(scope.row.id)">删除</el-button>
-                                <el-button size="small" type="text" v-if="scope.row.status === 10 && ts(scope.row.active_date_end) < (new Date().valueOf()) && getDateDiff(scope.row.active_date_end).valueOf() > 10" @click="deleteActcity(scope.row.id)">删除</el-button>
 
+                                <el-button size="small" type="text" v-if="scope.row.status === 1 || scope.row.status === 2 || scope.row.status === 3" @click="cancelActivity(scope.row.active_id)">取消活动</el-button>
+                                <el-button size="small" type="text" v-if="scope.row.status === 1 && ts(scope.row.registration_deadline) > (new Date().valueOf())" @click="handleStopSigningUp(scope.row.active_id)">停止报名</el-button>
+                                <el-button size="small" type="text" v-if="scope.row.status === 2 && ts(scope.row.registration_deadline) > (new Date().valueOf())" @click="handleStopSigningUp(scope.row.active_id)">停止报名</el-button>
+                                <el-button size="small" type="text" v-if="scope.row.status === 1 && ts(scope.row.registration_deadline) < (new Date().valueOf())" @click="handleResumeApplication(scope.row.active_id)">恢复报名</el-button>
+                                <el-button size="small" type="text" v-if="scope.row.status === 2 && ts(scope.row.registration_deadline) < (new Date().valueOf())" @click="handleResumeApplication(scope.row.active_id)">恢复报名</el-button>
+                                <el-button size="small" type="text" v-if="scope.row.status === 1" @click="handleModify(scope.row.active_id)">修改</el-button>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -334,7 +293,7 @@
             </div>
             <div class="user_footer" slot="footer">
             <el-row class="row_e">
-                <el-button class="btn_deletes" size="small" @click="deleteVisible = false">取消</el-button>
+                <el-button class="btn_deletes" size="small" @click="openVisible = false">取消</el-button>
                 <el-button type="primary" size="small"  class="btn_delete" @click="handleOpen()">确定</el-button>
             </el-row>
             </div>
@@ -347,11 +306,11 @@
             </div>
             <div class="delete_content">
                 <img class="boolean_delete" :src="warmImg"/>
-                <p>确定停止此活动吗？</p>
+                <p>确定停止报名吗？</p>
             </div>
             <div class="user_footer" slot="footer">
             <el-row class="row_e">
-                <el-button class="btn_deletes" size="small" @click="deleteVisible = false">取消</el-button>
+                <el-button class="btn_deletes" size="small" @click="stopVisible = false">取消</el-button>
                 <el-button type="primary" size="small"  class="btn_delete" @click="sureStop()">确定</el-button>
             </el-row>
             </div>
@@ -638,7 +597,7 @@
                     icon: 'icon-home'
                 },{
                     id: 2,
-                    name: '定时状态',
+                    name: '活动状态',
                     urls: '/index/test',
                     icon: 'icon-home'
                 }],
@@ -729,7 +688,7 @@
         },
         methods:{
             // /**************************文档编辑器*******************/
-    //   // region
+            // region
 
       /**编辑器**/
       onEditorBlur() {//失去焦点事件
@@ -839,19 +798,19 @@
                 console.log(this.active_id)
                 this.stopVisible = true;
             },
-            //确认停止活动
+            //确认停止报名
             sureStop(){
                 this.HttpClient.post('/admin/actives/changeStatus',{
                     active_id:this.active_id,
-                    status:6
+                    status:5
                 })
                 .then(res=>{
                     console.log(res);
                     if(res.data.code === 200){
                         this.$message.success(res.data.msg);
+                         this.stopVisible = false;
                         setTimeout(() => {
                             this.getTimedList();
-                            this.stopVisible = false;
                         }, 500);
                     }
                 })
@@ -876,7 +835,7 @@
             },
             //刷新页面
             handleRefresh(){
-                window.location.reload();
+                this.getTimedList();
             },
             //点击修改
             handleModify(id){
@@ -904,13 +863,15 @@
                         })
                     };
                     console.log(this.showList);
-                    for(let i=0;i<res.data.data.attachment.length;i++){  //附件处理
-                        this.fileList3.push(
-                            {   
-                                name:res.data.data.attachment[i].name,
-                                url:res.data.data.attachment[i].path
-                            }
-                        )
+                    if(res.data.data.attachment){
+                       for(let i=0;i<res.data.data.attachment.length;i++){  //附件处理
+                            this.fileList3.push(
+                                {   
+                                    name:res.data.data.attachment[i].name,
+                                    url:res.data.data.attachment[i].path
+                                }
+                            )
+                        } 
                     }
                     console.log(this.fileList3);
 
@@ -922,7 +883,7 @@
                 this.tags.splice(this.tags.indexOf(tag), 1);
                 console.log(this.tags)
             },
-            //点击恢复取消暂停
+            //点击恢复
             cancelSuspend(id){
                 this.active_id = id;
                 this.recoveryVisible = true;
@@ -1257,6 +1218,7 @@
 </script>
 
 <style scoped lang='less'>
+.Timed-activity-state{
     .bread{margin: 10px;}
     .content::-webkit-scrollbar {display:none}
     .content{padding: 0 15px; box-sizing: border-box;height: calc(100vh - 87px);width: calc(100vw - 221px);overflow-y: auto}
@@ -1267,8 +1229,8 @@
     .search-top{text-align: start;display: flex;}
     .select_normal{width: 150px;margin-right: 10px;}
     .tables{margin-top: 23px;}
-    .el-dropdown-link{font-size: 14px;color: #29bdfe;}
-    .el-button+.el-button{font-size: 14px;color: #29bdfe;}
+    // .el-dropdown-link{font-size: 14px;color: #29bdfe;}
+    .el-button+.el-button{font-size: 14px;}
     /* 基本信息弹框 */
     .ti-le{text-align: start;border-bottom: 1px solid #e8e8e8;padding-bottom: 18px;display: flex;align-items: center;}
     .ti-le>img{margin-right: 6px;}
@@ -1386,6 +1348,7 @@
   .btn_deletes{
     padding: 5px 15px;
   }
+}
 </style>
 <style lang="less">
 .Timed-activity-state{
@@ -1412,9 +1375,9 @@
         line-height: 94px;
         vertical-align: top;
     }
-    .el-input__inner{
-        height: 28px;
-    }
+    // .el-input__inner{
+    //     height: 28px;
+    // }
     .el-date-editor{
         margin-right: 10px;
       display: flex;

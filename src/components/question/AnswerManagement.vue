@@ -55,8 +55,8 @@
 
           <el-table-column
             label="问题题目"
-            align="title"
-            width="120"
+            width="200"
+            align="center"
             show-overflow-tooltip
             prop="title"
           ></el-table-column>
@@ -65,20 +65,25 @@
             label="回答内容"
             align="center"
             show-overflow-tooltip
-            width="150"
+            width="200"
             prop="content"
           ></el-table-column>
 
           <el-table-column label="昵称" align="center" width="220" prop="nickname"></el-table-column>
 
-          <el-table-column label="所属板块" align="center" width="80" prop="cate_name"></el-table-column>
+          <el-table-column label="所属板块" align="center" width="120" prop="menu"></el-table-column>
 
-          <el-table-column label="字数" align="center" prop="word_num" sortable></el-table-column>
+          <el-table-column label="字数" align="center" prop="word_num" sortable>
+            <template slot-scope="scope">
+              <span v-if="scope.row.word_num">{{scope.row.word_num}}</span>
+              <span v-else class="sortout_color">暂无</span>
+            </template>
+          </el-table-column>
 
           <el-table-column
             label="创建时间"
             align="center"
-            width="150"
+            width="180"
             show-overflow-tooltip
             prop="created_at"
             sortable
@@ -448,8 +453,20 @@ export default {
     },
     // 修改
     modifyAnwser(row) {
+      console.log(row)
       this.modifyObj = row;
       this.modifyVisible = true;
+      this.modifyObj.attachment.forEach(item => {
+        var obj = {};
+        obj.name = item.name;
+        obj.url = this.Tools.handleImg(item.path);
+        console.log(obj)
+        this.images.push(obj)
+        console.log(this.images)
+      })
+      // this.images = this.modifyObj.attachment;
+      
+      // this.modifyModal(this.modifyObj)
     },
     // 修改提交
     async modify() {

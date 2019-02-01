@@ -262,7 +262,7 @@ export default {
       ],
       // 分页
       currentPage: 1, // 当前页
-      pageSize: 5, // 每页显示数量
+      pageSize: 20, // 每页显示数量
       total: 0, // 数据总条数
       productCurrentPage: 1, // 商品列表当前页
       totalProduct: 0, // 总商品数
@@ -470,13 +470,15 @@ export default {
                 .product_list {
                   width: 100%;
                   display: flex;
-                  flex-wrap: nowrap;
+                  flex-wrap: wrap;
                   align-items: center;
                   justify-content: flex-start;
                   overflow: hidden;
 
                   .product_list_item {
-                    width: 118px;
+                    // width: 118px;
+                    padding: 0 10px;
+                    margin-top: 5px;
                     height: 40px;
                     line-height: 40px;
                     color: #fff;

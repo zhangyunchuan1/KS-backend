@@ -21,13 +21,13 @@
       <!-- 添加小标题 -->
       <div class="ws-videotitle_header">
         <el-radio v-model="radio7" label="1" border>视频标题</el-radio>
-        <el-input placeholder="请输入内容" v-model="addTypetitle" clearable></el-input>
-        <el-button type="primary" icon="el-icon-plus" @click="addTypetitleFn"></el-button>
+        <!-- <el-input placeholder="请输入内容" v-model="addTypetitle" clearable></el-input> -->
+        <el-button style="margin-left:15px;" type="primary" icon="el-icon-plus" @click="handleOpenCreate"></el-button>
       </div>
       <!-- 列表 -->
       <div class="videotitle_header videolist_box">
         <div class="onevideo" v-for="(item,index) in listData" :key="index">
-          <div class="title" @click="changeNameFn(item.id, item.name)">{{item.name}}</div>
+          <div class="title" @click="changeNameFn(item)">{{item.name}}</div>
           <el-button size="mini" @click="deleteFn(item)">删除</el-button>
         </div>
       </div>
@@ -35,6 +35,19 @@
       <div class="alertbox">
         <el-dialog title="修改" :visible.sync="centerDialogVisible" width="30%" center>
           <el-input placeholder="请输入内容" v-model="changeName" clearable></el-input>
+          <el-upload
+            class="avatar-uploader"
+            action=""
+            :show-file-list="false"
+            :on-success="handleAvatarSuccess"
+            :before-upload="imageUpload">
+            <img
+              v-if="!imageUrl !==''"
+              :src="imageUrl"
+              class="avatar">
+            <img v-else-if="imageUrl" :src="imageUrl" class="avatar">
+            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+          </el-upload>
           <span slot="footer" class="dialog-footer">
             <el-button @click="centerDialogVisible = false">取 消</el-button>
             <el-button type="primary" @click="sureChangenameFn">保 存</el-button>
@@ -42,6 +55,28 @@
         </el-dialog>
       </div>
     </div>
+    <!-- 新增弹框 -->
+    <el-dialog title="新增" :visible.sync="createDialogVisible" width="400px" left>
+        <el-input placeholder="请输入内容" v-model="addTypetitle" clearable></el-input>
+        <el-upload
+            class="avatar-uploader"
+            action=""
+            :show-file-list="false"
+            :on-success="handleAvatarSuccess"
+            :before-upload="imageUpload"
+          >
+            <img
+              v-if="!imageUrl !==''"
+              :src="imageUrl"
+              class="avatar">
+            <img v-else-if="imageUrl" :src="imageUrl" class="avatar">
+            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+          </el-upload>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="createDialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="addTypetitleFn">保 存</el-button>
+        </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -81,7 +116,10 @@ export default {
       menuList: {}, //视频标题板块选择菜单
       radio7: "1",
       addTypetitle: "", //添加小标题
+      uploadeImgUrl:'',
+      imageUrl:'',
       centerDialogVisible: false,
+      createDialogVisible:false,
       changeName: "", //修改名
       listData:[],//列表数据
       videoTitleId: '',      // 小标题ID
@@ -91,6 +129,24 @@ export default {
     this.getTypelist()
   },
   methods: {
+    //选择图片上传
+    imageUpload(file){
+      console.log(file)
+      this.HttpClient.form("/admin/uploadOneImage", { images: file }).then(
+        res => {
+          // console.log(res.data.path);
+          console.log('res is:', res)
+          if (res.data.code === 200) {
+            this.$message.success(res.data.msg);
+            this.imageUrl = res.data.path;
+            this.uploadeImgUrl = res.data.path;
+            this.isshowoldimg = false;
+          }
+      });
+    },
+    handleAvatarSuccess(){
+
+    },
     //   获取视频标题列表
     getlistData() {
       console.log(this.selectVideotitle)
@@ -129,27 +185,35 @@ export default {
       this.selectVideotitle = val.menu_id;
       this.getlistData();
     },
-    // 添加视频小标题
+    //打开添加弹窗
+    handleOpenCreate(){
+      this.createDialogVisible = true;
+    },
+    // 新增视频小标题
     addTypetitleFn() {
       //调取接口
       let params = {
           name:this.addTypetitle,
-          type:this.selectVideotitle
+          type:this.selectVideotitle,
+          icon:this.uploadeImgUrl
       }
+      console.log(params)
       this.HttpClient.post("/admin/videoTitle/create",params).then(res => {
           if(res.data.code === 200){
             this.$message.success(res.data.msg)
               setTimeout(() => {
                   this.getlistData();
+                  this.createDialogVisible = false;
               },500)
               this.addTypetitle = ''
           }
       })
     },
     // 点击修改title，跳出弹框
-    changeNameFn(id, name) {
-      this.changeName = name
-      this.videoTitleId = id
+    changeNameFn(i) {
+      this.changeName = i.name;
+      this.videoTitleId = i.id;
+      this.imageUrl = i.icon;
       this.centerDialogVisible = true;
     },
     // 确定修改标题
@@ -157,7 +221,8 @@ export default {
       const data = {
         id: this.videoTitleId,
         name: this.changeName,
-        type: this.selectVideotitle
+        type: this.selectVideotitle,
+        icon: this.imageUrl
       }
       this.HttpClient.post('/admin/videoTitle/edit', data)
         .then(res => {
@@ -192,6 +257,12 @@ export default {
 
 <style lang='less'>
 .videoTitle {
+  .el-input{
+    text-align: center;
+    .el-input__inner{
+      width: 200px;
+    }
+  }
   .bread {
     margin: 10px;
   }
@@ -282,6 +353,7 @@ export default {
       border: 1px solid #dedede;
       padding: 20px;
       flex-wrap: wrap;
+      margin: 20px;
       .onevideo {
         display: flex;
         margin: 10px;
@@ -299,6 +371,34 @@ export default {
       }
     }
   }
+  // 上传icon
+  .avatar-uploader {
+    text-align: center;
+    margin-top: 15px;
+      .el-upload {
+        border: 1px dashed #d9d9d9;
+        border-radius: 6px;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+      }
+      .el-upload:hover {
+        border-color: #409eff;
+      }
+      .avatar-uploader-icon {
+        font-size: 28px;
+        color: #8c939d;
+        width: 178px;
+        height: 178px;
+        line-height: 178px;
+        text-align: center;
+      }
+      .avatar {
+        width: 178px;
+        height: 178px;
+        display: block;
+      }
+    }
 }
 .ws-videotitle_header {
   padding: 0 20px;

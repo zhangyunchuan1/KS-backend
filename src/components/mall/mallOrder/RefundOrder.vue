@@ -40,7 +40,6 @@
                 v-model="searchObj.startTime"
                 class="date_picker_1"
                 type="date"
-                size="mini"
                 clearable
                 placeholder="选择日期"
               ></el-date-picker>
@@ -52,7 +51,6 @@
                 v-model="searchObj.endTime"
                 class="date_picker_1"
                 type="date"
-                size="mini"
                 clearable
                 placeholder="选择日期"
               ></el-date-picker>
@@ -100,7 +98,7 @@
         </div>
         <!--主体内容-->
         <div class="content_main">
-          <div class="content_table" style="width:80%">
+          <div class="content_table" style="width:100%">
             <el-table :data="tableData" :border="true">
               <el-table-column label="订单ID" align="center" width="90" prop="id" sortable></el-table-column>
 
@@ -544,7 +542,7 @@ function dealWithCity(cityList) {
               color: #808080;
               font-size: 12px;
               height: 28px;
-              line-height: 28px;
+              line-height: 41px;
               margin-left: 10px;
             }
             .date_picker_1 {

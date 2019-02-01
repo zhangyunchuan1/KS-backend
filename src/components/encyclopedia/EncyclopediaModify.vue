@@ -48,7 +48,7 @@
                 type="textarea"
                 :autosize="{ minRows: 2, maxRows: 10 }"
                 class="recipient_email"
-                v-model="encyclopediaInfo.content"
+                v-model="encyclopediaInfo.description"
               ></el-input>
             </div>
           </div>
@@ -59,15 +59,14 @@
             <div
               class="encyclopedia_first_catalogue"
               v-for="(item,index) in firstCatalogue"
-              :key="index"
-            >
+              :key="index">
               <div
                 class="encyclopedia_catalogue"
                 :class="{'is_active':item.id===firstId}"
                 :key="item.id"
                 @click="firstClick(item.id,index)"
               >{{item.name}}</div>
-              <el-button @click="catalogueModify(item.catalog_id,item.content,item.name,true)">修改</el-button>
+              <el-button type="info" @click="catalogueModify(item.catalog_id,item.content,item.name,true)" class="el-icon-edit"></el-button>
             </div>
           </div>
         </div>
@@ -85,7 +84,7 @@
                 :key="item.id"
                 @click="secondClick(item.id)"
               >{{item.name}}</div>
-              <el-button @click="catalogueModify(item.catalog_id,item.content,item.name,false)">修改</el-button>
+              <el-button type="info" @click="catalogueModify(item.catalog_id,item.content,item.name,false)" class="el-icon-edit"></el-button>
             </div>
           </div>
         </div>
@@ -96,9 +95,9 @@
               <div
                 class="encyclopedia_catalogue"
                 :key="item.id"
-                @click="tagClick(item.tag_id)"
+                @click="tagClick(item)"
               >{{item.name}}</div>
-              <el-button @click="deleteTag(item.tag_id)">-</el-button>
+              <el-button type="danger" @click="deleteTag(item.tag_id)" class="el-icon-delete"></el-button>
             </div>
           </div>
         </div>
@@ -112,8 +111,8 @@
                 :key="item.source_id"
                 @click="partClick(index)"
               >{{item.source_name}}</div>
-              <el-button class="modify" @click="modifyPart(item.source_id,index,item.link)">修改</el-button>
-              <el-button @click="deletePart(item.source_id)">-</el-button>
+              <el-button type="info" @click="z(item,index,)" class="el-icon-edit modify"></el-button>
+              <el-button type="danger" @click="deletePart(item.source_id)" class="el-icon-delete"></el-button>
             </div>
           </div>
         </div>
@@ -138,7 +137,7 @@
           </div>
         </div>
       </div>
-      <el-button type="primary" @click="cancelModify">取消</el-button>
+      <el-button @click="cancelModify">取消</el-button>
       <el-button type="primary" @click="confirmModify">修改</el-button>
     </div>
 
@@ -465,26 +464,19 @@ export default {
           console.log(res.data.data);
           this.encyclopediaInfo = res.data.data;
           // this.encyclopediaInfo.cover = JSON.parse(res.data.data.cover).path;
-          let {
-            id,
-            title,
-            cover,
-            description,
-            menu,
-            label,
-            source
-          } = res.data.data;
-          this.encyclopediaInfo.id = id;
-          this.encyclopediaInfo.title = title;
-          this.encyclopediaInfo.cover = JSON.parse(cover);
-          this.encyclopediaInfo.description = description;
+          let { id, title, cover, description, menu, label, source} = res.data.data;
+          // this.encyclopediaInfo.id = id;
+          // this.encyclopediaInfo.title = title;
+          // // this.encyclopediaInfo.cover = JSON.parse(cover);
+          // this.encyclopediaInfo.description = description;
           this.firstCatalogue = Object.values(menu);
-          console.log(Object.values(menu))
+          console.log(Object.values(menu));
           this.tags = label;
           this.parts = source;
-          this.secondoldValue = res.data.data.category.menu_1_id
-          this.encyclopediaID = res.data.data.encyclopedia_id
-          this.getchildTypelist(res.data.data.category.folder_id)
+          console.log(this.parts);
+          this.secondoldValue = res.data.data.category.menu_1_id;
+          this.encyclopediaID = res.data.data.encyclopedia_id;
+          this.getchildTypelist(res.data.data.category.folder_id);
         }
       });
     },
@@ -504,23 +496,27 @@ export default {
     },
     // 改变所属子目录
     secondChangeFn(){
-      this.HttpClient.post('/admin/menuRelationship/destroy',{menu_id:this.secondoldValue,relation_id:this.encyclopediaID}).then(res=>{
-        console.log(res.data)
-        if(res.data.code == 200){
-          let params = {
-            menu_id:this.secondValue,
-            relation_id:this.encyclopediaID,
-            type:1,
-            relation_type:8
-          }
-          this.HttpClient.post('/admin/menuRelationship/create',params).then(res => {
-            console.log(res.data)
-            if(res.data.code == 200){
-              this.$message.success(res.data.msg)
-            }
-          })
-        }
-      })
+      console.log(this.secondoldValue,this.secondValue,this.encyclopediaID);
+      
+      // this.HttpClient.post('/admin/menuRelationship/destroy',{menu_id:this.secondoldValue,relation_id:this.encyclopediaID}).then(res=>{
+      //   console.log(res.data)
+      //   if(res.data.code == 200){
+      //     let params = {
+      //       menu_id:this.secondValue,
+      //       relation_id:this.encyclopediaID,
+      //       type:0,
+      //       relation_type:8
+      //     }
+      //     this.HttpClient.post('/admin/menuRelationship/create',params).then(res => {
+      //       console.log(res.data)
+      //       if(res.data.code == 200){
+      //         this.$message.success(res.data.msg)
+      //       }
+      //     })
+      //   }else{
+      //     this.$message.error(res.data.msg);
+      //   }
+      // })
     },
     //上传成功
     handleCoverSuccess() {},
@@ -541,7 +537,7 @@ export default {
             console.log(res);
             if (res.data.code === 200) {
               this.$message.success(res.data.msg);
-              this.encyclopediaInfo.cover = res.data.path;
+              this.encyclopediaInfo.cover[0].path = res.data.path.substring(25);
               // res.data.path.slice(res.data.path.indexOf('images'))
             } else {
               this.$message.error(res.data.msg);
@@ -604,8 +600,10 @@ export default {
       });
     },
     //标签点击事件
-    tagClick(id) {
-      this.tagId = id;
+    tagClick(i) {
+      this.tagId = i.tag_id;
+      console.log(i)
+      this.newName = i.name;
       this.isTagModify = true;
       this.modifyVisible = true;
     },
@@ -686,10 +684,12 @@ export default {
       this.partIndex = index;
     },
     //零件修改
-    modifyPart(id, index, link) {
-      this.partId = id;
+    z(i, index) {
+      this.partId = i.source_id;
+      console.log(i)
+      this.newName = i.source_name;
       this.partIndex = index;
-      this.partLink = link;
+      this.partLink = i.link;
       this.modifyVisible = true;
       this.isTagModify = false;
     },
@@ -737,17 +737,24 @@ export default {
     },
     //确认修改
     confirmModify() {
-      this.HttpClient.post(
-        "/admin/encyclopedias/edit",
-        this.encyclopediaInfo
-      ).then(res => {
-        console.log(res);
-        if (res.data.code === 200) {
-          this.$message.success(res.data.msg);
-          this.$router.go(-1);
-        } else {
-          this.$message.error(res.data.msg);
-        }
+      console.log(this.encyclopediaInfo)
+      this.HttpClient.post("/admin/encyclopedias/edit",{
+        id:this.encyclopediaInfo.id,
+        title:this.encyclopediaInfo.title,
+        cover:this.Tools.handleImg(this.encyclopediaInfo.cover[0].path),
+        description:this.encyclopediaInfo.description,
+        category_id:this.secondValue,
+      })
+      .then(res => {
+          console.log(res);
+          if (res.data.code === 200) {
+            this.$message.success(res.data.msg);
+            setTimeout(() => {
+              this.$router.go(-1);
+            }, 500);
+          } else {
+            this.$message.error(res.data.msg);
+          }
       });
     }
   },
@@ -792,7 +799,7 @@ export default {
 
       .encyclopedia_content_item {
         display: flex;
-        flex-wrap: wrap;
+        // flex-wrap: wrap;
         align-items: center;
         justify-content: flex-start;
         margin-bottom: 15px;
@@ -853,9 +860,9 @@ export default {
               color: #fff;
               font-size: 14px;
               padding: 12px 4px;
-              border: 1px solid #f55959;
+              // border: 1px solid #f55959;
               border-left: none;
-              background: #f55959;
+              // background: #f55959;
               border-top-left-radius: 0;
               border-bottom-left-radius: 0;
             }
@@ -865,7 +872,7 @@ export default {
             .el-button + .el-button {
               margin-left: 0;
             }
-            .el-button.modify {
+            .modify {
               border-top-right-radius: 0;
               border-bottom-right-radius: 0;
               border-right: 1px solid #aaa;

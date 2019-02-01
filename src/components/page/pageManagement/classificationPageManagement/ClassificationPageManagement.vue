@@ -135,6 +135,7 @@
         catalogTitle:'',  //目录标题
 
         imgUrl:'',  //上传后返回的地址
+        imageName:'',
 
         currentObj:{},  //当前选中的菜单
       }
@@ -148,15 +149,28 @@
       //保存修改
       handleSave(){
         console.log(this.previewText,this.imgUrl);
+        let uploadeImg = [];
+        if(this.imageName){
+          uploadeImg.push({
+            name:this.imageName,
+            path:this.imgUrl
+          })
+        }else{
+          uploadeImg.push({
+            name:'imgname',
+            path:this.imgUrl
+          })
+        }
+        
         let params = {
             menu_type:2,
             type:this.typeRadio,
             name:this.currentObj.name,
-            description:this.currentObj.description,
+            description:this.previewText,
             id:this.currentObj.id,
             pid:this.currentObj.pid,
-            images:this.imgUrl,
-            long_desc:this.previewText
+            images:uploadeImg,
+            // long_desc:
         }
         console.log(params)
         this.HttpClient.post('/admin/menu/edit',params)
@@ -208,39 +222,43 @@
       handleChangeFirstDirectory(){
         this.previewBox = true;
         this.imageUrl ='';
-        console.log(this.firstDirectory);
+        console.log(this.firstDirectory,this.firstDirectoryList,this.plateList);
         this.currentObj = this.firstDirectory;
         this.previewBackground = this.firstDirectory.back_images;
-        this.imageUrl = this.firstDirectory.images;
+        this.imageUrl = this.Tools.handleImg(this.firstDirectory.images);
         console.log(this.imageUrl)
         this.catalogTitle = this.firstDirectory.name;
-        this.previewText = this.firstDirectory.long_desc;
+        this.previewText = this.firstDirectory.description;
       },
       handleAvatarSuccess(res, file) {
-        this.imageUrl = URL.createObjectURL(file.raw);
+        // this.imageUrl = URL.createObjectURL(file.raw);
       },
       beforeAvatarUpload(file) {
-        // const isJPG = file.type === 'image/jpeg';
-        // const isLt2M = file.size / 1024 / 1024 < 2;
+        console.log(file.type)
+        const isJPG = file.type === 'image/jpeg';
+        const isLt2M = file.size / 1024 / 1024 <= 2;
 
-        // if (!isJPG) {
-        //   this.$message.error('上传图片只能是 JPG 格式!');
-        // }
-        // if (!isLt2M) {
-        //   this.$message.error('上传图片大小不能超过 2MB!');
-        // }
-        // return isJPG && isLt2M;
-        this.HttpClient.form('/admin/uploadOneImage',{
-            images:file
-        })
-        .then((res) => {
-            console.log(res);
-            if(res.data.code === 200){
-                this.$message.success(res.data.msg);
-                this.imgUrl = res.data.path;
-            }
-        })
-
+        if (isJPG) {
+          
+          if (isLt2M) {
+            this.HttpClient.form('/admin/uploadOneImage',{
+                images:file
+            })
+            .then((res) => {
+                console.log(res);
+                if(res.data.code === 200){
+                    this.$message.success(res.data.msg);
+                    this.imgUrl = res.data.path;
+                    this.imageName = file.name;
+                    this.imageUrl = res.data.path;
+                }
+            })
+          }else{
+            this.$message.error('上传图片大小不能超过 2MB!');
+          }
+        }else{
+          this.$message.error('上传图片只能是 JPG 格式!');
+        }
       }
     }
   }

@@ -38,43 +38,52 @@
               prop="id"
               label="角色ID"
               width="50"
+              align="center"
               show-overflow-tooltip>
             </el-table-column>
             <el-table-column
               label="角色名称"
               prop="name"
+              align="center"
               min-width="150"
               show-overflow-tooltip>
             </el-table-column>
             <el-table-column
               prop="description"
               label="介绍"
+              align="center"
               min-width="200"
               show-overflow-tooltip>
             </el-table-column>
             <el-table-column
               prop="status"
               label="状态"
+              align="center"
               width="120"
               show-overflow-tooltip>
               <template slot-scope="scope">
-                  {{scope.row.status===1?'启用':'禁用'}}
+                  <span :class="scope.row.status===1?'normal_color':'notpass_color'">
+                    {{scope.row.status===1?'启用':'禁用'}}
+                  </span>
+                  
               </template>
             </el-table-column>
             <el-table-column
               prop="created_at"
               label="创建时间"
+              align="center"
               width="180"
               show-overflow-tooltip>
             </el-table-column>
             <el-table-column
               label="操作"
-              width="240"
+              min-width="300"
+              align="center"
               fixed="right">
               <template slot-scope="scope">
-                <el-button size="small" @click="roleJur(scope.row.id)" type="text">角色权限</el-button>
-                <el-button size="small" type="text" @click="toggleUse(scope.row.status,scope.row.id)">{{scope.row.status===1?'禁用':'启用'}}</el-button>
-                <el-button size="small" type="text" @click="updateRole(scope.row)">角色编辑</el-button>
+                <el-button type="primary" plain size="mini" @click="roleJur(scope.row.id)">角色权限</el-button>
+                <el-button type="primary" plain size="mini" @click="toggleUse(scope.row.status,scope.row.id)">{{scope.row.status===1?'禁用':'启用'}}</el-button>
+                <el-button type="primary" plain size="mini" @click="updateRole(scope.row)">角色编辑</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -89,7 +98,7 @@
       <el-dialog :visible.sync="addVisible" width="400px">
         <div slot="title" class="dialog_head_title">
           <i class="iconfont icon-edit-square examine_icon"></i>
-          <span>新增角色</span>
+          <span></span>
         </div>
         <div class="jurisdiction_content">
           <div class="jurisdiction_content_item">
@@ -98,7 +107,7 @@
           </div>
           <div class="jurisdiction_content_item">
             <label class="el_lbl">介绍:</label>
-            <el-input placeholder="30字内介绍" v-model="newDepicscript" class="el_input_text_area" type="textarea" :autosize="{ minRows: 3, maxRows: 3}"></el-input>
+            <el-input placeholder="30字内介绍" v-model="newDepicscript" class="el_input_text_area" type="textarea" :autosize="{ minRows: 3, maxRows: 3}" maxlength="30"></el-input>
           </div>
         </div>
         <div class="user_footer" slot="footer">

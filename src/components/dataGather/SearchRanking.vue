@@ -41,7 +41,7 @@
       <!-- 禁止恢复操作 -->
       <div class="alertbox">
         <el-dialog title="提示" :visible.sync="centerforbidVisible" width="30%" center>
-          <span>确定要{{operate}}吗？</span>
+          <p class="tips">确定要{{operate}}吗？</p>
           <span slot="footer" class="dialog-footer">
             <el-button @click="centerforbidVisible = false">取 消</el-button>
             <el-button type="primary" @click="sureforbidFn">确 定</el-button>
@@ -307,10 +307,10 @@ export default {
       this.rowData = row;
       this.centerforbidVisible = true;
       if(row.status === 1){
-        this.operate = '回复'
+        this.operate = '禁止'
         this.operateStatus = 0
       }else if(row.status === 0){
-        this.operate = '禁止'
+        this.operate = '恢复'
         this.operateStatus = 1
       }
     },
@@ -419,6 +419,10 @@ export default {
       }
     }
     .alertbox {
+      .tips{
+        text-align: center;
+        font-size: 18px;
+      }
       .title {
         width: 110px;
         height: 40px;

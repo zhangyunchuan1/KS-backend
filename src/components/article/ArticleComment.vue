@@ -89,11 +89,7 @@
                   align="center"
                   show-overflow-tooltip
                   label="类别"
-                  :filters="[{ text: '汽车', value: '汽车'}
-                  , { text: '摩托车', value: '摩托车'}
-                  , { text: '无人机', value: '无人机'}
-                  , { text: '智能设备', value: '智能设备'}
-                  ]"
+                  :filters="typelistData"
                   :filter-method="filterTag"
                 >
                 <template slot-scope="scope">
@@ -267,6 +263,7 @@ export default {
       // 总数表格
       statisticsTotal:0,
       statisticsData:[],
+      typelistData:[],
 
       // 日期筛选
       contentTime: "",
@@ -296,6 +293,26 @@ export default {
     };
   },
   methods: {
+    getTypeList(){
+      let parameters = {
+        menu_type:2,
+        type:6
+      }
+      this.HttpClient.post('/admin/menu/getList',parameters).then(res => {
+        if(res.data.code === 200){
+          
+          console.log(res)
+          Object.values(res.data.data).forEach(item => {
+            var obj = {};
+            obj.text = item.name;
+            obj.value = item.name;
+            console.log(obj)
+            this.typelistData.push(obj);
+          })
+          console.log(this.typelistData)
+        }
+      })
+    },
     filterTag(value, row, column) {
       const property = column['property'];
         return row[property] === value;
@@ -440,6 +457,7 @@ export default {
     this.getCommentList();
     this.getforbidList();
     this.getTotalData();
+    this.getTypeList();
   }
 };
 </script>

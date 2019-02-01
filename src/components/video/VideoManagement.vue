@@ -530,6 +530,9 @@
                     .then(res=>{
                         console.log(res)
                         this.tableData = res.data.data.data;
+                        this.tableData.forEach(item => {
+                            item.video_length = Math.ceil(item.video_length/60)
+                        });
                         this.total=res.data.data.total
                     })
             },

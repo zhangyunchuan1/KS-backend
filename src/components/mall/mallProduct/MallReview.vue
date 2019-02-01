@@ -39,9 +39,10 @@
                     <el-table-column
                             label="ID"
                             align="center"
-                            width="70"
+                            width="60"
                             prop="id"
-                            sortable>
+                            sortable
+                            show-overflow-tooltip>
                     </el-table-column>
 
                     <el-table-column
@@ -86,12 +87,16 @@
                             width="110"
                             show-overflow-tooltip
                             prop="category">
+                            <template slot-scope="scope">
+                                <span v-if="scope.row.category">{{scope.row.category}}</span>
+                                <span v-else class="sortout_color">暂无</span>
+                            </template>
                     </el-table-column>
 
                     <el-table-column
                             label="商家名称"
                             align="center"
-                            width="110"
+                            width="140"
                             show-overflow-tooltip
                             prop="nickname">
                     </el-table-column>
@@ -99,7 +104,7 @@
                     <el-table-column
                             label="创建时间"
                             align="center"
-                            width="180"
+                            width="165"
                             class-name="created_at"
                             prop="created_at"
                             sortable>
@@ -132,16 +137,17 @@
                             label="操作"
                             align="center"
                             fixed="right"
-                            class-name="mallReview_scope">
+                            min-width="500">
                         <template slot-scope="scope">
-                            <div class="mallReview_btm" style="color:#15bafe">
-                                <el-button v-if="scope.row.status !== 3 && scope.row.status!==1" @click="updateButton(scope.row.product_id)">修改</el-button>
-                                <el-button v-if="scope.row.status === 3" @click="approveButton(scope.row.product_id)">批准</el-button>
-                                <el-button class="notpass_color" v-if="scope.row.status === 1||scope.row.status === 3" @click="rejectButton(scope.row.product_id)">驳回</el-button>
-                                <el-button @click="previewButton(scope.row.product_id)">预览</el-button>
-                                <el-button class="delete_color" v-if="scope.row.status !== 3 && scope.row.status!==1" @click="deleteButton(scope.row.product_id)">删除</el-button>
-                                <el-button @click="adaptButton(scope.row)" v-if="scope.row.folder_name === '汽车1' || scope.row.folder_name === '摩托车'">适应车型</el-button>
-                            </div>
+                            
+                                <el-button type="primary" plain size="mini" v-if="scope.row.status !== 3 && scope.row.status!==1" @click="updateButton(scope.row.product_id)">修改</el-button>
+                                <el-button type="primary" plain size="mini" v-if="scope.row.status === 3 || scope.row.status === 4" @click="approveButton(scope.row.product_id)">批准</el-button>
+                                <el-button type="primary" plain size="mini" v-if="scope.row.status === 1||scope.row.status === 3" @click="rejectButton(scope.row.product_id)">驳回</el-button>
+                                <el-button type="primary" plain size="mini" @click="previewButton(scope.row.product_id)">预览</el-button>
+                                <el-button type="primary" plain size="mini" v-if="scope.row.status === 4" @click="deleteButton(scope.row.product_id)">删除</el-button>
+                                <el-button type="primary" plain size="mini" @click="adaptButton(scope.row)" v-if="scope.row.folder_name === '汽车1' || scope.row.folder_name === '摩托车'">适应车型</el-button>
+                                <el-button type="primary" plain size="mini" @click="updateCatalog(scope.row)">商城目录修改</el-button>
+                            
                         </template>
                     </el-table-column>
                 </el-table>
@@ -197,9 +203,9 @@
                 <div class="approveDialog_text">确认批准吗？</div>
             </div>
             <span slot="footer" class="dialog-footer">
-          <el-button @click="approveDialog = false">取 消</el-button>
-          <el-button type="primary" @click="approveConfirm">确 定</el-button>
-        </span>
+                <el-button @click="approveDialog = false">取 消</el-button>
+                <el-button type="primary" @click="approveConfirm">确 定</el-button>
+            </span>
         </el-dialog>
 
         <!--适应弹窗-->
@@ -322,6 +328,66 @@
                 </div>
             </div>
         </el-dialog>
+        <!--修改商城目录弹窗-->
+        <el-dialog
+                :visible.sync="modifyVisible"
+                width="750px"
+                custom-class="modifyDialog">
+            <span slot="title" class="brandDialog_title"><i class="iconfont icon-huaban4"></i></span>
+            <div class="modify_content">
+                <div class="plate">
+                    <div class="modify_til">当前板块</div>
+                    <el-button type="primary" size="small">{{modifyInfo.folder_name}}</el-button>
+                </div>
+                <div class="menuList">
+                    <div class="modify_til">当前目录</div>
+                    <div class="modify_child">一级目录</div>
+                    <div class="modify_child">二级目录</div>
+                    <div class="modify_child">三级目录</div>
+                    <div class="modify_child_last">产品类型</div>
+                </div>
+                
+                <div class="now_menu">
+                        <div class="zwf"></div>
+                        <el-select v-model="value1" placeholder="请选择" size="small" @change="oneCatalogChange">
+                            <el-option
+                            v-for="item in options1"
+                            :key="item.menu_id"
+                            :label="item.name"
+                            :value="item.menu_id">
+                            </el-option>
+                        </el-select>
+                        <el-select v-model="value2" placeholder="请选择" size="small" @change="twoCatalogChange">
+                            <el-option
+                            v-for="item in options2"
+                            :key="item.menu_id"
+                            :label="item.name"
+                            :value="item.menu_id">
+                            </el-option>
+                        </el-select>
+                        <el-select v-model="value3" placeholder="请选择" size="small" @change="threeCatalogChange">
+                            <el-option
+                            v-for="item in options3"
+                            :key="item.menu_id"
+                            :label="item.name"
+                            :value="item.menu_id">
+                            </el-option>
+                        </el-select>
+                        <el-select class="lastChild" v-model="value4" placeholder="请选择" size="small" @change="fourCatalogChange">
+                            <el-option
+                            v-for="item in options4"
+                            :key="item.id"
+                            :label="item.name"
+                            :value="item.id">
+                            </el-option>
+                        </el-select>
+                </div>
+            </div>
+            <div class="footer">
+                <el-button @click="modifyVisible = false">取 消</el-button>
+                <el-button type="primary" @click="sureModifyInfo">确 定</el-button>
+            </div>
+        </el-dialog>
 
         <!--删除弹窗-->
         <DeleteModal ref="delete" @doDelete="deleteConfirm"></DeleteModal>
@@ -374,10 +440,12 @@
                 secondCatalogue:[],// 二级目录列表
                 thirdCatalogue:[],// 三级目录列表
                 productCatalogue:[],// 产品类型列表
+                //表头筛选条件
                 firstCategorySelect:'',//一级目录选种值
                 secondCategorySelect:'',//二级目录选种值
                 thirdCategorySelect:'',//三级目录选种值
                 productCategorySelect:'',//产品类型选种值
+
                 headerSelect:'',// 商品通过状态选择值
                 headerOptions:[
                     {status:0,text:'全部'},
@@ -418,10 +486,185 @@
                 currentPage:1,// 当前页
                 pageSize:25,// 每页显示数量
                 total:0,// 总记录数
+
+                modifyVisible:false, //修改商城目录弹窗
+                modifyInfomation:{},//修改的该条商城目录
+                modifyInfo:{},
+                options1: [],
+                value1: '',
+                valuename1:'',
+                options2: [],
+                value2: '',
+                valuename2:'',
+                options3: [],
+                value3: '',
+                valuename3:'',
+                options4: [],
+                value4: '',
+                valuename4:'',
             }
         },
 
         methods:{
+            // 点击修改商品目录
+            updateCatalog(row){
+                this.modifyInfomation = row;
+                this.HttpClient.get('/admin/menuShop/uploadMenu',{product_id:row.product_id}).then(res =>{
+                    if(res.data.code === 200){
+                        this.modifyVisible = true;
+                        this.modifyInfo = res.data.data;
+                        console.log(this.modifyInfo)
+                        this.valuename1 = this.modifyInfo.menu_1_name;
+                        this.valuename2 = this.modifyInfo.menu_2_name;
+                        this.valuename3 = this.modifyInfo.menu_3_name;
+                        this.valuename4 = this.modifyInfo.category_name;
+                        let parameters = {
+                            isFolder:0,
+                            menu_id:row.folder
+                        }
+                        this.HttpClient.post('/shop/menu/getOneChild',parameters).then(res => { 
+                            if(res.data.code === 200){
+                               console.log(res.data) 
+                               this.options1 = res.data.data.child;
+                               this.value1 = this.modifyInfo.menu_1;
+                               let params = {
+                                    isFolder:0,
+                                    menu_id:this.value1
+                               }
+                               this.HttpClient.post('/shop/menu/getOneChild',params).then(res => { 
+                                    if(res.data.code === 200){
+                                        console.log(res.data) 
+                                        this.options2 = res.data.data.child;
+                                        this.value2 = this.modifyInfo.menu_2;
+                                        let params3 = {
+                                            isFolder:0,
+                                            menu_id:this.value2
+                                        }
+                                        this.HttpClient.post('/shop/menu/getOneChild',params3).then(res => { 
+                                            if(res.data.code === 200){
+                                                console.log(res.data) 
+                                                this.options3 = res.data.data.child;
+                                                this.value3 = this.modifyInfo.menu_3;
+                                                let params3 = {
+                                                    isFolder:0,
+                                                    menu_id:0,
+                                                    last_menu:this.value3
+                                                }
+                                                this.HttpClient.post('/shop/menu/getOneChild',params3).then(res => { 
+                                                    if(res.data.code === 200){
+                                                        console.log(res.data) 
+                                                        this.options4 = res.data.data;
+                                                        this.value4 = this.modifyInfo.category_id;
+                                                    }
+                                                })
+                                            }
+                                        })
+                                    }
+                                })
+                            }
+                        })
+                    }
+                })
+            },
+            // 修改商品一级目录
+            oneCatalogChange(){
+                this.options2 = [];
+                this.options3 = [];
+                this.options4 = [];
+                this.value2 = '';
+                this.value3 = '';
+                this.value4 = '';
+                let parameters = {
+                    isFolder:0,
+                    menu_id:this.value1
+                }
+                this.options1.forEach(item => {
+                    if(item.menu_id == this.value1){
+                        this.valuename1 = item.name;
+                    }
+                })
+                this.HttpClient.post('/shop/menu/getOneChild',parameters).then(res => { 
+                    if(res.data.code === 200){
+                        console.log(res.data) 
+                        this.options2 = res.data.data.child;
+                    }
+                })
+            },
+            // 修改商品二级目录
+            twoCatalogChange(){
+                this.options3 = [];
+                this.options4 = [];
+                this.value3 = '';
+                this.value4 = '';
+                this.options2.forEach(item => {
+                    if(item.menu_id == this.value2){
+                        this.valuename2 = item.name;
+                    }
+                })
+                let parameters = {
+                    isFolder:0,
+                    menu_id:this.value2
+                }
+                this.HttpClient.post('/shop/menu/getOneChild',parameters).then(res => { 
+                    if(res.data.code === 200){
+                        console.log(res.data) 
+                        this.options3 = res.data.data.child;
+                    }
+                })
+            },
+            // 修改商品三级目录
+            threeCatalogChange(){
+                this.options4 = [];
+                this.value4 = '';
+                this.options3.forEach(item => {
+                    if(item.menu_id == this.value3){
+                        this.valuename3 = item.name;
+                    }
+                })
+                let parameters = {
+                    isFolder:0,
+                    menu_id:0,
+                    last_menu:this.value3
+                }
+                this.HttpClient.post('/shop/menu/getOneChild',parameters).then(res => { 
+                    if(res.data.code === 200){
+                        console.log(res.data) 
+                        this.options4 = res.data.data;
+                    }
+                })
+            },
+            fourCatalogChange(){
+               this.options4.forEach(item => {
+                    if(item.menu_id == this.value4){
+                        this.valuename4 = item.name;
+                    }
+                }) 
+            },
+            // 确定修改目录
+            sureModifyInfo(){
+                let params = {
+                    product_id:this.modifyInfo.product_id,
+                    category_id:this.value4,
+                    folder:this.modifyInfo.folder,
+                    folder_name:this.modifyInfo.folder_name,
+                    menu_1:this.value1,
+                    menu_1_name:this.valuename1,
+                    menu_2:this.value2,
+                    menu_2_name:this.valuename2,
+                    menu_3:this.value3,
+                    menu_3_name:this.valuename3,
+                }
+                this.HttpClient.post('/admin/menuShop/editUploadMenu',params).then(res => {
+                    // console.log(res.data)
+                    if(res.data.code === 200){
+                        this.modifyVisible = false;
+                        this.$message.success(res.data.msg);
+                        setTimeout(() => {
+                            this.getAuditList();
+                        }, 500);
+                    }
+                })     
+            },
             /****数据相关****/
             //获取审核列表
             getAuditList(){
@@ -430,28 +673,28 @@
                     size:this.pageSize,
                     folder:this.mallReviewSelect
                 };
-                if(this.firstCategorySelect!=''){// 一级目录
+                if(this.firstCategorySelect !== ''){// 一级目录
                     parameters.menu_1=this.firstCategorySelect
                 }
-                if(this.secondCategorySelect!=''){// 二级目录
+                if(this.secondCategorySelect !== ''){// 二级目录
                     parameters.menu_2=this.secondCategorySelect
                 }
-                if(this.thirdCategorySelect!=''){// 三级目录
+                if(this.thirdCategorySelect !== ''){// 三级目录
                     parameters.menu_3=this.thirdCategorySelect
                 }
-                if(this.productCategorySelect!=''){// 产品类型
-                    parameters.id=this.productCategorySelect
+                if(this.productCategorySelect !== ''){// 产品类型
+                    parameters.menu_4=this.productCategorySelect
                 }
-                if(this.headerSelect!==''){// 通过状态
+                if(this.headerSelect !== ''){// 通过状态
                     parameters.pass_status=this.headerSelect
                 }
-                if(this.headerAuditSelect!==''){// 审核状态
+                if(this.headerAuditSelect !== ''){// 审核状态
                     parameters.review_status=this.headerAuditSelect
                 }
                 if(this.productSearch){
                     parameters.title=this.productSearch
                 }
-                // console.log(parameters);
+                console.log(parameters);
                 this.HttpClient.post('/admin/marketProduct/getListsWithShopMenu',parameters)
                     .then(res=>{
                         // console.log(res);
@@ -466,18 +709,38 @@
             async getTypeList(){
                 await this.HttpClient.post('/admin/menu/getList',{menu_type:1,type:1})
                     .then(res=>{
-                        // console.log(res);
+                        console.log(res);
                         if(res.data.code===200){
                             this.typeList=Object.values(res.data.data);
                             this.mallReviewSelect=this.typeList[0].menu_id;
-                            this.firstCatalogue=this.typeList[0].child;
-                            this.secondCatalogue=this.firstCatalogue[0].child;
-                            this.thirdCatalogue=this.secondCatalogue[0].child;
+                            if(this.typeList[0]){
+                                this.firstCatalogue=this.typeList[0].child?this.typeList[0].child:[];
+                            }else{
+                                this.firstCatalogue = [];
+                            }
+                            if(this.firstCatalogue[0]){
+                                this.secondCatalogue=this.firstCatalogue[0].child?this.firstCatalogue[0].child:[];
+                            }else{
+                                this.secondCatalogue=[];
+                            }
+                            console.log(this.secondCatalogue[0])
+                            if(this.secondCatalogue[0]){
+                                this.thirdCatalogue = this.secondCatalogue[0].child?this.secondCatalogue[0].child:[];
+                            }else{
+                                this.thirdCatalogue = [];
+                            }
+                            
+                            console.log(this.thirdCatalogue[1])
                             // this.productCatalogue=this.thirdCatalogue[0].child;
                             // this.firstCatalogue.unshift({name:'全部',menu_id:''});
                             // this.secondCatalogue.unshift({name:'全部',menu_id:''});
                             // this.thirdCatalogue.unshift({name:'全部',menu_id:''});
-                            this.getClassify(this.thirdCatalogue[1].menu_id);
+                            if(this.thirdCatalogue[1]){
+                                this.getClassify(this.thirdCatalogue[1].menu_id); 
+                            }else{
+                                this.productCatalogue = [];
+                            }
+                            
                             // console.log(this.secondCatalogue);
                             console.log(this.thirdCatalogue);
                         }
@@ -535,6 +798,11 @@
             },
             //板块改变事件
             typeChange(){
+                //改变板块清空后面的目录选中值
+                this.firstCategorySelect = '';
+                this.secondCategorySelect = '';
+                this.thirdCategorySelect = '';
+                this.productCategorySelect = '';
                 this.typeList.map(item=>{
                     if(item.menu_id===this.mallReviewSelect){
                         if(item.child){//是否存在一级目录
@@ -566,7 +834,8 @@
                     product_id:id,
                     status
                 };
-                if(status===2){
+                if(status===4){
+                    console.log(this.rejectReason);
                     parameters.refuse=this.rejectReason;
                     parameters.review_id=this.rejectValue;
                     this.rejectList.map(item=>{
@@ -585,8 +854,10 @@
                             }, 500);
                             if(status===1){
                                 this.approveDialog=false;
-                            }else if(status===2){
+                            }else if(status===4){
                                 this.disableDialog=false;
+                                this.rejectReason = '';
+                                this.rejectValue = null;
                             }
                         }else{
                             this.$message.error(res.data.msg)
@@ -648,7 +919,7 @@
             },
             //驳回框确认按钮
             rejectConfirm(){
-                this.changeStatus(this.productId,2);
+                this.changeStatus(this.productId,4);
             },
             //批准框确认按钮
             approveConfirm(){
@@ -736,6 +1007,7 @@
                         }
                     }
                 }, [
+
                     this.headerOptions.map(item=>{
                         return h('el-option',
                             {
@@ -779,19 +1051,17 @@
             },
             //一级目录
             renderProductFirst(h, {column}) {
-                // this.secondCategorySelect = '';
-                // this.thirdCatalogue = '';
                 return h('el-select',{
-                    // 'v-model':this.headerSelect,
                     props:{
                         value:'一级目录',
                         placeholder:'一级目录',
                     },
                     on:{
                         input:value=>{
-                            // console.log(value);
                             this.firstCategorySelect=value;
                             this.secondCategorySelect = '';
+                            this.thirdCategorySelect = '';
+                            this.productCategorySelect = '';
                             this.getAuditList()
                         }
                     }
@@ -824,8 +1094,8 @@
                         input:value=>{
                             // console.log(value);
                             this.secondCategorySelect=value;
-                            this.firstCategorySelect = '';
                             this.thirdCategorySelect = '';
+                            this.productCategorySelect = '';
                             this.getAuditList()
                         }
                     }
@@ -857,8 +1127,7 @@
                         input:value=>{
                             // console.log(value);
                             this.thirdCategorySelect=value;
-                            this.firstCategorySelect = '';
-                            this.secondCategorySelect = '';
+                            this.productCategorySelect = '';
                             this.getAuditList()
                         }
                     }
@@ -888,7 +1157,6 @@
                         input:value=>{
                             // console.log(value);
                             this.productCategorySelect=value;
-                            
                             this.getAuditList()
                         }
                     }
@@ -915,7 +1183,7 @@
             firstCategorySelect(){
                 this.firstCatalogue.map(item=>{
                     if(item.menu_id===this.firrstCategorySelect){
-                        console.log(this.thirdCatalogue)
+                        console.log(item.child)
                         this.secondCatalogue=item.child;
                         this.thirdCatalogue=this.secondCatalogue?this.secondCatalogue[0].child:[];
                         this.getClassify(this.thirdCatalogue[0].menu_id)
@@ -1018,16 +1286,16 @@
                 padding: 0 40px;
                 .el-table {
                     thead {
-                        // color: #fff;
+                        color: #fff;
                         th, tr {
-                            // background-color: #15bafe;
+                            background-color: #15bafe;
                             .el-input--suffix .el-input__inner{
-                                // color:#fff;
+                                color:#fff;
                                 font-size:12px;
                                 font-weight:900;
                                 border:none;
                                 padding:0;
-                                // background:#15bafe;
+                                background:#15bafe;
                             }
                             .el-input__inner::placeholder{
                                 font-size:12px!important;
@@ -1056,6 +1324,8 @@
                                 // }
                                 .el-input__icon{
                                     width:14px;
+                                    color:#fff;
+                                    font-size: 14px;
                                 }
                             }
                             .el-select{
@@ -1287,6 +1557,95 @@
                 justify-content:flex-end;
             }
         }
+    }
+    .modifyDialog{
+        .el-dialog__header{
+            padding-bottom:0;
+            margin-bottom:10px;
+            border-bottom:1px solid #ccc;
+        }
+        .el-dialog__body{
+            padding-top: 0;
+            padding-bottom: 30px;
+            overflow-y: auto;
+            // height: calc(100vh - 150px);
+        }
+        .brandDialog_title{
+            display: flex;
+            align-items: center;
+            i{
+                font-size: 24px;
+                color: #15bafe;
+            }
+        }
+        .modify_content{
+            .plate{
+                display:flex;
+                margin-bottom: 10px;
+                .modify_til{
+                    color:#fff;
+                    height: 32px;
+                    background-color: #15bafe;
+                    width: 70px;
+                    font-size: 14px;
+                    line-height: 32px;text-align: center;
+                    margin-right: 11px;
+                }
+            }
+            .menuList{
+                display: flex;
+                .modify_til{
+                    color:#fff;
+                    height: 32px;
+                    background-color: #15bafe;
+                    width: 70px;
+                    font-size: 14px;
+                    line-height: 32px;text-align: center;
+                    margin-right: 11px;
+                }
+                .modify_child{
+                    color:#fff;
+                    height: 32px;
+                    background-color: #15bafe;
+                    width: 152px;
+                    font-size: 14px;
+                    line-height: 32px;text-align: center;
+                    margin-right: 10px;
+                }
+                .modify_child_last{
+                    color:#fff;
+                    height: 32px;
+                    background-color: #15bafe;
+                    width: 152px;
+                    font-size: 14px;
+                    line-height: 32px;text-align: center;
+                }
+            }
+            .now_menu{
+                    display: flex;
+                    .zwf{
+                        width: 80px;
+                        height: 32px;
+                    }
+                    .el-select{
+                        width: 150px;
+                        margin-right: 10px;
+                        .el-input__inner{
+                            border-radius: 0px;
+                        }
+                    }
+                    .lastChild{
+                        margin: 0px;
+                        .el-input__inner{
+                            border-radius: 0px;
+                        }
+                    }
+                }
+        }
+        .footer{
+                    text-align: right;
+                    margin-top: 15px;
+                }
     }
 
 </style>

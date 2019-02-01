@@ -34,22 +34,25 @@
                 label="对话结束时间"
                 align="center"
                 width="200"
-                prop="updated_at"
-                sortable>
+                prop="end_time"
+                sortable
+                show-overflow-tooltip>
               </el-table-column>
 
               <el-table-column
                 label="用户昵称"
                 align="center"
                 width="280"
-                prop="nickname">
+                prop="nickname"
+                show-overflow-tooltip>
               </el-table-column>
 
               <el-table-column
                 label="用户类型"
                 align="center"
                 width="200"
-                prop="type">
+                prop="type"
+                show-overflow-tooltip>
                 <template slot-scope="scope">
                     <span v-if="scope.row.type === 1">用户</span>
                     <span v-if="scope.row.type === 2">商家</span>
@@ -59,21 +62,25 @@
               <el-table-column
                 label="信息内容"
                 align="center"
-                width="250"
-                prop="content">
+                width="300"
+                prop="content"
+                show-overflow-tooltip>
               </el-table-column>
 
               <el-table-column
                 label="状态"
                 align="center"
                 width="180"
-                prop="status">
+                prop="status"
+                :filters="[{ text: '未开始', value: 1}, { text: '已回复', value: 2}, { text: '未回复', value: 3}, { text: '已结束', value: 4}, { text: '被屏蔽', value: 5}, { text: '已交接', value: 6}]"
+                :filter-method="filterHandler"
+                show-overflow-tooltip>
                 <template slot-scope="scope">
                   <span v-if="scope.row.status === 1">未开始</span>
                   <span v-if="scope.row.status === 2">已回复</span>
                   <span v-if="scope.row.status === 3">未回复</span>
                   <span v-if="scope.row.status === 4">已结束</span>
-                  <span v-if="scope.row.status === 5">被屏蔽</span>
+                  <span :class="notpass_color" v-if="scope.row.status === 5">被屏蔽</span>
                   <span v-if="scope.row.status === 6">已交接</span>
                 </template>
               </el-table-column>
@@ -81,13 +88,14 @@
               <el-table-column
                 label="操作"
                 align="center"
-                class-name="mallReview_scope">
+                min-width="200"
+                flexd="right">
                 <template slot-scope="scope">
-                  <div class="mallReview_btm">
-                    <el-button @click="handleOpenTalk(scope.row)">查看对话</el-button>
-                    <el-button  @click="handleOpenShield(scope.row)">屏蔽原因</el-button>
-                    <el-button @click="handleOpenRelieveShield(scope.row)">解除屏蔽</el-button>
-                  </div>
+                  
+                    <el-button type="primary" plain size="mini" @click="handleOpenTalk(scope.row)">查看对话</el-button>
+                    <el-button type="primary" plain size="mini" v-if="scope.row.status === 5" @click="handleOpenShield(scope.row)">屏蔽原因</el-button>
+                    <el-button type="primary" plain size="mini" v-if="scope.row.status === 5" @click="handleOpenRelieveShield(scope.row)">解除屏蔽</el-button>
+                  
                 </template>
               </el-table-column>
             </el-table>
@@ -96,38 +104,46 @@
       </div>
     </div>
     <!-- 分页 -->
-    <el-pagination
-          v-if="total"
+    <div style="text-align:center;">
+      <el-pagination
           layout="prev, pager, next"
           :total="total"
           :page-size="25"
           @current-change="handleCurrentChange($event)">
       </el-pagination>
+    </div>
 
     <!--对话弹窗--> 
     <el-dialog
       :visible.sync="chatDialog"
       width="800px"
       custom-class="chatDialog">
-      <span slot="title" class="chatDialog_title"><i class="iconfont icon-mail"></i>对话-王大锤</span>
+      <span slot="title" class="chatDialog_title"><i class="iconfont icon-mail"></i>对话-{{nickname}}</span>
       <div class="chatDialog_main">
         <div class="main_content" id="neir">
           <div class="neir" v-for="(item,index) in MessageList" :key="index">
               <!-- 用户 -->
-              <div class="user_chat chat_list" v-if="item.type === 1">
-                <span>{{item.name}}</span>
-                <p>{{item.contant}}</p>
+              <div class="user_chat chat_list" v-if="item.type === 2">
+                <span>{{item.send_nickname}}&nbsp;{{item.send_time}}</span>
+                <p>{{item.content}}</p>
               </div>
               <!-- 客服 -->
-              <div class="service_chat chat_list" v-if="item.type === 0">
+              <div class="service_chat chat_list" v-if="item.type === 1">
                 <p class="service_message">
-                  <span class="service_serviceName">{{item.name}}</span>
-                  <span class="service_time">{{item.time}}</span>
+                  <span class="service_serviceName">{{item.send_nickname}}</span>
+                  <span class="service_time">{{item.send_time}}</span>
                 </p>
-                <p class="chat_content">{{item.contant}}</p>
+                <p class="chat_content">{{item.content}}</p>
               </div>
           </div>
         </div>
+      </div>
+      <div class="fenye">
+        <el-pagination
+          background
+          layout="prev, pager, next"
+          :total="total2">
+        </el-pagination>
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="chatDialog = false">取 消</el-button>
@@ -146,19 +162,20 @@
               type="textarea"
               resize="none"
               v-model="textarea"
-              :rows="4">
+              :rows="4"
+              @current-change="handleCurrentChangeMessage($event)">
             </el-input>
           </div>
         </div>
         <div class="disable_dialog_box">
           <div class="disable_dialog_left">屏蔽类别：</div>
           <div class="disable_dialog_right">
-            <el-radio border v-for="(item,index) in 2" :label="item.id" :key="index" >{{item.name}}不靠谱</el-radio>
+              <el-radio border :label="radioValue" >{{radioValue}}</el-radio> 
           </div>
         </div>
         <span slot="footer" class="dialog-footer">
-        <el-button @click="disableDialog = false">取 消</el-button>
-        <el-button type="primary" @click="handleSureReject">确 定</el-button>
+        <el-button @click="disableDialog = false">关 闭</el-button>
+        <!-- <el-button type="primary" @click="handleSureReject">确 定</el-button> -->
       </span>
       </el-dialog>
       <!--解除屏蔽弹窗-->
@@ -213,33 +230,23 @@
           icon: 'icon-home'
         }],
         tableData:[],
-        MessageList:[{
-          name:'飞机',
-          type:1,
-          contant:'slkd就是改第一师范；联发科ghg浪费你好浪费更过来看你',
-          time:'2018-11-25'
-        },{
-          name:'伐木工',
-          type:0,
-          contant:'slkdghg浪费你好浪是否郭德纲费更过来看你',
-          time:'2018-11-25'
-        },{
-          name:'非官方个',
-          type:1,
-          contant:'slkdghg浪费你好鼎折覆餗浪费更过来看你',
-          time:'2018-11-25'
-        },{
-          name:'飞刚发的机',
-          type:0,
-          contant:'slkdghg浪费第三个是的发生的你好浪费更过来看你',
-          time:'2018-11-25'
-        }],
+        MessageList:[],
         total:null,
         textarea:'',
+        nickname:'',
+        managerId:null,
         nickNameSearch:null,  //用户昵称搜索
         chatDialog:false, 
         disableDialog:false,
         deleteDialog:null,
+        shieldList:[],  //屏蔽类别
+        radioValue:null,
+        total2:null,
+        csId:null,
+        uId:null,
+        //分页
+        currentPage:1,
+        currentPage2:1,
       }
     },
     mounted () {
@@ -248,37 +255,93 @@
     methods:{
       // 获取列表数据
       getTableData () {
-        this.HttpClient.post('/admin/message/manager')
+        this.HttpClient.post('/admin/history/message',{
+          page:this.currentPage,
+          page_size:25,
+          nickname:this.nickNameSearch
+        })
           .then(res => {
-            const { code, data } = res.data
+            const { code, data } = res.data;
+            console.log(res)
             if (code === 200) {
-              this.tableData = data
+              this.tableData = data.data;
+              this.total = res.data.data.total;
             }
           })
       },
-        handleOpenRelieveShield(){
+        handleOpenRelieveShield(i){
             this.deleteDialog = true;
+            this.managerId = i.manager_id;
         },
         handleRecovery(){
-
+            this.HttpClient.post('/admin/block/cancel',{
+              manager_id:this.managerId
+            })
+            .then(res => {
+                console.log(res);
+                if(res.data.code === 200){
+                    setTimeout(() => {
+                        this.getTableData();
+                        this.deleteDialog = false;
+                    }, 500);
+                }
+            })
         },
+        //确定屏蔽用户
         handleSureReject(){
-
+          
         },
         search(){
 
         },
         handleTitleSearch(){
-
+          this.getTableData();
         },
-        handleOpenTalk(){
+        handleOpenTalk(i){
             this.chatDialog = true;
+            this.nickname = i.nickname;
+            this.csId = i.cs_id;
+            this.uId = i.uid;
+            this.getMessageInfo();
         },
-        handleOpenShield(){
+        getMessageInfo(){
+            this.HttpClient.post('/admin/message/info',{
+              cs_id:this.csId,
+              list_uid:this.uId,
+              page_size:6,
+              page:this.currentPage2
+            })
+            .then(res => {
+              console.log(res);
+              this.MessageList = res.data.data.data;
+              this.total2 = res.data.data.total;
+            })
+        },
+        handleOpenShield(i){
             this.disableDialog = true;
+            this.textarea = i.block_reasons;
+
+            this.HttpClient.post('/admin/webReview/getList',{
+              type:'answers'
+            })
+            .then(res => {
+              console.log(res);
+              res.data.data.forEach(item => {
+                if(i.block_type === item){
+                    this.radioValue = item.name;
+                }
+              });
+            })
         },
-        handleCurrentChange(e){
-            console.log(e)
+        handleCurrentChange(p){
+            console.log(p);
+            this.currentPage = p;
+            this.getTableData();
+        },
+        handleCurrentChangeMessage(p){
+            console.log(p)
+            this.currentPage2 = p;
+            this.getMessageInfo();
         },
         tableRowClassName({row, rowIndex}) {
             if (row.type === 1) {
@@ -287,7 +350,11 @@
             return 'warning-row';
             }
             return '';
-        }
+        },
+        filterHandler(value, row, column) {
+          const property = column['property'];
+          return row[property] === value;
+        },
     }
   }
 </script>
@@ -310,6 +377,9 @@
         margin-right: 15px;
       }
     }
+    .fenye{
+        text-align: center;
+    }
     .chatDialog_main{
       .main_content{
         box-sizing: border-box;
@@ -318,7 +388,7 @@
         height: 500px;
         overflow: auto;
 
-        .chat_list:not(:last-child){
+        .chat_list{
           margin-bottom: 20px;
         }
         .neir{
@@ -489,6 +559,10 @@
                 color: #fff;
                 th, tr {
                   background-color: #15bafe;
+                  .el-icon-arrow-down{
+                    font-size: 20px;
+                    color:#fff;
+                  }
                 }
               }
             }
@@ -568,7 +642,6 @@
             font-size: 12px;
             color: #666;
             margin-bottom: 5px;
-            padding-left: 15px;
             display: block;
           }
           p{

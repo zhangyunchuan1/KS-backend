@@ -98,7 +98,7 @@
           <el-table-column
             label="通过时间"
             align="center"
-            width="130"
+            width="160"
             prop="created_at"
             sortable
             show-overflow-tooltip>
@@ -111,7 +111,7 @@
             show-overflow-tooltip>
             <template slot-scope="scope">
               <span>{{scope.row.menu_1}}</span>
-              <span v-if="!scope.row.menu_1">无</span>
+              <span v-if="!scope.row.menu_1" class="sortout_color">无</span>
             </template>
           </el-table-column>
 
@@ -122,7 +122,7 @@
             show-overflow-tooltip>
             <template slot-scope="scope">
               <span >{{scope.row.menu_2}}</span>
-              <span v-if="!scope.row.menu_2">无</span>
+              <span v-if="!scope.row.menu_2" class="sortout_color">无</span>
             </template>
           </el-table-column>
 
@@ -133,7 +133,7 @@
             show-overflow-tooltip>
             <template slot-scope="scope">
               <span>{{scope.row.menu_3}}</span>
-              <span v-if="!scope.row.menu_3">无</span>
+              <span v-if="!scope.row.menu_3" class="sortout_color">无</span>
             </template>
           </el-table-column>
 
@@ -150,6 +150,13 @@
             </template>
           </el-table-column>
         </el-table>
+        <el-pagination
+        v-if="total"
+        layout="prev, pager, next"
+        :total="total"
+        :page-size="pageSize"
+        @current-change="currentChange"
+      ></el-pagination>
       </div>
     </div>
 
@@ -313,6 +320,10 @@
         videoId:null, //暂存要操作的问题ID
         menu:[],  // 所有目录
         addId:null,  //需要添加的菜单id
+
+        pageSize: 25, // 每页显示条数
+        total: 0, // 总条数
+        currentPage: 1, // 当前页
       }
     },
     mounted(){
@@ -447,11 +458,14 @@
               status:1,
               start_time:startTime,
               end_time:endTime,
-              title:title
+              title:title,
+              size:this.pageSize,
+              page:this.currentPage
           })  
           .then(res=>{
               console.log(res)
               this.tableData = res.data.data.data; 
+              this.total = res.data.data.total;
               for(let j=0;j<res.data.data.data.length;j++){
                   if(res.data.data.data[j].menu.length !== 0){
                       for(let m=0;m<res.data.data.data[j].menu[0].length;m++){
@@ -475,6 +489,11 @@
                   }  
               }
           })
+      },
+      // 分页
+      currentChange(p){
+        this.currentPage = p;
+        this.getPassQuestionList();
       },
       //选择题目
       handleChangeTitle(){

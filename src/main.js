@@ -8,6 +8,7 @@ import store from './vuex'
 import VueAxios from 'vue-axios'
 import Axios from 'axios'
 import qs from 'qs'
+import cfg from "../config/app";
 
 import {HttpClient} from './utils/HttpUtils'
 import Tools from './utils/tools'
@@ -29,6 +30,7 @@ Vue.prototype.$ajax = Axios;
 Vue.prototype.HttpClient = HttpClient;
 Vue.prototype.Tools = Tools;
 Vue.prototype.$qs = qs;
+Vue.prototype.Urls = cfg;
 
 Vue.config.productionTip = false;
 Vue.use(ElementUI);

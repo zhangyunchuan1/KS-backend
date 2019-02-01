@@ -60,8 +60,11 @@
               label="当前金额"
               align="center"
               show-overflow-tooltip
-              width="100"
+              width="140"
               prop="balance">
+              <template slot-scope="scope">
+                <span>{{scope.row.balance}}</span>
+              </template>
             </el-table-column>
 
             <el-table-column

@@ -5,7 +5,7 @@
         <p class="title">票务管理</p>
         <div class="content_contain">
           <div class="conditions">
-            <el-select size="mini" class="select_normal" @change="handleCityChange" v-model="typeValue" placeholder="城市性质">
+            <el-select class="select_normal" @change="handleCityChange" v-model="typeValue" placeholder="城市性质">
               <el-option label="全部" :value="null"></el-option>
               <el-option
                 v-for="item in cityOptions"
@@ -14,7 +14,7 @@
                 :value="item.value">
               </el-option>
             </el-select>
-            <!-- <el-select size="mini" class="select_normal" @change="handleTypeChange" v-model="plateValue" placeholder="类型">
+            <!-- <el-select class="select_normal" @change="handleTypeChange" v-model="plateValue" placeholder="类型">
               <el-option
                 v-for="item in typeOptions"
                 :key="item.value"
@@ -22,8 +22,14 @@
                 :value="item.value">
               </el-option>
             </el-select> -->
-            <el-input class="select_normal" placeholder="活动名称" size="mini" suffix-icon="el-icon-search" v-model="active_name" @change="handleActiveNameChange"></el-input>
-            <el-input class="select_normal" placeholder="商家对外名称" size="mini" suffix-icon="el-icon-search" v-model="business_name" @change="handleBusinessNameChange"></el-input>
+            <div class="select_normal">
+              <el-input placeholder="活动名称" clearable v-model="active_name" @change="handleActiveNameChange"></el-input>
+              <el-button icon="el-icon-search" @click="handleActiveNameChange"></el-button>
+            </div>
+            <div class="select_normal">
+              <el-input placeholder="商家对外名称" clearable v-model="business_name" @change="handleBusinessNameChange"></el-input>
+              <el-button icon="el-icon-search" @click="handleBusinessNameChange"></el-button>
+            </div>
         </div>
         <div class="tables">
             <el-table
@@ -62,18 +68,19 @@
                 show-overflow-tooltip>
               </el-table-column>
               <el-table-column
-                prop="price_recive"
+                prop="price_receive"
                 label="收到金额"
                 width="120"
                 show-overflow-tooltip>
               </el-table-column>
               <el-table-column
                 label="已转商户"
+                prop="transfer"
                 width="180"
                 show-overflow-tooltip>
-                <template slot-scope="scope">
-                  <span>{{scope.row.price_recive-scope.row.price_refund-(scope.row.price*(scope.row.sale_num-scope.row.use_num-scope.row.refund_num))}}</span>
-                </template>
+                  <!-- <template slot-scope="scope">
+                    <span>{{scope.row.price_recive-scope.row.price_refund-(scope.row.price*(scope.row.sale_num-scope.row.use_num-scope.row.refund_num))}}</span>
+                  </template> -->
               </el-table-column>
               <el-table-column
                 label="未使用金额"
@@ -99,11 +106,11 @@
                 label="操作"
                 >
                 <template slot-scope="scope">
-                  <el-button size="small" type="text" @click="handleSeeSignUp(scope.row.active_id)">查看报名</el-button>
-                  <el-button size="small" type="text" @click="handleAddRemark(scope.row.active_id)">添加备注</el-button>
-                  <el-button size="small" type="text" @click="handleBusinessAuthen(scope.row)">商家身份确认</el-button>
-                  <el-button size="small" type="text" @click="handleTicketSituation(scope.row)">用票情况</el-button>
-                  <el-button size="small" type="text" @click="handleTicketTimeRecord(scope.row)">验票时间记录</el-button>
+                  <el-button type="primary" plain size="mini" @click="handleSeeSignUp(scope.row.active_id)">查看报名</el-button>
+                  <el-button type="primary" plain size="mini" @click="handleAddRemark(scope.row.active_id)">添加备注</el-button>
+                  <el-button type="primary" plain size="mini" @click="handleBusinessAuthen(scope.row)">商家身份确认</el-button>
+                  <el-button type="primary" plain size="mini" @click="handleTicketSituation(scope.row)">用票情况</el-button>
+                  <el-button type="primary" plain size="mini" @click="handleTicketTimeRecord(scope.row)">验票时间记录</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -480,12 +487,16 @@
     width: calc(100vw - 221px);
     border-radius: 2px;
   }
-  .title{
+   .title{
     text-align: left;
-    padding: 10px;
-    padding-left: 20px;
-    font-size: 14px;
+    /* padding: 10px; */
+    line-height: 70px;
+    padding-left: 50px;
+    font-size: 20px;
     border-bottom: 1px solid #f2f2f2;
+  }
+  .content_contain{
+    padding-left: 50px;
   }
   .conditions{
     display: flex;
@@ -493,8 +504,9 @@
     margin-top: 20px;
   }
   .select_normal{
-    width: 120px;
+    /* width: 120px; */
     margin-right: 10px;
+    display: flex;
   }
   .tables{
     margin: 20px 10px;
@@ -576,8 +588,8 @@
     position: relative;
     bottom: 30px;
   }
-  .delete_content{
-
+  .cell button{
+    margin: 5px;
   }
   .boolean_delete{
     height: 30px;

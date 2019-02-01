@@ -68,32 +68,52 @@
             <el-table-column
               label="禁用开始时间"
               align="center"
-              width="150"
+              width="160"
               show-overflow-tooltip
               prop="disable_start"
               sortable
-            ></el-table-column>
+            >
+              <template slot-scope="scope">
+                <span v-if="scope.row.disable_start && scope.row.disable_name">{{scope.row.disable_start}}</span>
+                <span v-else class="sortout_color">无</span>
+              </template>
+            </el-table-column>
 
             <el-table-column
               label="禁用结束时间"
               align="center"
-              width="150"
+              width="160"
               show-overflow-tooltip
               prop="disable_end"
               sortable
-            ></el-table-column>
+            >
+              <template slot-scope="scope">
+                <span v-if="scope.row.disable_end && scope.row.disable_name">{{scope.row.disable_end}}</span>
+                <span v-else class="sortout_color">无</span>
+              </template>
+            </el-table-column>
 
             <el-table-column label="禁用次数" align="center" width="150" prop="disable_num" sortable></el-table-column>
 
-            <el-table-column label="禁用类别" align="center" width="150" prop="disable_name"></el-table-column>
+            <el-table-column label="禁用类别" align="center" width="150" prop="disable_name">
+              <template slot-scope="scope">
+                <span v-if="scope.row.disable_name">{{scope.row.disable_name}}</span>
+                <span v-else class="sortout_color">无</span>
+              </template>
+            </el-table-column>
 
-            <el-table-column label="禁用理由" align="center" width="150" prop="disable_reason"></el-table-column>
+            <el-table-column label="禁用理由" align="center" width="150" prop="disable_reason">
+              <template slot-scope="scope">
+                <span v-if="scope.row.disable_reason">{{scope.row.disable_reason}}</span>
+                <span v-else class="sortout_color">无</span>
+              </template>
+            </el-table-column>
 
             <el-table-column label="操作" align="center" class-name="mallReview_scope">
               <template slot-scope="scope">
                 <div class="mallReview_btm">
                   <el-button @click="lookdisableImg(scope.row)">查看禁用证据</el-button>
-                  <el-button v-if="scope.row.status == 1" @click="disableuseBusiness(scope.row)">禁用</el-button>
+                  <el-button v-if="scope.row.status == 1" @click="disableuseBusiness(scope.row)" class="notpass_color">禁用</el-button>
                   <el-button v-if="scope.row.status == 3" @click="recoverBtm(scope.row)">恢复</el-button>
                 </div>
               </template>

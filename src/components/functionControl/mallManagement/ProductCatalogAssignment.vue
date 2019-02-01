@@ -85,11 +85,11 @@
       <div class="productbox">
         <div class="product_header">
           <div class="product_header_search">
-            <el-input placeholder="请输入产品类型" v-model="productType" clearable></el-input>
+            <el-input placeholder="请输入产品类型" v-model="productType" clearable @change="searchProductType"></el-input>
             <el-button type="primary" icon="el-icon-search" @click="searchProductType">搜索</el-button>
           </div>
           <div class="product_header_search">
-            <el-input placeholder="请输入产品ID" v-model="productID" clearable></el-input>
+            <el-input placeholder="请输入产品ID" v-model="productID" clearable @change="searchProductID"></el-input>
             <el-button type="primary" icon="el-icon-search" @click="searchProductID">搜索</el-button>
           </div>
         </div>
@@ -102,7 +102,7 @@
                 <img :src="Tools.handleImg(item.image)" class="image">
               </div>
               <div style="padding: 14px;margin-top:5px">
-                <p style="font-size:14px;">{{item.name}}</p>
+                <p class="imglist">{{item.name}}</p>
                 <el-button type="text" class="button" @click="addList(item)">添加</el-button>
               </div>
             </div>
@@ -139,7 +139,7 @@
                 <el-tag v-for="(e,i) in item.values" :key="i">{{e.value}}</el-tag>
               </div>
               <div style="margin-top:10px;" v-if="selectNum == 2">
-                <el-tag>{{item.values}}</el-tag>
+                <el-tag>{{item.unit_cn+'('+item.unit+')'}}</el-tag>
               </div>
             </div>
           </div>
@@ -214,7 +214,7 @@ export default {
 
       // 分页
       currentPage: 1, // 当前页
-      pageSize: 10, // 每页显示数量
+      pageSize: 20, // 每页显示数量
       total: 0 // 数据总条数
 
       //   totalpage: 0
@@ -248,7 +248,7 @@ export default {
         size: this.pageSize,
         page: this.currentPage,
         hasProperty: false,
-        folder: this.selectVideotitleid,
+        // folder: this.selectVideotitleid,
         // menu_1:this.value,
         // menu_2:this.secondValue,
         // menu_3:this.thirdValue,
@@ -320,18 +320,21 @@ export default {
     changeproTypeModel(item) {
       console.log(item);
       this.selectVideotitleid = item.menu_id;
+      this.value = '';
+      this.secondValue = '';
+      this.thirdValue = '';
       this.getselectOptionFn(0, this.selectVideotitleid, "",0);  //选择板块获取一级目录
       // this.getlistData();
     },
     // id搜索
     searchProductID() {
       this.getlistData();
-      this.productID = "";
+      // this.productID = "";
     },
     // 产品类型搜索
     searchProductType() {
       this.getlistData();
-      this.productType = "";
+      // this.productType = "";
     },
     // 添加
     addList(item) {
@@ -490,6 +493,14 @@ export default {
         .imgAndwordBox {
           border: 1px solid #dedede;
           margin: 20px;
+          .imglist{
+            font-size: 14px;
+            color: #636679;
+            width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
           .imgbox {
             width: 100px;
             height: 100px;

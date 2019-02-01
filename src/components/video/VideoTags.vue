@@ -76,7 +76,7 @@
                 prop="title_status">
                 <template slot-scope="scope">
                   <span v-if="scope.row.title_status === true">已分配</span>
-                  <span v-if="scope.row.title_status === false">未分配</span>
+                  <span v-if="scope.row.title_status === false" class="notpass_color">未分配</span>
                 </template>
               </el-table-column>
 
@@ -97,7 +97,7 @@
                   <div class="video_tags" v-if="scope.row.titles">
                     <div v-for="(item,index) in scope.row.titles" :key="index">{{item.name}}</div>
                   </div>
-                  <div v-else>暂未分配小标题</div>
+                  <div v-else class="sortout_color">暂未分配小标题</div>
                 </template>
               </el-table-column>
 
@@ -203,6 +203,8 @@
     methods:{
       //确定添加小标题
       handleAddTags(){
+        console.log(this.checkboxTags)
+        console.log(this.tagsIds)
           this.HttpClient.post('/admin/videos/titleRelation',{
               ids:this.tagsIds.toString(),
               video_id:this.videoId
@@ -220,7 +222,11 @@
       },
       //选择小标题
       handleChangetags(e,tag){
-          console.log(e,tag)
+          // console.log(e,tag)
+          // console.log(this.tags)
+          // console.log(this.checkboxTags) 
+          
+          console.log(this.tagsIds)
           if(e === true){
               this.tagsIds.push(tag.id)
           }else{
@@ -251,18 +257,26 @@
               type:name
           })
           .then(res=>{
-              console.log(res);
+              // console.log(res);
               if(res.data.code === 200){
                   this.tags = res.data.data;
+                  // console.log(this.tags)
+                  // console.log(m)
                   if(m !== undefined){
                       for(let x=0;x<m.length;x++){
                           for(let y=0;y<this.tags.length;y++){
                               if(m[x].name === this.tags[y].name){
+                                console.log(this.tags[y])
                                   this.checkboxTags.push(this.tags[y]);
                               }
                           }
                       }
                   }
+                  // console.log(this.checkboxTags)
+                  this.checkboxTags.forEach(item => {
+                    this.tagsIds.push(item.id)
+                  })
+                  console.log(this.tagsIds)
                   this.tagsDialog = true;
               }
           })
@@ -327,8 +341,11 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 20px 40px;
+        // padding: 20px 40px;
+        padding-left: 30px;
         margin-bottom: 30px;
+        font-size: 20px;
+        line-height: 70px;
         border-bottom: 1px solid #dedede;
       }
 

@@ -15,8 +15,8 @@
             <!-- <el-checkbox class="all_check" :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange">全选</el-checkbox> -->
             <div style="margin: 15px 0;"></div>
             <el-checkbox-group class="check_group" v-model="checkedJurisdiction" @change="handleCheckedCitiesChange">
-              <el-checkbox class="check_item" v-for="item in jurisdictionData" :label="item" :key="item.id" @change="handleChange($event,item.id)">
-                <span class="check_lab">{{item.label}}{{item.id}}<span class="line"></span>{{item.name}}</span>
+              <el-checkbox class="check_item" v-for="(item,index) in jurisdictionData" :label="item" :key="index" @change="handleChange($event,item)">
+                <span class="check_lab" v-text="getLabel(item)+' | '+getName(item)"></span>
               </el-checkbox>
             </el-checkbox-group>
           </div>
@@ -259,6 +259,8 @@ export default {
       // isIndeterminate: true,
       menu_list:[],
       jurVisible:true,
+      oldList:[],
+      selectList:[],
     }
   },
   mounted(){
@@ -267,10 +269,17 @@ export default {
   },
   methods: {
     //添加、移除此权限
-    handleChange(n,id){
-        console.log(n,id);
-        console.log(this.$store.state.menu.role_jur.id);
-        console.log(this.jurisdictionData,this.checkedJurisdiction);
+    handleChange(n,label){
+        // console.log(n,id);
+        let id = null;
+        for(let i in this.oldList){
+            if(label === this.oldList[i].label){
+              console.log(this.oldList[i].id);
+              id = this.oldList[i].id
+            }
+        }
+        // console.log(this.$store.state.menu.role_jur.id);
+        // console.log(this.jurisdictionData,this.checkedJurisdiction);
         if(n){  //根据checkbox切换状态（n为真时勾选）-添加此权限
             this.HttpClient.post('/admin/rolepermission/create',{
                 role_id:this.$store.state.menu.role_jur.id,
@@ -337,9 +346,21 @@ export default {
       this.$emit('ee',{id:this.menu_id,menu_visible:this.menu_visible,checkedJurisdiction:this.checkedJurisdiction})
     },
     rr(data){
-      console.log(this.$store.state.menu.select_menu.old_jur,this.$store.state.menu.role_jur.curRoleMenuJur);     
-      this.jurisdictionData  = this.$store.state.menu.select_menu.old_jur;            //当前菜单下的权限
-      this.checkedJurisdiction = this.$store.state.menu.role_jur.curRoleMenuJur;      //此角色在当前菜单下已拥有的权限
+      this.jurisdictionData = [];
+      this.checkedJurisdiction = [];
+      this.oldList = [];
+      this.selectList = [];
+      console.log(this.$store.state.menu.select_menu.old_jur,this.$store.state.menu.role_jur.curRoleMenuJur); 
+      this.oldList = this.$store.state.menu.select_menu.old_jur;
+      this.selectList = this.$store.state.menu.role_jur.curRoleMenuJur;
+      for(let i in this.$store.state.menu.select_menu.old_jur){
+          this.jurisdictionData.push(this.$store.state.menu.select_menu.old_jur[i].label);
+      }
+      for(let i in this.$store.state.menu.role_jur.curRoleMenuJur){
+          this.checkedJurisdiction.push(this.$store.state.menu.role_jur.curRoleMenuJur[i].label);
+      }
+      // this.jurisdictionData  = this.$store.state.menu.select_menu.old_jur;            //当前菜单下的权限
+      // this.checkedJurisdiction = this.$store.state.menu.role_jur.curRoleMenuJur;      //此角色在当前菜单下已拥有的权限
       console.log(this.jurisdictionData,this.checkedJurisdiction)
       if(this.$store.state.menu.select_menu.id === undefined){
         this.menu_name = '您还未选取菜单'
@@ -348,7 +369,35 @@ export default {
         
       }
       
-    }
+    },
+    getLabel(id){
+      let label = '';
+      console.log(id)
+      console.log('菜单权限')
+        for(let i in this.oldList){
+          if(id === this.oldList[i].label){
+            label = this.oldList[i].label;
+            // console.log(this.oldList[i].label)
+          }
+        }
+        console.log(label)
+        return label
+      },
+      getName(id){
+        let name = '';
+        console.log('菜单权限')
+        for(let i in this.oldList){
+          if(id === this.oldList[i].label){
+            name = this.oldList[i].name;
+            console.log(this.oldList[i].name)
+          }
+        }
+        console.log(name)
+        return name
+      }
+  },
+  computed:{
+    
   }
 }
 </script>

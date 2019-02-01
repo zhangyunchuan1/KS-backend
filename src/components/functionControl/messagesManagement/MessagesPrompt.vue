@@ -73,7 +73,7 @@
                             <el-table-column
                                     label="信息"
                                     align="center"
-                                    width="300"
+                                    width="290"
                                     show-overflow-tooltip
                                     prop="content.info">
                             </el-table-column>
@@ -92,6 +92,10 @@
                                     width="220"
                                     show-overflow-tooltip
                                     prop="content.remark">
+                                    <template slot-scope="scope">
+                                        <span v-if="scope.row.content.remark">{{scope.row.content.remark}}</span>
+                                        <span v-else class="delete_color">暂无</span>
+                                    </template>
                             </el-table-column>
 
                             <el-table-column
@@ -115,10 +119,14 @@
                             <el-table-column
                                     label="状态"
                                     align="center"
-                                    width="60"
+                                    width="80"
                                     sortable
                                     prop="status"
                                     show-overflow-tooltip>
+                                    <template slot-scope="scope">
+                                        <span v-if="scope.row.status === 1">正常</span>
+                                        <span v-if="scope.row.status === 0" class="delete_color">删除</span>
+                                    </template>
                             </el-table-column>
 
                             <el-table-column
@@ -126,8 +134,16 @@
                                     align="center"
                                     class-name="mallReview_scope">
                                 <template slot-scope="scope">
-                                    <span @click="handleModify(scope.row)">修改</span>
-                                    <span @click="handleDelete(scope.row.id)">删除</span>
+                                    <el-button
+                                    @click="handleModify(scope.row)"
+                                    type="text">
+                                    修改
+                                    </el-button>
+                                    <el-button
+                                     @click="handleDelete(scope.row.id)"
+                                    type="text">
+                                    删除
+                                    </el-button>
                                 </template>
                             </el-table-column>
                         </el-table>

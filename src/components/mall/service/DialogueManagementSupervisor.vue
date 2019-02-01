@@ -27,11 +27,13 @@
                 align="center"
                 width="180"
                 prop="updated_at"
+                show-overflow-tooltip
                 sortable>
               </el-table-column>
               <el-table-column
                 label="客服姓名"
                 align="center"
+                show-overflow-tooltip
                 width="220"
                 prop="admin_name">
               </el-table-column>
@@ -40,6 +42,7 @@
                 label="用户昵称"
                 align="center"
                 width="220"
+                show-overflow-tooltip
                 prop="nickname">
               </el-table-column>
 
@@ -47,6 +50,7 @@
                 label="用户类型"
                 align="center"
                 width="200"
+                show-overflow-tooltip
                 prop="user_type">
                 <template slot-scope="scope">
                     <span v-if="scope.row.user_type === 1">用户</span>
@@ -58,6 +62,7 @@
                 label="类型"
                 align="center"
                 width="100"
+                show-overflow-tooltip
                 prop="dialog_type">
                 <template slot-scope="scope">
                     <span v-if="scope.row.dialog_type === 0">任务</span>
@@ -68,6 +73,7 @@
                 label="状态"
                 align="center"
                 width="100"
+                show-overflow-tooltip
                 prop="status">
                 <template slot-scope="scope">
                     <span v-if="scope.row.status === 1">未开始</span>
@@ -81,32 +87,14 @@
 
               <el-table-column
                 label="操作"
-                align="center"
-                class-name="mallReview_scope">
+                fixed="right"
+                min-width="500"
+                align="center">
                 <template slot-scope="scope">
-                  <div class="mallReview_btm">
-                    <el-button
-                      @click="openModalAndGetRowData('chatDialog', scope.row)"
-                    >
-                      对话
-                    </el-button>
-                    <el-button
-                      @click="openModalAndGetRowData('shieldDialog', scope.row)"
-                    >
-                      屏蔽用户
-                    </el-button>
-                    <el-button
-                      @click="openModalAndGetRowData('cloneChartDialog', scope.row)"
-                    >
-                      结束对话
-                    </el-button>
-                    <el-button
-                      @click="openModalAndGetRowData('createTaskDialog', scope.row)"
-                    >
-                      创建任务
-                    </el-button>
-                    <el-button>删除</el-button>
-                  </div>
+                    <el-button type="primary" plain size="mini" @click="openModalAndGetRowData('chatDialog', scope.row)">对话</el-button>
+                    <el-button type="primary" plain size="mini" @click="openModalAndGetRowData('shieldDialog', scope.row)">屏蔽用户</el-button>
+                    <el-button type="primary" plain size="mini" @click="openModalAndGetRowData('cloneChartDialog', scope.row)">结束对话</el-button>
+                    <el-button type="primary" plain size="mini" @click="openModalAndGetRowData('createTaskDialog', scope.row)">创建任务</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -123,62 +111,35 @@
       <span slot="title" class="chatDialog_title"><i class="iconfont icon-mail"></i>对话- 是个狼人</span>
       <div class="chatDialog_main">
         <div class="main_content">
-          <!--用户-->
-          <div class="user_chat chat_list">
-            <span>2018/12/6 17:12</span>
-            <p>我要退款，你发我两只左脚的鞋</p>
-          </div>
+          <div v-for="(item,index) in messageData" :key="index">
+            <!--用户-->
+            <div class="user_chat chat_list" v-if="item.type === 2">
+              <span>{{item.send_time}}</span>
+              <p>{{item.content}}</p>
+            </div>
 
-          <!--客服-->
-          <div class="service_chat chat_list">
-            <p class="service_message">
-              <span class="service_serviceName">是个猛男</span>
-              <span class="service_time">2018/12/6 17:13</span>
-            </p>
-            <p class="chat_content">亲亲，不能退款呢，我们的脚都是长那样的呢，穿不了是您的问题呢</p>
+            <!--客服-->
+            <div class="service_chat chat_list" v-if="item.type === 1">
+              <p class="service_message">
+                <span class="service_serviceName">{{item.admin_name}}</span>
+                <span class="service_time">{{item.send_time}}</span>
+              </p>
+              <p class="chat_content">{{item.content}}</p>
+            </div>
           </div>
-
-          <!--用户-->
-          <div class="user_chat chat_list">
-            <span>2018/12/6 17:15</span>
-            <p>我要退款，你发我两只左脚的鞋</p>
-          </div>
-          <!--用户-->
-          <div class="user_chat chat_list">
-            <span>2018/12/6 17:15</span>
-            <p>我要退款，你发我两只左脚的鞋</p>
-          </div>
-          <!--用户-->
-          <div class="user_chat chat_list">
-            <span>2018/12/6 17:15</span>
-            <p>我要退款，你发我两只左脚的鞋</p>
-          </div>
-          <!--用户-->
-          <div class="user_chat chat_list">
-            <span>2018/12/6 17:16</span>
-            <p>我要退款，你发我两只左脚的鞋。我要退款，你发我两只左脚的鞋我要退款，你发我两只左脚的鞋。我要退款，你发我两只左脚的鞋</p>
-          </div>
-          <!--客服-->
-          <div class="service_chat chat_list">
-            <p class="service_message">
-              <span class="service_serviceName">是个猛男</span>
-              <span class="service_time">2018/12/6 17:16</span>
-            </p>
-            <p class="chat_content">亲亲，我退你ma</p>
-          </div>
-
         </div>
         <div class="char_input">
           <el-input
             type="textarea"
             resize="none"
+            v-model="replyContent"
             placeholder="输入回复内容，请文明用语"
             :rows="2"></el-input>
         </div>
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="chatDialog = false">取 消</el-button>
-        <el-button type="primary">回 复</el-button>
+        <el-button type="primary" @click="handleReply">回 复</el-button>
       </span>
     </el-dialog>
 
@@ -327,7 +288,9 @@
           taskMarks: '',  // 创建任务备注
           taskReason: '',
           taskType: '',   // 创建任务类别
-          row: {}         // 表格当前选中列的数据
+          row: {} ,        // 表格当前选中列的数据
+          messageData:[],
+          replyContent:'',  //回复内容
         }
       },
       
@@ -335,10 +298,32 @@
         this.getTableData()
       },
       methods: {
+        //回复消息
+        handleReply(){
+          console.log(this.replyContent,this.row.manager_id)
+          this.HttpClient.post('/admin/receive/message', {
+            manager_id:this.row.manager_id,
+            content:this.replyContent,
+            send_time:this.getNowFormatDate()
+          })
+          .then(res => {
+            console.log(res);
+            if(res.data.code === 200){
+              this.messageData.push({
+                send_time: this.getNowFormatDate(),
+                content:this.replyContent,
+                send_nickname:this.row.send_nickname,
+                type:1
+              })
+              this.replyContent = '';
+            }
+          })
+        },
         // 获取表格数据
         getTableData (page=1, page_size=25) {
           this.HttpClient.post('/admin/director/message', {page, page_size})
             .then(res => {
+              console.log(res)
               const { code, data: {total, data} } = res.data
               if (code === 200) {
                 this.tableData = data
@@ -354,6 +339,7 @@
           // 获取对话列表
           if (modal === 'chatDialog') {
             this.getChatRecord({cs_id: this.row.cs_id, list_uid: this.row.user_id, page: 1}) 
+
           }
         },
 
@@ -412,7 +398,8 @@
         getChatRecord (data) {
           this.HttpClient.post('/admin/message/info', {...data, page_size: 10})
             .then(res => {
-              console.log(res.data)
+              console.log(res.data);
+              this.messageData = res.data.data.data.reverse();
             })
         },
         // 格式化时间
@@ -428,7 +415,28 @@
           }
          var currentdate = `${date.getFullYear()}-${month}-${strDate} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
          return currentdate
-        }
+        },
+        // add0(m){return m<10?'0'+m:m },
+        // format(t){
+        //     //shijianchuo是整数，否则要parseInt转换
+        //     let time = new Date(t);
+        //     let y = time.getFullYear();
+        //     let m = time.getMonth()+1;
+        //     let d = time.getDate();
+        //     let h = time.getHours();
+        //     let mm = time.getMinutes();
+        //     let s = time.getSeconds();
+        //     return y+'-'+this.add0(m)+'-'+this.add0(d)+' '+this.add0(h)+':'+this.add0(mm)+':'+this.add0(s);
+        // }
+        // formatDate(now) { 
+        //   var year=now.getFullYear(); 
+        //   var month=now.getMonth()+1; 
+        //   var date=now.getDate(); 
+        //   var hour=now.getHours(); 
+        //   var minute=now.getMinutes(); 
+        //   var second=now.getSeconds(); 
+        //   return "20"+year+"-"+month+"-"+date+" "+hour+":"+minute+":"+second; 
+        // } 
       }
     }
 </script>

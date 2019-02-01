@@ -246,6 +246,11 @@
         twoisShow:false,//二级目录是否显示
         threeisShow:false,//三级目录是否显示
         productisShow:false,//产品目录是否显示
+
+        carMenuID: "", //汽车ID
+        motorMenuID: "", //摩托ID
+        planeMenuID: "", //无人机ID
+        intelligentMenuID: "", //智能设备ID
       }
     },
     methods:{
@@ -254,13 +259,24 @@
          * author:zhangyunchuan
          * time:2019/01/03
          */
-        getTypelist() {
+        getTypelistFn() {
           this.HttpClient.post("/shop/menu/getOneChild", {
             isFolder: true
           }).then(res => {
             if (res.data.code == 200) {
               this.typeList = res.data.data;
-              // console.log(this.typeList);
+              this.typeList.forEach(item => {
+                if (item.name == "汽车") {
+                  this.carMenuID = item.menu_id;
+                } else if (item.name == "摩托") {
+                  this.motorMenuID = item.menu_id;
+                } else if (item.name == "模型") {
+                  this.planeMenuID = item.menu_id;
+                } else if (item.name == "智能设备") {
+                  this.intelligentMenuID = item.menu_id;
+                }
+              })
+              console.log(this.typeList);
             }
           });
         },
@@ -381,6 +397,7 @@
                 motorcycle=[],
                 plane=[],
                 intelligent=[];
+                console.log(this.carByDate)
             dates.map(date=> {
                 // console.log(date);
                 let carNum = 0;
@@ -390,22 +407,34 @@
                 date=this.initFormat(date);
                 this.carByDate.map(item => {
                     // console.log(2222,item.created_at);
-                    if (new Date(year + "-" + (month < 10 ? "0" + month : month) + "-" + date).getTime() === new Date(item.created_at.split(" ")[0]).getTime() || new Date((month >= 12 ? year + 1 + "-01": year + "-" + (month < 10 ? "0" + (month + 1) : month + 1)) + "-" + date).getTime() === new Date(item.created_at.split(" ")[0]).getTime()) {
+                    if (new Date(year + "-" + (month<10?'0' + month:month) + "-" + date).getTime() ===
+              new Date(item.created_at.split(" ")[0]).getTime() ||
+            new Date((month>=12?year+1+'-01':year + "-" + (month<10?'0' + (month+1):month + 1)) + "-" + date).getTime() ===
+              new Date(item.created_at.split(" ")[0]).getTime()) {
                         carNum += Number(item.product_total);
                     }
                 });
                 this.motorByDate.map(item => {
-                    if (new Date(year + "-" + (month < 10 ? "0" + month : month) + "-" + date).getTime() === new Date(item.created_at.split(" ")[0]).getTime() || new Date((month >= 12 ? year + 1 + "-01": year + "-" + (month < 10 ? "0" + (month + 1) : month + 1)) + "-" + date).getTime() === new Date(item.created_at.split(" ")[0]).getTime()) {
+                    if (new Date(year + "-" + (month<10?'0' + month:month) + "-" + date).getTime() ===
+              new Date(item.created_at.split(" ")[0]).getTime() ||
+            new Date((month>=12?year+1+'-01':year + "-" + (month<10?'0' + (month+1):month + 1)) + "-" + date).getTime() ===
+              new Date(item.created_at.split(" ")[0]).getTime()) {
                         motorNum += Number(item.product_total);
                     }
                 });
                 this.planeByDate.map(item => {
-                    if (new Date(year + "-" + (month < 10 ? "0" + month : month) + "-" + date).getTime() === new Date(item.created_at.split(" ")[0]).getTime() || new Date((month >= 12 ? year + 1 + "-01": year + "-" + (month < 10 ? "0" + (month + 1) : month + 1)) + "-" + date).getTime() === new Date(item.created_at.split(" ")[0]).getTime()) {
+                    if (new Date(year + "-" + (month<10?'0' + month:month) + "-" + date).getTime() ===
+              new Date(item.created_at.split(" ")[0]).getTime() ||
+            new Date((month>=12?year+1+'-01':year + "-" + (month<10?'0' + (month+1):month + 1)) + "-" + date).getTime() ===
+              new Date(item.created_at.split(" ")[0]).getTime()) {
                         planeNum += Number(item.product_total);
                     }
                 });
                 this.intelligentByDate.map(item => {
-                    if (new Date(year + "-" + (month < 10 ? "0" + month : month) + "-" + date).getTime() === new Date(item.created_at.split(" ")[0]).getTime() || new Date((month >= 12 ? year + 1 + "-01": year + "-" + (month < 10 ? "0" + (month + 1) : month + 1)) + "-" + date).getTime() === new Date(item.created_at.split(" ")[0]).getTime()) {
+                    if (new Date(year + "-" + (month<10?'0' + month:month) + "-" + date).getTime() ===
+              new Date(item.created_at.split(" ")[0]).getTime() ||
+            new Date((month>=12?year+1+'-01':year + "-" + (month<10?'0' + (month+1):month + 1)) + "-" + date).getTime() ===
+              new Date(item.created_at.split(" ")[0]).getTime()) {
                         intelligentNum += Number(item.product_total);
                     }
                 });
@@ -433,6 +462,7 @@
                 this.intelligentByDate.percent=Number((this.intelligentByDate.total/this.productTotalByDate*100).toFixed(2));
             }
 
+            console.log(car)
             // 基于准备好的dom，初始化echarts实例
             let myChart = echarts.init(document.getElementById('myChart'));
             // 绘制图表
@@ -507,16 +537,16 @@
             });
         },
         //获取板块列表
-        async getTypeList(){
-            await this.HttpClient.post('/admin/menu/getList',{menu_type:1})
-                .then(res=>{
-                    // console.log(res);
-                    if(res.data.code===200){
-                        this.typeList=Object.values(res.data.data);
-                        // this.contentHeader=this.typeList[0].menu_id;
-                    }
-                })
-        },
+        // async getTypeList(){
+        //     await this.HttpClient.post('/admin/menu/getList',{menu_type:1})
+        //         .then(res=>{
+        //             // console.log(res);
+        //             if(res.data.code===200){
+        //                 this.typeList=Object.values(res.data.data);
+        //                 // this.contentHeader=this.typeList[0].menu_id;
+        //             }
+        //         })
+        // },
         //获取某一时间段内商品数据
         getProductDataByDate(){
             this.HttpClient.post('/admin/marketAnalysis/oneField',{
@@ -539,14 +569,16 @@
                         this.intelligentByDate=[];
                         res.data.data.map(item=>{
                             this.typeList.map(tmp=>{
+                              // console.log(item)
+                              // console.log(tmp)
                                 if(item.folder_id===tmp.menu_id){
-                                    if(tmp.name==='汽车1'){
+                                    if(tmp.menu_id===this.carMenuID){
                                         this.carByDate.push(item);
-                                    }else if(tmp.name==='摩托'){
+                                    }else if(tmp.menu_id===this.motorMenuID){
                                         this.motorByDate.push(item);
-                                    }else if(tmp.name==='无人机'){
+                                    }else if(tmp.menu_id===this.planeMenuID){
                                         this.planeByDate.push(item);
-                                    }else if(tmp.name==='智能设备'){
+                                    }else if(tmp.menu_id===this.intelligentMenuID){
                                         this.intelligentByDate.push(item);
                                     }
                                 }
@@ -562,11 +594,11 @@
                 .then(res=>{
                     // console.log(res);
                     if(res.data.code===200){
-                      console.log(res.data.data)
+                      // console.log(res.data.data)
                         res.data.data.map(item=>{
                             this.productTotal+=Number(item.product_total);
-                            console.log(item)
-                            if(item.folder==='汽车1'){
+                            // console.log(item)
+                            if(item.folder==='汽车'){
                                 this.carTotal=item
                                 // console.log(this.carTotal)
                             }else if(item.folder==='摩托车'){
@@ -603,8 +635,8 @@
             return year+'-'+month+'-'+day+' '+hour + ':' + minutes + ':' + second
         }
     },
-    async created(){
-        this.getTypeList();
+    created(){
+        // this.getTypeList();
         let arr=this.initDateValue(new Date()).split('-');
         if (arr[1] == "01") {
           arr[0] = arr[0] - 1;
@@ -615,11 +647,11 @@
         arr.join('-');
         this.startTime=arr.join('-');
         this.endTime=this.initDateValue(new Date());
-        console.log(this.startTime);
-        console.log(this.endTime);
+        // console.log(this.startTime);
+        // console.log(this.endTime);
         this.getProductGross();
         this.getProductDataByDate()
-        this.getTypelist();
+        this.getTypelistFn();
     },
     // mounted() {
     //     this.drawLine();

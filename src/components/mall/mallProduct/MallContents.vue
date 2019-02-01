@@ -4,7 +4,7 @@
 
       <div class="encyclopedia_main">
         <div class="encyclopedia_title">
-          <div class="title">目录分配情况</div>
+          <div class="title">专业目录分配情况</div>
         </div>
 
         <div class="encyclopedia_box">
@@ -126,7 +126,7 @@
               <el-table-column
                 label="商品名称"
                 align="center"
-                width="180"
+                width="170"
                 show-overflow-tooltip
                 prop="title">
               </el-table-column>
@@ -140,9 +140,9 @@
               </el-table-column>
 
               <el-table-column
-                label="一级目录"
+                label="一级专业目录"
                 align="center"
-                width="130"
+                width="150"
                 show-overflow-tooltip
                 prop="menu_1">
                 <template slot-scope="scope">
@@ -151,9 +151,9 @@
               </el-table-column>
 
               <el-table-column
-                label="二级目录"
+                label="二级专业目录"
                 align="center"
-                width="130"
+                width="150"
                 show-overflow-tooltip
                 prop="menu_2">
                 <template slot-scope="scope">
@@ -162,9 +162,9 @@
               </el-table-column>
 
               <el-table-column
-                label="三级目录"
+                label="三级专业目录"
                 align="center"
-                width="130"
+                width="150"
                 show-overflow-tooltip
                 prop="menu_3">
                 <template slot-scope="scope">
@@ -206,7 +206,7 @@
               <el-table-column
                 label="目录状态"
                 align="center"
-                width="120"
+                width="80"
                 show-overflow-tooltip
                 prop="status">
                 <template slot-scope="scope">
@@ -219,12 +219,10 @@
                 label="操作"
                 align="center"
                 fixed="right"
-                class-name="encyclopedia_scope">
-                <template slot-scope="scope">
-                  <div class="encyclopedia_btm">
-                    <el-button size="medium " type="text" @click="deleteFn(scope.row)">删除</el-button>
-                    <el-button size="medium " type="text">预览</el-button>
-                  </div>
+                min-width="150">
+                <template slot-scope="scope">      
+                    <el-button type="primary" plain size="mini" @click="deleteFn(scope.row)">删除</el-button>
+                    <el-button type="primary" plain size="mini" @click="handlePreview">预览</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -370,11 +368,11 @@
       },
       //时间搜索
       handleSeachStartTime(e){
-          console.log(this.searchStartTime)
+          // console.log(this.searchStartTime)
           this.getMallList();
       },
       handleSeachEndTime(e){
-          console.log(this.searchEndTime)
+          // console.log(this.searchEndTime)
           this.getMallList();
       },
       //切换板块
@@ -399,7 +397,7 @@
               this.searchMenuId = i.menu_id;
               this.getMallList();
           }
-          console.log(i)
+          // console.log(i)
           this.getNextList(i.menu_id,i.type);
       },
       // 获取下一级列表
@@ -409,7 +407,7 @@
               menu_type:3
           })  
           .then(res=>{
-              console.log(res)
+              // console.log(res)
               if(res.data.code === 200){
                   if(type === 0){
                       this.firstMenuList  = res.data.data.child;
@@ -430,7 +428,7 @@
               menu_type:3
           })  
           .then(res=>{
-              console.log(res)
+              // console.log(res)
               this.menuList = res.data.data;
           })
       },
@@ -481,7 +479,7 @@
       },
       // 改变当前页
       handleCurrentChange(e){
-          console.log(e);
+          // console.log(e);
           this.currentPage = e;
           this.getMallList();
       },
@@ -496,7 +494,7 @@
        *time:2019/01/03
        */
       deleteFn(i){
-        console.log(i)
+        // console.log(i)
           this.menuID = i.menu_id;
           this.modifyObj = i;
           this.removeVisible = true;
@@ -535,6 +533,10 @@
           //     console.log(res);
           // })
       },
+      //预览
+      handlePreview(){
+        this.$message.warning('此功能跳转前台页面，暂未开放！');
+      },
       filterPlate(value, row, column) {
         const property = column['property'];
         return row[property] === value;
@@ -550,7 +552,7 @@
       removeModal(modifyObj) {
         this.removeVisible = true;
         this.modifyObj = modifyObj;
-        console.log('modifyObj:', this.modifyObj);
+        // console.log('modifyObj:', this.modifyObj);
       },
     }
   }
@@ -638,6 +640,7 @@
         }
 
         .encyclopedia_content{
+          
           .encyclopedia_list:nth-child(2){
             border-left-color: #4dacff;
             .encyclopedia_list_title{
@@ -776,7 +779,7 @@
         /*表格*/
         .encyclopedia_content{
           padding: 0 30px;
-          width: 81%;
+          width: 85%;
           // .el-table{
             // thead{
             //   color: #fff;
@@ -809,6 +812,66 @@
               }
             }
           }
+          .el-table {
+                    thead {
+                        color: #fff;
+                        th, tr {
+                            background-color: #15bafe;
+                            .el-input--suffix .el-input__inner{
+                                color:#fff;
+                                font-size:12px;
+                                font-weight:900;
+                                border:none;
+                                padding:0;
+                                background:#15bafe;
+                            }
+                            .el-input__inner::placeholder{
+                                font-size:12px!important;
+                                // color:#000!important;
+                                font-weight:900!important;
+                            }
+                            .el-input__inner::-webkit-input-placeholder{
+                                font-size:12px!important;
+                                color:#fff!important;
+                                font-weight:900!important;
+                            }
+                            .el-input__inner::-moz-placeholder{  //不知道为何火狐的placeholder的颜色是粉红色，怎么改都不行，希望有大牛路过帮忙指点
+                                font-size:12px!important;
+                                color:#fff!important;
+                                font-weight:900!important;
+                            }
+                            .el-input__inner:-ms-input-placeholder{  //由于我的IE刚好是IE9，支持不了placeholder，所以也测试不了(⊙﹏⊙)，有IE10以上的娃可以帮我试试
+                                font-size:12px!important;
+                                color:#fff!important;
+                                font-weight:900!important;
+                            }
+                            .el-input__suffix{
+                                right:-1px;
+                                // .el-select__caret{
+                                //     color:#fff;
+                                // }
+                                .el-input__icon{
+                                    width:14px;
+                                    color:#fff;
+                                    font-size: 14px;
+                                }
+                            }
+                            .el-select{
+                                position:relative;
+                                padding-left: 8px;
+                                top:2px;
+                            }
+                        }
+                    }
+                    tbody{
+                        .created_at{
+                            .cell{
+                                padding:0 15px;
+                            }
+                        }
+
+                    }
+                }
         }
       }
 

@@ -9,7 +9,7 @@
             <div class="settle_table" style="width:80%">
                 <div class="settle_search">
                     <div>
-                        <el-input placeholder="用户昵称搜索" v-model="searchObj.searchProductId" class="input-with-select">
+                        <el-input placeholder="用户昵称搜索" v-model="searchObj.searchProductId" clearable class="input-with-select">
                         <el-button  slot="append" icon="el-icon-search" @click="search"></el-button>
                         </el-input>
                     </div>
@@ -262,6 +262,13 @@
                         </template>
                     </el-table-column>
                 </el-table>
+                <el-pagination
+                    v-if="productTotal"
+                    layout="prev, pager, next"
+                    :total="productTotal"
+                    :page-size="pageproductSize"
+                    @current-change="currentproductChange"
+                    ></el-pagination>
             </div>
             <span slot="footer" class="dialog-footer">
                 <el-button type="primary" @click="clearModal">清空购物车</el-button>
@@ -330,7 +337,9 @@
                     icon: 'icon-home'
                 }],
                 // 分页
-                total:null,  //数据总条
+                // total:null,  //数据总条
+                productTotal:0,
+                pageproductSize:5,
                 tableData:[],
                 total: 0, // 总条数
                 pageSize: 25, // 每页条数
@@ -368,9 +377,14 @@
             },
             async getProductTableList() {
                 let res = await this.HttpClient.post('/admin/marketShoppingCart/productList', {
-                    uid: this.modifyObj.uid
+                    uid: this.modifyObj.uid,
+                    page: this.currentproductPage,
+                    size: this.pageproductSize,
+                    // pageproductSize
                 });
+                console.log(res.data.data)
                 this.productList = res.data.data.data;
+                this.productTotal = res.data.data.total;
             },
             async remove() {
                 let res = await this.HttpClient.delete('/admin/marketShoppingCart', {
@@ -400,10 +414,14 @@
             search(){
                 this.getTableList(this.searchObj);
             },
-            async currentChange(page) {
+            currentChange(page) {
                 this.currentPage = page;
                 this.search();
             },
+            currentproductChange(page){
+                this.currentproductPage = page;
+                this.getProductTableList();
+            }
         }
     }
 

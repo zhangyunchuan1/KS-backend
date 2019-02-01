@@ -21,6 +21,16 @@
               @change="handleChangeTime($event)">
             </el-date-picker>
           </div>
+          <div class="content_time">
+            <el-select v-model="statusValue" placeholder="请选择" @change="changeStatusFn">
+              <el-option
+                v-for="item in statusOptions"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+              </el-option>
+            </el-select>
+          </div>
         </div>
 
         <div class="content_table">
@@ -50,7 +60,11 @@
               align="center"
               width="120"
               show-overflow-tooltip
-              prop="actual_name">
+              prop="nickname">
+              <template slot-scope="scope">
+                <span v-if="scope.row.nickname">{{scope.row.nickname}}</span>
+                <span v-else class="sortout_color">无</span>
+              </template>
             </el-table-column>
 
             <el-table-column
@@ -74,7 +88,7 @@
               align="center"
               show-overflow-tooltip
               width="150"
-              prop="review">
+              prop="content">
             </el-table-column>
 
             <el-table-column
@@ -90,14 +104,13 @@
               align="center"
               width="120"
               prop="status"
-              :filters="[{text: '已处理通过', value: 1}, {text: '未处理', value: 2}, {text: '已处理未通过', value: 3}, {text: '已删除', value: 0}]"
-              :filter-method="filterHandler"
               show-overflow-tooltip>
               <template slot-scope="scope">
-                <span v-if="scope.row.status === 1">已处理通过</span>
-                <span v-if="scope.row.status=== 2">未处理</span>
-                <span v-if="scope.row.status=== 3">已处理未通过</span>
-                <span v-if="scope.row.status=== 0">已删除</span>
+                <span v-if="scope.row.status === 1">已审核</span>
+                <span v-if="scope.row.status === 2" class="audit_color">未审核</span>
+                <span v-if="scope.row.status !== 1 && scope.row.status !== 2" class="audit_color">暂无状态</span>
+                <!-- <span v-if="scope.row.status === 3">已处理未通过</span>
+                <span v-if="scope.row.status === 0">已删除</span> -->
               </template>
             </el-table-column>
 
@@ -106,7 +119,11 @@
               align="center"
               show-overflow-tooltip
               width="250"
-              prop="review_name">
+              prop="review">
+              <template slot-scope="scope">
+                <span v-if="scope.row.review">{{scope.row.review}}</span>
+                <span v-else class="audit_color">暂无结论</span>
+              </template>
             </el-table-column>
 
             <el-table-column
@@ -166,18 +183,16 @@
 
     <!--查看图片弹窗-->
     <el-dialog
-      width="400px"
+      width="600px"
       custom-class="viewImageDialog"
       :visible.sync="viewImageDialog">
       <span slot="title" class="viewImageDialog_title"><i class="iconfont icon-image"></i>查看图片</span>
       <div class="viewImage_dialog_box">
-        <img :src="'http://cdn.kushualab.com/'+viewImage" alt="">
+        <div v-for="(item,index) in imgList" :key="index">
+          <img :src="Tools.handleImg(item.path)"  alt="">
+          <a :href="Tools.handleImg(item.path)+'?attname='" download="图片"><i class="el-icon-download"></i></a>
+        </div>
       </div>
-      <span slot="footer" class="dialog-footer">
-        <el-button>
-          <a :href="'http://cdn.kushualab.com/'+viewImage+'?attname='" download="图片">下载</a>
-        </el-button>
-      </span>
     </el-dialog>
     <!-- 删除弹窗 -->
       <el-dialog :visible.sync="removeVisible" width="300px">
@@ -231,6 +246,15 @@
         ],
 
         searchTime: '',  // 选择时间
+        // 状态选择
+        statusOptions:[{
+          value: 1,
+          label: '已审核'
+        }, {
+          value: 2,
+          label: '未审核'
+        }],
+        statusValue:'',
 
         tableData:[],
         reviewList:null,  //审核类别
@@ -243,6 +267,7 @@
         viewImageDialog: false,
         removeVisible:false,
         viewImage: '',
+        imgList:[],  
 
         currentObj:{},  //当前操作对象
 
@@ -257,6 +282,10 @@
       this.getExamineList();
     },
     methods:{
+      // 状态搜索
+      changeStatusFn(){
+        this.getReportList();
+      },
       //切换时间搜索
       handleChangeTime(e){
         console.log(this.searchTime);
@@ -268,7 +297,8 @@
             size:25,
             page:this.currentPage,
             start_time:this.searchTime?this.searchTime[0]:'',
-            end_time:this.searchTime?this.searchTime[1]:''
+            end_time:this.searchTime?this.searchTime[1]:'',
+            status:this.statusValue
         })
         .then(res=>{
             console.log(res);
@@ -316,8 +346,8 @@
       },
       //查看照片
       handleSeePic(i){
-        console.log(JSON.parse(i.attachment));
-        this.viewImage = JSON.parse(i.attachment)[0].path;
+        console.log((i.attachment));
+        this.imgList = i.attachment;
         this.viewImageDialog = true;
       },
       //打开删除弹窗
@@ -360,10 +390,10 @@
           this.currentPage = p;
           this.getReportList();
       },
-      filterHandler(value, row, column) {
-        const property = column['property'];
-        return row[property] === value;
-      }
+      // filterHandler(value, row, column) {
+      //   const property = column['property'];
+      //   return row[property] === value;
+      // }
     }
   }
 </script>
@@ -408,6 +438,9 @@
           display: flex;
           align-items: center;
           justify-content: space-between;
+          .el-input__inner{
+            width: 350px !important;
+          }
         }
 
         /*表格*/
@@ -454,7 +487,7 @@
         }
       }
     }
-  }
+  
 
 
   /*审核弹窗*/
@@ -524,9 +557,25 @@
       }
     }
     .viewImage_dialog_box{
-      img{
-        width: 100%;
+      margin: 20px 0;
+      display: flex;
+      >div{
+        position: relative;
+        img{
+          width: 150px;
+          height: 150px;
+          padding: 5px;
+          border: 1px solid #bfbfbf;
+          margin-right: 5px;
+        }
+        i{
+          position: absolute;
+          bottom: 10px;
+          right: 10px;
+          font-size: 20px;
+        }
       }
+      
     }
     .dialog-footer{
       a{
@@ -545,5 +594,6 @@
   .box_delete{
     text-align: center;
     font-size: 16px;
-  }
+    }
+}
 </style>

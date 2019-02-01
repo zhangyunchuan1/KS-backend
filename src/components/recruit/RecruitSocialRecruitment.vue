@@ -417,6 +417,7 @@ export default {
   text-align: start;
   height: 70px;
   line-height: 70px;
+  font-size: 18px;
   border-bottom: 2px solid #f2f2f2;
   padding: 0 50px;
   display: flex;

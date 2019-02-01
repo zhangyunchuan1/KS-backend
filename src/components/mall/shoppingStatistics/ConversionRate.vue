@@ -31,7 +31,7 @@
                         </el-input>
                     </div>
                 </div>
-                <div class="encyclopedia_content" style="width:80%">
+                <div class="encyclopedia_content" style="width:90%">
                     <el-table
                             :data="tableData"
                             :border="true">
@@ -50,7 +50,7 @@
                         <el-table-column
                                 label="商品名称"
                                 align="center"
-                                width="100"
+                                width="200"
                                 show-overflow-tooltip
                                 prop="title">
                                 <template slot-scope="scope">
@@ -62,7 +62,7 @@
                         <el-table-column
                                 label="商家昵称"
                                 align="center"
-                                width="100"
+                                width="200"
                                 show-overflow-tooltip
                                 prop="nickname">
                                 <template slot-scope="scope">
@@ -74,7 +74,7 @@
                         <el-table-column
                                 label="单价"
                                 align="center"
-                                width="90"
+                                width="100"
                                 sortable
                                 show-overflow-tooltip
                                 prop="price">
@@ -87,7 +87,7 @@
                         <el-table-column
                                 label="库存"
                                 align="center"
-                                width="90"
+                                width="100"
                                 prop="stock"
                                 show-overflow-tooltip
                                 sortable>

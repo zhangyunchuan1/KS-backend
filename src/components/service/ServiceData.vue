@@ -44,7 +44,7 @@
                   </el-radio-group>
                 </p>
                 <p>{{item.services}}</p>
-                <p>{{floderDatatotal==0?0:item.services/floderDatatotal*100}}%</p>
+                <p>{{floderDatatotal==0?0:(item.services/floderDatatotal*100).toFixed(2)}}%</p>
               </div>
             </div>
           </div>
@@ -178,7 +178,7 @@
                   </el-radio-group>
                 </p>
                 <p>{{item.services_view}}</p>
-                <p>{{floderviewDatatotal==0?0:item.services_view/floderviewDatatotal*100}}%</p>
+                <p>{{floderviewDatatotal==0?0:(item.services_view/floderviewDatatotal*100).toFixed(2)}}%</p>
               </div>
             </div>
           <!-- </div> -->
@@ -196,7 +196,7 @@
                   <el-radio :label="item.menu_id" border>{{item.name}}</el-radio>
                 </p>
                 <p>{{item.services_view}}</p>
-                <p>{{nextmenuviewDatatotal==0?0:item.services_view/nextmenuviewDatatotal*100}}%</p>
+                <p>{{nextmenuviewDatatotal==0?0:(item.services_view/nextmenuviewDatatotal*100).toFixed(2)}}%</p>
               </div>
             </div>
             <div class="table_box" v-if="nextmenuData.length == 0">

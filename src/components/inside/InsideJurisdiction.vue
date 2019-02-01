@@ -40,8 +40,12 @@
               </template> -->
             </el-table-column>
             <el-table-column prop="description" label="介绍" width="150" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="name" label="模块和方法" width="210" show-overflow-tooltip></el-table-column>
-            <!-- <el-table-column prop="plate" label="板块" width="150" show-overflow-tooltip></el-table-column> -->
+            <el-table-column prop="name" label="模块和方法" width="160" show-overflow-tooltip></el-table-column>
+            <el-table-column label="类型" width="100" show-overflow-tooltip>
+                <template slot-scope="scope">
+                </template>
+            </el-table-column>
+            <el-table-column prop="plate" label="板块" width="100" show-overflow-tooltip></el-table-column>
             <el-table-column prop="menu_1" label="一级菜单" width="150" show-overflow-tooltip>
               <template slot-scope="scope">
                     <span  v-if="scope.row.menu_1 === undefined">无</span>
@@ -54,24 +58,24 @@
                     <span  v-else>{{scope.row.menu_2}}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="类型" width="100" show-overflow-tooltip>
+            <!-- <el-table-column label="类型" width="100" show-overflow-tooltip>
                 <template slot-scope="scope">
                     {{scope.row.type===0?'未分配':'已分配'}}
                 </template>
-            </el-table-column>
+            </el-table-column> -->
             <el-table-column prop="status" label="状态" width="80" show-overflow-tooltip>
                 <template slot-scope="scope">
                     <span class="sortout_color" v-if="scope.row.menu_1 === undefined && scope.row.menu_2 === undefined">未分配</span>
                     <span class="normal_color" v-else>已分配</span>
                 </template>
             </el-table-column>
-            <el-table-column prop="created_at" label="创建时间" width="180" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="updated_at" label="修改时间" width="180" show-overflow-tooltip></el-table-column>
-            <el-table-column label="操作" width="160" fixed="right">
+            <el-table-column prop="created_at" label="创建时间" width="160" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="updated_at" label="修改时间" width="160" show-overflow-tooltip></el-table-column>
+            <el-table-column label="操作" min-width="260" fixed="right">
               <template slot-scope="scope">
-                <el-button size="small" type="text" @click="amendFunction(scope.row)">修改</el-button>
-                <el-button size="small" type="text" @click="handleDelete(scope.row.id)">删除</el-button>
-                <el-button size="small" @click="bandleMenuAssignment(scope.row)" type="text">菜单分配</el-button>
+                <el-button type="primary" plain size="mini" @click="amendFunction(scope.row)">修改</el-button>
+                <el-button type="primary" plain size="mini" @click="handleDelete(scope.row.id)">删除</el-button>
+                <el-button type="primary" plain size="mini" @click="bandleMenuAssignment(scope.row)">菜单分配</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -99,7 +103,7 @@
           </div>
           <div class="jurisdiction_content_item">
             <label class="el_lbl">介绍:</label>
-            <el-input placeholder="100字以内" v-model="description" class="el_input_text_area" type="textarea" :autosize="{ minRows: 3, maxRows: 3}"></el-input>
+            <el-input placeholder="100字以内" v-model="description" class="el_input_text_area" type="textarea" :autosize="{ minRows: 3, maxRows: 3}" maxlength="100"></el-input>
           </div>
           <div class="jurisdiction_content_item">
             <label class="el_lbl">类型选择:</label>
@@ -136,7 +140,7 @@
           </div>
           <div class="jurisdiction_content_item">
             <label class="el_lbl">介绍:</label>
-            <el-input placeholder="100字以内" v-model="amenddescription" class="el_input_text_area" type="textarea" :autosize="{ minRows: 3, maxRows: 3}"></el-input>
+            <el-input placeholder="100字以内" v-model="amenddescription" class="el_input_text_area" type="textarea" :autosize="{ minRows: 3, maxRows: 3}" maxlength="100" ></el-input>
           </div>
           <div class="jurisdiction_content_item">
             <label class="el_lbl">级别:</label>
@@ -212,7 +216,7 @@
           checkedJurisdiction: [],
           breadData: [{
             id: 1,
-            name: '内部管理',
+            name: '菜单分类管理',
             urls: '/index',
             icon: 'icon-home'
           }, {
@@ -239,7 +243,6 @@
         }
       },
       mounted(){
-        // this.listJurisdiction();
         this.getJurisdiction()
       },
       methods: {
@@ -415,7 +418,7 @@
             this.routerName='';
             this.description='';
             this.arrayValue='';
-        }
+        },
       }
     }
 </script>

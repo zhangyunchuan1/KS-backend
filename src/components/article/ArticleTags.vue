@@ -199,6 +199,7 @@
     methods:{
       //确定添加小标题
       handleAddTags(){
+        console.log(this.tagsIds)
         this.HttpClient.post('/admin/article/titleRelation',{
           ids:this.tagsIds.toString(),
           article_id:this.articleId
@@ -227,22 +228,23 @@
       },
       //打开分配标题弹框
       handleOpenDistributionTags(i){
+        console.log(i)
         this.checkboxTags = [];
         this.tags = [];
         this.tagsIds = [];
-        console.log(i)
+        // console.log(i)
         this.articleId = i.article_id;
         console.log(this.videoId)
-        this.getTagsList(i.category,i.titles);
+        this.getTagsList(i.category_id,i.titles);
         this.tagsDialog = true;
       },
       //获取小标题列表
-      getTagsList(name,m){
+      getTagsList(menuID,m){
         this.HttpClient.post('/admin/articleTitle/getList',{
-          type:name
+          type:menuID
         })
           .then(res=>{
-            console.log(name)
+            console.log(menuID)
             console.log(res);
             if(res.data.code === 200){
               this.tags = res.data.data;
@@ -255,6 +257,10 @@
                   }
                 }
               }
+              console.log(this.checkboxTags)
+              this.checkboxTags.forEach(item =>{
+                this.tagsIds.push(item.id)
+              })
               this.tagsDialog = true;
             }
           })
@@ -281,9 +287,9 @@
         return row[property] === value;
       },
 
-      handleRemove(file, fileList) {
-        console.log(file, fileList);
-      },
+      // handleRemove(file, fileList) {
+      //   console.log(file, fileList);
+      // },
       handlePictureCardPreview(file) {
         this.dialogImageUrl = file.url;
         this.dialogVisible = true;
