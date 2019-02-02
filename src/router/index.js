@@ -252,10 +252,10 @@ const HeaderMessagePrompt  = () => import ('@/components/dataGather/HeaderMessag
 const AccessRecord  = () => import ('@/components/dataGather/AccessRecord') // 访问记录
 const SearchRecord  = () => import ('@/components/dataGather/SearchRecord') // 搜索记录
 const SearchRanking  = () => import ('@/components/dataGather/SearchRanking') // 搜索排行
-const HeaderMessageQueue  = () => import ('@/components/dataGather/HeaderMessageQueue') // 头部消息队列
-const ElectricFuelStatistics  = () => import ('@/components/dataGather/ElectricFuelStatistics') // 电量燃料统计
-const KeywordStatistics  = () => import ('@/components/dataGather/KeywordStatistics') // 关键词统计
-const PraiseRecord  = () => import ('@/components/dataGather/PraiseRecord') // 点赞记录
+// const HeaderMessageQueue  = () => import ('@/components/dataGather/HeaderMessageQueue') // 头部消息队列
+// const ElectricFuelStatistics  = () => import ('@/components/dataGather/ElectricFuelStatistics') // 电量燃料统计
+// const KeywordStatistics  = () => import ('@/components/dataGather/KeywordStatistics') // 关键词统计
+// const PraiseRecord  = () => import ('@/components/dataGather/PraiseRecord') // 点赞记录
 
 
 const BusinessUser  = () => import ('@/components/businessUser/BusinessUser') // 商家管理
@@ -1248,23 +1248,25 @@ export default new Router({
           path:'/index/dataGather/search-ranking',
           name:'SearchRanking',
           component:SearchRanking
-        },{ //头部消息队列
-          path:'/index/dataGather/header-message-queue',
-          name:'HeaderMessageQueue',
-          component:HeaderMessageQueue
-        },{ //电量燃料统计
-          path:'/index/dataGather/electric-fuel-statistics',
-          name:'ElectricFuelStatistics',
-          component:ElectricFuelStatistics
-        },{ //关键词统计
-          path:'/index/dataGather/keyword-statistics',
-          name:'KeywordStatistics',
-          component:KeywordStatistics
-        },{ //点赞记录
-          path:'/index/dataGather/praise-record',
-          name:'PraiseRecord',
-          component:PraiseRecord
         },
+        // { //头部消息队列
+        //   path:'/index/dataGather/header-message-queue',
+        //   name:'HeaderMessageQueue',
+        //   component:HeaderMessageQueue
+        // },
+        // { //电量燃料统计
+        //   path:'/index/dataGather/electric-fuel-statistics',
+        //   name:'ElectricFuelStatistics',
+        //   component:ElectricFuelStatistics
+        // },{ //关键词统计
+        //   path:'/index/dataGather/keyword-statistics',
+        //   name:'KeywordStatistics',
+        //   component:KeywordStatistics
+        // },{ //点赞记录
+        //   path:'/index/dataGather/praise-record',
+        //   name:'PraiseRecord',
+        //   component:PraiseRecord
+        // },
       
       ]
       },{ // 商家管理
