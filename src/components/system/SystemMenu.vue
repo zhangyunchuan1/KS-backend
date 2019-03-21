@@ -344,9 +344,6 @@
         this.getMenulist();
     },
     methods:{
-      // fushijian(){
-      //     console.log('11111111111111111111111111111111111111')
-      // },
       //请求菜单列表
       getMenulist(){
           this.HttpClient.post('/admin/menu/getListWithDel',{})

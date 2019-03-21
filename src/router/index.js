@@ -42,8 +42,6 @@ const PageUploadEncyclopedias  = () => import ('@/components/page/pageManagement
 const PageUploadService  = () => import ('@/components/page/pageManagement/uploadMenu/PageUploadService')  //上传服务
 const PageUploadActivity  = () => import ('@/components/page/pageManagement/uploadMenu/PageUploadActivity')  //上传活动
 const PageUploadProblem  = () => import ('@/components/page/pageManagement/uploadMenu/PageUploadProblem')  //上传问题
-const PageUploadMarket  = () => import ('@/components/page/pageManagement/uploadMenu/PageUploadMarket')  //上传淘货
-const PageUploadMall  = () => import ('@/components/page/pageManagement/uploadMenu/PageUploadMall')  //上传商品
 
 const AuditManagement  = () => import ('@/components/page/pageManagement/auditManagement/AuditManagement')  // 审核失败类别管理
 const CommentAuditManagement  = () => import ('@/components/page/pageManagement/auditManagement/CommentAuditManagement')  // 评论审核管理
@@ -255,10 +253,10 @@ const HeaderMessagePrompt  = () => import ('@/components/dataGather/HeaderMessag
 const AccessRecord  = () => import ('@/components/dataGather/AccessRecord') // 访问记录
 const SearchRecord  = () => import ('@/components/dataGather/SearchRecord') // 搜索记录
 const SearchRanking  = () => import ('@/components/dataGather/SearchRanking') // 搜索排行
-const HeaderMessageQueue  = () => import ('@/components/dataGather/HeaderMessageQueue') // 头部消息队列
-const ElectricFuelStatistics  = () => import ('@/components/dataGather/ElectricFuelStatistics') // 电量燃料统计
-const KeywordStatistics  = () => import ('@/components/dataGather/KeywordStatistics') // 关键词统计
-const PraiseRecord  = () => import ('@/components/dataGather/PraiseRecord') // 点赞记录
+// const HeaderMessageQueue  = () => import ('@/components/dataGather/HeaderMessageQueue') // 头部消息队列
+// const ElectricFuelStatistics  = () => import ('@/components/dataGather/ElectricFuelStatistics') // 电量燃料统计
+// const KeywordStatistics  = () => import ('@/components/dataGather/KeywordStatistics') // 关键词统计
+// const PraiseRecord  = () => import ('@/components/dataGather/PraiseRecord') // 点赞记录
 const RecWordsCatalogue  = () => import ('@/components/dataGather/RecWordsCatalogue') // 推荐词目录
 
 
@@ -1278,27 +1276,29 @@ export default new Router({
           path:'/index/dataGather/search-ranking',
           name:'SearchRanking',
           component:SearchRanking
-        },{ //头部消息队列
-          path:'/index/dataGather/header-message-queue',
-          name:'HeaderMessageQueue',
-          component:HeaderMessageQueue
-        },{ //电量燃料统计
-          path:'/index/dataGather/electric-fuel-statistics',
-          name:'ElectricFuelStatistics',
-          component:ElectricFuelStatistics
-        },{ //关键词统计
-          path:'/index/dataGather/keyword-statistics',
-          name:'KeywordStatistics',
-          component:KeywordStatistics
-        },{ //点赞记录
-          path:'/index/dataGather/praise-record',
-          name:'PraiseRecord',
-          component:PraiseRecord
         },{ //关键词目录
           path:'/index/dataGather/rec-words-catalogue',
           name:'RecWordsCatalogue',
           component:RecWordsCatalogue
         },
+        // { //头部消息队列
+        //   path:'/index/dataGather/header-message-queue',
+        //   name:'HeaderMessageQueue',
+        //   component:HeaderMessageQueue
+        // },
+        // { //电量燃料统计
+        //   path:'/index/dataGather/electric-fuel-statistics',
+        //   name:'ElectricFuelStatistics',
+        //   component:ElectricFuelStatistics
+        // },{ //关键词统计
+        //   path:'/index/dataGather/keyword-statistics',
+        //   name:'KeywordStatistics',
+        //   component:KeywordStatistics
+        // },{ //点赞记录
+        //   path:'/index/dataGather/praise-record',
+        //   name:'PraiseRecord',
+        //   component:PraiseRecord
+        // },
       
       ]
       },{ // 商家管理
