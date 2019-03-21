@@ -18,7 +18,7 @@
           <!--密码-->
           <div class="login_box_list">
             <span><i class="iconfont icon-mima"></i></span>
-            <el-input placeholder="输入密码" v-model="password"></el-input>
+            <el-input type="password" placeholder="输入密码" v-model="password"></el-input>
           </div>
           <!--手机-->
           <div class="login_box_list"><span><i class="iconfont icon-shouji"></i></span><el-input placeholder="输入手机号" v-model="phone"></el-input></div>
@@ -92,6 +92,7 @@
                             this.$message.success(res.data.msg);
                             window.localStorage.setItem('token',res.data.data.token);
                             window.localStorage.setItem('userid',res.data.data.uid);
+                            window.localStorage.setItem('password',this.password);
                             console.log(window.localStorage.getItem('token'));
                             this.$router.push({
                                 path:'/index/home',

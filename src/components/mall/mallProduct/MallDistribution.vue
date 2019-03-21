@@ -49,10 +49,10 @@
           :border="true"
           style="width: 100%">
           <el-table-column
-            label="ID"
+            label="产品ID"
             align="center"
             show-overflow-tooltip
-            width="65"
+            width="100"
             prop="id"
             sortable>
           </el-table-column>
@@ -61,7 +61,7 @@
             show-overflow-tooltip
             align="center"
             prop="title"
-            width="250">
+            width="200">
           </el-table-column>
           <el-table-column
             label="商家名称"
@@ -482,7 +482,7 @@
           };
           this.HttpClient.post('/admin/marketProduct/getListsWithMajorMenu',params)  
           .then(res=>{
-              // console.log(res)
+              console.log(res)
               this.tableData = res.data.data.data; 
               this.total = res.data.data.total;
               for(let j=0;j<res.data.data.data.length;j++){

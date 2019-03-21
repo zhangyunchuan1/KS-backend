@@ -1,34 +1,31 @@
 <template>
-  <div class="encyclopediaData">
-    <!--面包屑-->
+  <div>
     <BreadCrumb class="bread" :breadData="breadData"></BreadCrumb>
-    <!--主体内容-->
-    <div class="encyclopediaData_main">
-      <!--标题-->
-      <div class="title">
-        <p>百科数据</p>
-        <p>
-          <i class="iconfont icon-shuaxin"></i>
-          刷新
-        </p>
-      </div>
-
-      <!--内容盒子-->
-      <div class="encyclopediaData_content">
-        <!--表格-->
-        <div class="encyclopedia_table">
-          <div class="table_title">
-            <i class="iconfont icon-star"></i>百科总数 {{encyclopediaTotal}}
-          </div>
-          <div class="table_box">
-            <div class="table_box_list" v-for="item in encyclopediaData" :key="item.id">
-              <p>{{item.name}}</p>
-              <p>{{item.number}}</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="encyclopedia_chart">
+    <div class="content">
+      <p class="title">百科状态</p>
+      <!-- 文章数量 -->
+      <div style="padding:0 20px;">
+        <table class="table" border="1" cellspacing="0" cellpadding="0">
+          <thead>
+            <th class="my_th" :colspan="articleNum.length">
+              <span>
+                <i class="iconfont icon-star"></i>
+                百科总数
+              </span>
+              {{articleTotal}}
+            </th>
+          </thead>
+          <tbody>
+            <tr class="tr1">
+              <td v-for="item in articleNum" :key="item.id">{{item.name}}</td>
+            </tr>
+            <tr class="tr2">
+              <td v-for="item in articleNum" :key="item.id">{{item.number}}</td>
+            </tr>
+          </tbody>
+        </table>
+        
+        <div>
           <div class="conditions">
             <div class="date_item">
               <p class="date_label">开始</p>
@@ -38,8 +35,10 @@
                 type="date"
                 size="mini"
                 value-format="yyyy-MM-dd HH:mm:ss"
-                placeholder="选择日期">
-              </el-date-picker>
+                placeholder="选择日期"
+                :clearable='false'
+                @change="getDataByDate"
+              ></el-date-picker>
             </div>
             <div class="date_item">
               <p class="date_label">截止</p>
@@ -48,19 +47,27 @@
                 class="date_picker_1"
                 type="date"
                 size="mini"
-                value-format="yyyy-MM-dd HH:mm:ss"
                 placeholder="选择日期"
-                @change="getEncyclopediaDataByDate"
-                :picker-options="pickerOptions">
-              </el-date-picker>
+                :clearable='false'
+                value-format="yyyy-MM-dd HH:mm:ss"
+                @change="getDataByDate"
+                :picker-options="pickerOptions"
+              ></el-date-picker>
             </div>
-            <el-select size="mini" class="select_type" v-model="userType" placeholder="用户类别" @change="drawLine">
+            <el-select
+              size="mini"
+              class="select_type"
+              clearable
+              v-model="userType"
+              placeholder="全部"
+              @change="drawLine"
+            >
               <el-option
                 v-for="item in userOptions"
                 :key="item.value"
                 :label="item.label"
-                :value="item.value">
-              </el-option>
+                :value="item.value"
+              ></el-option>
             </el-select>
           </div>
           <div class="shape_content">
@@ -76,652 +83,1149 @@
               <div class="shape_header_right">
                 <div class="right_items">
                   <div class="point color1"></div>
-                  <p>汽车占{{carActivity.percent}}%</p>
+                  <p>汽车占{{((car.normal+car.business)/totalByDate*100).toFixed(2)}}%</p>
                 </div>
                 <div class="right_items">
                   <div class="point color2"></div>
-                  <p>摩托车占{{motorActivity.percent}}%</p>
+                  <p>摩托占{{((motorcycle.normal+motorcycle.business)/totalByDate*100).toFixed(2)}}%</p>
                 </div>
                 <div class="right_items">
                   <div class="point color3"></div>
-                  <p>无人机占{{planeActivity.percent}}%</p>
+                  <p>模型占{{((plane.normal+plane.business)/totalByDate*100).toFixed(2)}}%</p>
                 </div>
                 <div class="right_items">
                   <div class="point color4"></div>
-                  <p>智能设备占{{intelligentActivity.percent}}%</p>
+                  <p>智能设备占{{((intelligent.normal+intelligent.business)/totalByDate*100).toFixed(2)}}%</p>
                 </div>
               </div>
             </div>
-            <div id="myChart" :style="{width:'100%',height: '400px'}"></div>
+            <div id="myChart" :style="{width:'980px',height: '400px'}"></div>
           </div>
-
-
         </div>
+      </div>
 
+
+      <!-- liushuya  2019-01-04 -->
+      <!-- 百科浏览量 -->
+      <div style="padding:0 20px;">
+        <table class="table" border="1" cellspacing="0" cellpadding="0">
+          <thead>
+            <th class="my_th" :colspan="articleNum.length">
+              <span>
+                <i class="iconfont icon-star"></i>
+                百科浏览量
+              </span>
+              {{articleviewTotal}}
+            </th>
+          </thead>
+          <tbody>
+            <tr class="tr1">
+              <td v-for="item in articleNum" :key="item.id">{{item.name}}</td>
+            </tr>
+            <tr class="tr2">
+              <td v-for="item in articleNum" :key="item.id">{{item.numberview}}</td>
+            </tr>
+          </tbody>
+        </table>
+        
+        <div>
+          <div class="conditions">
+            <div class="date_item">
+              <p class="date_label">开始</p>
+              <el-date-picker
+                v-model="startviewTime"
+                class="date_picker_1"
+                type="date"
+                size="mini"
+                :clearable='false'
+                value-format="yyyy-MM-dd HH:mm:ss"
+                placeholder="选择日期"
+                @change="getviewDataByDate"
+              ></el-date-picker>
+            </div>
+            <div class="date_item">
+              <p class="date_label">截止</p>
+              <el-date-picker
+                v-model="endviewTime"
+                class="date_picker_1"
+                :clearable='false'
+                type="date"
+                size="mini"
+                placeholder="选择日期"
+                value-format="yyyy-MM-dd HH:mm:ss"
+                @change="getviewDataByDate"
+                :picker-options="pickerOptions"
+              ></el-date-picker>
+            </div>
+            <el-select
+              size="mini"
+              class="select_type"
+              clearable
+              v-model="userviewType"
+              placeholder="全部"
+              @change="drawviewLine"
+            >
+              <el-option
+                v-for="item in userOptions"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              ></el-option>
+            </el-select>
+          </div>
+          <div class="shape_content">
+            <div class="shape_header">
+              <div class="shape_header_left">
+                <p class="left_title">百科浏览量曲线图</p>
+                <div class="time_range">
+                  <span>{{startviewTime.split(' ')[0]}}</span>
+                  <span>---</span>
+                  <span>{{endviewTime.split(' ')[0]}}</span>
+                </div>
+              </div>
+              <div class="shape_header_right">
+                <div class="right_items">
+                  <div class="point color1"></div>
+                  <p>汽车占{{((carview.normal+carview.business)/totalByDateview*100).toFixed(2)}}%</p>
+                </div>
+                <div class="right_items">
+                  <div class="point color2"></div>
+                  <p>摩托车占{{((motorcycleview.normal+motorcycleview.business)/totalByDateview*100).toFixed(2)}}%</p>
+                </div>
+                <div class="right_items">
+                  <div class="point color3"></div>
+                  <p>模型占{{((planeview.normal+planeview.business)/totalByDateview*100).toFixed(2)}}%</p>
+                </div>
+                <div class="right_items">
+                  <div class="point color4"></div>
+                  <p>智能设备占{{((intelligentview.normal+intelligentview.business)/totalByDateview*100).toFixed(2)}}%</p>
+                </div>
+              </div>
+            </div>
+            <div id="myviewChart" :style="{width:'980px',height: '400px'}"></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-  import BreadCrumb from '@/components/public/BreadCrumb';
-  import echarts from 'echarts'
+import BreadCrumb from "@/components/public/BreadCrumb";
+import echarts from "echarts";
+export default {
+  name: "ArticleStatus",
+  components: {
+    BreadCrumb
+  },
+  data() {
+    return {
+      pickerOptions: {
+        disabledDate: time => {
+          return (
+            (time.getTime() - new Date(this.startTime).getTime()) /
+              1000 /
+              60 /
+              60 /
+              24 >
+            31
+          );
+        }
+      },
 
-  export default {
-    name: "encyclopediaData",
-    data(){
-      return{
-
-        //时间选择范围限制
-        pickerOptions: {
-          disabledDate: (time) => {
-            console.log((time.getTime() - new Date(this.startTime).getTime()) / 1000 / 60 / 60 / 24);
-            return ((time.getTime()-new Date(this.startTime).getTime())/1000/60/60/24)>31
-          }
+      startTime: "",
+      startviewTime:'',
+      endTime: "",
+      endviewTime:'',
+      userType: "",
+      userviewType:'',
+      breadData: [
+        {
+          id: 1,
+          name: "百科管理",
+          urls: "/index",
+          icon: "icon-home"
         },
+        {
+          id: 2,
+          name: "百科状态",
+          urls: "/index/test",
+          icon: "icon-home"
+        }
+      ],
+      userOptions: [
+        {
+          value: 1,
+          label: "个人用户"
+        },
+        {
+          value: 2,
+          label: "专业商家"
+        },
+        {
+          value: 3,
+          label: "普通商家"
+        }
+      ],
+      articleNum: [], //文章类型数组
+      articleTotal: 0, //文章总数
+      articleviewTotal:0,//文章浏览量总数
+      articleDate: [], //文章数据统计
+      articleviewDate:[],//文章浏览量
+      car: { normal: 0, business: 0 }, //汽车文章统计
+      motorcycle: { normal: 0, business: 0 }, //摩托文章统计
+      plane: { normal: 0, business: 0 }, //无人机文章统计
+      intelligent: { normal: 0, business: 0 }, //智能设备文章统计
+      // 浏览量
+      carview: { normal: 0, business: 0 }, //汽车文章统计
+      motorcycleview: { normal: 0, business: 0 }, //摩托文章统计
+      planeview: { normal: 0, business: 0 }, //无人机文章统计
+      intelligentview: { normal: 0, business: 0 }, //智能设备文章统计
+      totalByDate: 0, //某时间段内文章总数
+      totalByDateview:0,//某段时间内文章浏览量总数
+      carArticle: [], //汽车文章统计
+      motorArticle: [], //摩托文章统计
+      planeArticle: [], //无人机文章统计
+      intelligentArticle: [], //智能设备文章统计
+      // 浏览量
+      carviewArticle: [], //汽车文章统计
+      motorviewArticle: [], //摩托文章统计
+      planeviewArticle: [], //无人机文章统计
+      intelligentviewArticle: [], //智能设备文章统计
 
-        // 面包屑
-        breadData: [
-          {
-            id: 1,
-            name: '百科',
-            urls: '/index/encyclopedia/encyclopedia',
-            icon: 'icon-home'
-          }, {
-            id: 2,
-            name: '百科数据',
-            urls: '/index/encyclopedia/encyclopediaData',
-            icon: 'icon-home'
+      carMenuID: "", //汽车ID
+      motorMenuID: "", //摩托ID
+      planeMenuID: "", //无人机ID
+      intelligentMenuID: "", //智能设备ID
+    };
+  },
+  methods: {
+    drawLine() {
+      let days =
+        (new Date(this.endTime).getTime() -
+          new Date(this.startTime).getTime()) /
+        1000 /
+        60 /
+        60 /
+        24;
+      let begin = new Date(this.startTime).getDate();
+      let year = new Date(this.startTime).getFullYear();
+      let month = new Date(this.startTime).getMonth() + 1;
+      let dates = [],
+        monthDay = 0;
+      //获取起始时间月份天数
+      switch (month) {
+        case 1:
+          monthDay = 31;
+          break;
+        case 2:
+          if (year % 400 === 0 || (year % 4 === 0 && year % 100 !== 0)) {
+            monthDay = 29;
+          } //判断是否闰年
+          else {
+            monthDay = 28;
           }
-        ],
-        userOptions: [
-          {
-            value: 0,
-            label: '全部'
-          },
-          {
-            value: 1,
-            label: '个人用户'
-          },{
-            value: 2,
-            label: '专业商家'
-          },{
-            value: 3,
-            label: '普通商家'
-          }
-        ],
-
-
-        startTime: '',//开始时间段
-        endTime: '',//结束时间段
-        userType: 0,
-
-        categoryContent:false,
-        encyclopediaData:[],//百科数据
-        encyclopediaTotal:0,//百科总记录数
-        encyclopediaDataByDate:[],//某一时间段内百科数据
-        carActivity:[],//汽车百科数据
-        motorActivity:[],//摩托车百科数据
-        planeActivity:[],//无人机百科数据
-        intelligentActivity:[],//智能设备百科数据
-        encyclopediaTotalByDate:0,//某时间段内百科总记录数
+          break;
+        case 3:
+          monthDay = 31;
+          break;
+        case 4:
+          monthDay = 30;
+          break;
+        case 5:
+          monthDay = 31;
+          break;
+        case 6:
+          monthDay = 30;
+          break;
+        case 7:
+          monthDay = 31;
+          break;
+        case 8:
+          monthDay = 31;
+          break;
+        case 9:
+          monthDay = 30;
+          break;
+        case 10:
+          monthDay = 31;
+          break;
+        case 11:
+          monthDay = 30;
+          break;
+        case 12:
+          monthDay = 31;
+          break;
       }
-    },
-    components:{
-      BreadCrumb,
-    },
-    mounted() {
-      this.drawLine();
-    },
-
-    methods: {
-      //数据曲线绘制
-      drawLine(){
-
-        let days=(new Date(this.endTime).getTime()-new Date(this.startTime).getTime())/1000/60/60/24;
-        let begin=new Date(this.startTime).getDate();
-        let year=new Date(this.startTime).getFullYear();
-        let month=new Date(this.startTime).getMonth()+1;
-        let dates=[],
-          monthDay=0;
-        //获取起始时间月份天数
-        switch(month) {
-          case 1: monthDay = 31; break;
-          case 2:
-            if(year%400 === 0 || (year%4 === 0 && year%100 !== 0)) { monthDay = 29; }//判断是否闰年
-            else { monthDay = 28; }
-            break;
-          case 3: monthDay = 31; break;
-          case 4: monthDay = 30; break;
-          case 5: monthDay = 31; break;
-          case 6: monthDay = 30; break;
-          case 7: monthDay = 31; break;
-          case 8: monthDay = 31; break;
-          case 9: monthDay = 30; break;
-          case 10: monthDay = 31; break;
-          case 11: monthDay = 30; break;
-          case 12: monthDay = 31; break;
+      for (let i = 0; i < days; i++) {
+        if (begin + i > monthDay) {
+          dates.push(begin + i - monthDay);
+        } else {
+          dates.push(begin + i);
         }
-        //横坐标
-        for(let i=0;i<days;i++){
-          if(begin+i>monthDay){
-            dates.push(begin+i-monthDay)
-          }else{
-            dates.push(begin+i)
-          }
-        }
-        let car=[],
-          motorcycle=[],
-          plane=[],
-          intelligent=[];
-        dates.map(date=> {
-          let carNum = 0,
-            carNum1 = 0,
-            carNum2 = 0,
-            carNum3 = 0;
+      }
+      let car = [],
+        motorcycle = [],
+        plane = [],
+        intelligent = [];
+      dates.map(date => {
+        let carNum = 0,
+          carNum1 = 0,
+          carNum2 = 0,
+          carNum3 = 0;
+          // let carNumview = 0,
+          // carNumview1 = 0,
+          // carNumview2 = 0,
+          // carNumview3 = 0;
+        
           let motorNum = 0,
-            motorNum1 = 0,
-            motorNum2 = 0,
-            motorNum3 = 0;
-          let planeNum = 0,
-            planeNum1 = 0,
-            planeNum2 = 0,
-            planeNum3 = 0;
-          let intelligentNum = 0,
-            intelligentNum1 = 0,
-            intelligentNum2 = 0,
-            intelligentNum3 = 0;
-          this.carActivity.map(item => {
-            if (new Date(year + '-' + month + '-' + date).getTime() === new Date(item.created_at.split(' ')[0]).getTime() ||
-              new Date(year + '-' + (month + 1) + '-' + date).getTime() === new Date(item.created_at.split(' ')[0]).getTime()) {
-              carNum += Number(item.encyc);
-              //按用户类型搜索
-              if(item.user_type===1){
-                carNum1+=Number(item.encyc)
-              }else if(item.user_type===2){
-                carNum2+=Number(item.encyc)
-              }else if(item.user_type===3){
-                carNum3+=Number(item.encyc)
-              }
+          motorNum1 = 0,
+          motorNum2 = 0,
+          motorNum3 = 0;
+          // let motorNumview = 0,
+          // motorNumview1 = 0,
+          // motorNumview2 = 0,
+          // motorNumview3 = 0;
+
+        let planeNum = 0,
+          planeNum1 = 0,
+          planeNum2 = 0,
+          planeNum3 = 0;
+
+        let intelligentNum = 0,
+          intelligentNum1 = 0,
+          intelligentNum2 = 0,
+          intelligentNum3 = 0;
+        date = this.initFormat(date);
+        this.carArticle.map(item => {
+          if (
+            new Date(year + "-" + (month<10?'0' + month:month) + "-" + date).getTime() ===
+              new Date(item.created_at.split(" ")[0]).getTime() ||
+            new Date((month>=12?year+1+'-01':year + "-" + (month<10?'0' + (month+1):month + 1)) + "-" + date).getTime() ===
+              new Date(item.created_at.split(" ")[0]).getTime()
+          ) {
+            carNum += Number(item.encyc);
+            //按用户类型搜索
+            if (item.user_type === 1) {
+              carNum1 += Number(item.encyc);
+            } else if (item.user_type === 2) {
+              carNum2 += Number(item.encyc);
+            } else if (item.user_type === 3) {
+              carNum3 += Number(item.encyc);
             }
-          });
-          this.motorActivity.map(item => {
-            if (new Date(year + '-' + month + '-' + date).getTime() === new Date(item.created_at.split(' ')[0]).getTime() ||
-              new Date(year + '-' + (month + 1) + '-' + date).getTime() === new Date(item.created_at.split(' ')[0]).getTime()) {
-              motorNum += Number(item.encyc);
-              //按用户类型搜索
-              if(item.user_type===1){
-                motorNum1+=Number(item.encyc)
-              }else if(item.user_type===2){
-                motorNum2+=Number(item.encyc)
-              }else if(item.user_type===3){
-                motorNum3+=Number(item.encyc)
-              }
-            }
-          });
-          this.planeActivity.map(item => {
-            if (new Date(year + '-' + month + '-' + date).getTime() === new Date(item.created_at.split(' ')[0]).getTime() ||
-              new Date(year + '-' + (month + 1) + '-' + date).getTime() === new Date(item.created_at.split(' ')[0]).getTime()) {
-              planeNum += Number(item.encyc);
-              //按用户类型搜索
-              if(item.user_type===1){
-                planeNum1+=Number(item.encyc)
-              }else if(item.user_type===2){
-                planeNum2+=Number(item.encyc)
-              }else if(item.user_type===3){
-                planeNum3+=Number(item.encyc)
-              }
-            }
-          });
-          this.intelligentActivity.map(item => {
-            if (new Date(year + '-' + month + '-' + date).getTime() === new Date(item.created_at.split(' ')[0]).getTime() ||
-              new Date(year + '-' + (month + 1) + '-' + date).getTime() === new Date(item.created_at.split(' ')[0]).getTime()) {
-              intelligentNum += Number(item.encyc);
-              //按用户类型搜索
-              if(item.user_type===1){
-                intelligentNum1+=Number(item.encyc)
-              }else if(item.user_type===2){
-                intelligentNum2+=Number(item.encyc)
-              }else if(item.user_type===3){
-                intelligentNum3+=Number(item.encyc)
-              }
-            }
-          });
-          if(this.userType===1){
-            car.push(carNum1);
-            motorcycle.push(motorNum1);
-            plane.push(planeNum1);
-            intelligent.push(intelligentNum1);
-          }else if(this.userType===2){
-            car.push(carNum2);
-            motorcycle.push(motorNum2);
-            plane.push(planeNum2);
-            intelligent.push(intelligentNum2);
-          }else if(this.userType===3){
-            car.push(carNum3);
-            motorcycle.push(motorNum3);
-            plane.push(planeNum3);
-            intelligent.push(intelligentNum3);
-          }else{
-            car.push(carNum);
-            motorcycle.push(motorNum);
-            plane.push(planeNum);
-            intelligent.push(intelligentNum);
           }
         });
-        //求和
-        this.carActivity.total=eval(car.join('+'));
-        this.motorActivity.total=eval(motorcycle.join('+'));
-        this.planeActivity.total=eval(plane.join('+'));
-        this.intelligentActivity.total=eval(intelligent.join('+'));
-        this.encyclopediaTotalByDate=this.carActivity.total+this.motorActivity.total+this.planeActivity.total+this.intelligentActivity.total;
-        this.carActivity.percent=this.encyclopediaTotalByDate?Number((this.carActivity.total/this.encyclopediaTotalByDate*100).toFixed(2)):0;
-        this.motorActivity.percent=this.encyclopediaTotalByDate?Number((this.motorActivity.total/this.encyclopediaTotalByDate*100).toFixed(2)):0;
-        this.planeActivity.percent=this.encyclopediaTotalByDate?Number((this.planeActivity.total/this.encyclopediaTotalByDate*100).toFixed(2)):0;
-        this.intelligentActivity.percent=this.encyclopediaTotalByDate?Number((this.intelligentActivity.total/this.encyclopediaTotalByDate*100).toFixed(2)):0;
-
-        // 基于准备好的dom，初始化echarts实例
-        let myChart = echarts.init(document.getElementById('myChart'));
-        // 绘制图表
-        myChart.setOption({
-          tooltip: {
-            trigger: 'axis'
-          },
-          xAxis: {
-            type: 'category',
-            data: dates
-          },
-          yAxis: {
-            type: 'value'
-          },
-          series: [{
+        this.motorArticle.map(item => {
+          if (
+            new Date(year + "-" + (month<10?'0' + month:month) + "-" + date).getTime() ===
+              new Date(item.created_at.split(" ")[0]).getTime() ||
+            new Date((month>=12?year+1+'-01':year + "-" + (month<10?'0' + (month+1):month + 1)) + "-" + date).getTime() ===
+              new Date(item.created_at.split(" ")[0]).getTime()
+          ) {
+            motorNum += Number(item.encyc);
+            //按用户类型搜索
+            if (item.user_type === 1) {
+              motorNum1 += Number(item.encyc);
+            } else if (item.user_type === 2) {
+              motorNum2 += Number(item.encyc);
+            } else if (item.user_type === 3) {
+              motorNum3 += Number(item.encyc);
+            }
+          }
+        });
+        this.planeArticle.map(item => {
+          if (
+            new Date(year + "-" + (month<10?'0' + month:month) + "-" + date).getTime() ===
+              new Date(item.created_at.split(" ")[0]).getTime() ||
+            new Date((month>=12?year+1+'-01':year + "-" + (month<10?'0' + (month+1):month + 1)) + "-" + date).getTime() ===
+              new Date(item.created_at.split(" ")[0]).getTime()
+          ) {
+            planeNum += Number(item.encyc);
+            //按用户类型搜索
+            if (item.user_type === 1) {
+              planeNum1 += Number(item.encyc);
+            } else if (item.user_type === 2) {
+              planeNum2 += Number(item.encyc);
+            } else if (item.user_type === 3) {
+              planeNum3 += Number(item.encyc);
+            }
+          }
+        });
+        this.intelligentArticle.map(item => {
+          if (
+            new Date(year + "-" + (month<10?'0' + month:month) + "-" + date).getTime() ===
+              new Date(item.created_at.split(" ")[0]).getTime() ||
+            new Date((month>=12?year+1+'-01':year + "-" + (month<10?'0' + (month+1):month + 1)) + "-" + date).getTime() ===
+              new Date(item.created_at.split(" ")[0]).getTime()
+          ) {
+            intelligentNum += Number(item.encyc);
+            //按用户类型搜索
+            if (item.user_type === 1) {
+              intelligentNum1 += Number(item.encyc);
+            } else if (item.user_type === 2) {
+              intelligentNum2 += Number(item.encyc);
+            } else if (item.user_type === 3) {
+              intelligentNum3 += Number(item.encyc);
+            }
+          }
+        });
+        if (this.userType === 1) {
+          car.push(carNum1);
+          motorcycle.push(motorNum1);
+          plane.push(planeNum1);
+          intelligent.push(intelligentNum1);
+        } else if (this.userType === 2) {
+          car.push(carNum2);
+          motorcycle.push(motorNum2);
+          plane.push(planeNum2);
+          intelligent.push(intelligentNum2);
+        } else if (this.userType === 3) {
+          car.push(carNum3);
+          motorcycle.push(motorNum3);
+          plane.push(planeNum3);
+          intelligent.push(intelligentNum3);
+        } else if (this.userType === '') {
+          car.push(carNum);
+          motorcycle.push(motorNum);
+          plane.push(planeNum);
+          intelligent.push(intelligentNum);
+        }
+      });
+      // console.log(this.carArticle);
+      // 基于准备好的dom，初始化echarts实例
+      let myChart = echarts.init(document.getElementById("myChart"));
+      // 绘制图表
+      myChart.setOption({
+        tooltip: {
+          trigger: "axis"
+        },
+        xAxis: {
+          type: "category",
+          data: dates
+        },
+        yAxis: {
+          type: "value"
+        },
+        series: [
+          {
             itemStyle: {
               normal: {
-                color: '#009efb',
+                color: "#009efb",
                 lineStyle: {
-                  color: '#009efb'
+                  color: "#009efb"
                 }
               }
             },
-            name: '汽车',
-            type: 'line',
+            name: "汽车",
+            type: "line",
             smooth: true,
             data: car
           },
-            {
-              itemStyle: {
-                normal: {
-                  color: '#55ce63',
-                  lineStyle: {
-                    color: '#55ce63'
-                  }
+          {
+            itemStyle: {
+              normal: {
+                color: "#55ce63",
+                lineStyle: {
+                  color: "#55ce63"
                 }
-              },
-              name: '摩托车',
-              type: 'line',
-              smooth: true,
-              data: motorcycle
+              }
             },
-            {
-              itemStyle: {
-                normal: {
-                  color: '#ff7676',
-                  lineStyle: {
-                    color: '#ff7676'
-                  }
+            name: "摩托",
+            type: "line",
+            smooth: true,
+            data: motorcycle
+          },
+          {
+            itemStyle: {
+              normal: {
+                color: "#ff7676",
+                lineStyle: {
+                  color: "#ff7676"
                 }
-              },
-              name: '无人机',
-              type: 'line',
-              smooth: true,
-              data: plane
+              }
             },
-            {
-              itemStyle: {
-                normal: {
-                  color: '#FFB82E',
-                  lineStyle: {
-                    color: '#FFB82E'
-                  }
+            name: "无人机",
+            type: "line",
+            smooth: true,
+            data: plane
+          },
+          {
+            itemStyle: {
+              normal: {
+                color: "#FFB82E",
+                lineStyle: {
+                  color: "#FFB82E"
                 }
-              },
-              name: "智能设备",
-              data: intelligent,
-              type: 'line',
-              smooth: true
+              }
+            },
+            name: "智能设备",
+            type: "line",
+            smooth: true,
+            data: intelligent
+          }
+        ]
+      });
 
-            }]
-        });
-      },
-      //获取百科数据
-      getEncyclopediaData(){
-        this.HttpClient.post('/admin/analysis/numCache',{type:4})
-          .then(res=>{
-            console.log(res);
-            if(res.data.code===200){
-              this.encyclopediaData=res.data.data;
-              console.log(this.encyclopediaData);
-              this.encyclopediaData.map(item=>{
-                item.number=0;
-                item.number+=Number(item.analysis.company_encyc);
-                item.number+=Number(item.analysis.normal_encyc);
-                this.encyclopediaTotal+=item.number
-              })
-            }
-          })
-      },
-      //获取某一时间段内百科数据
-      getEncyclopediaDataByDate(){
-        console.log(this.startTime)
-        this.HttpClient.post('/admin/analysis/diagram',{type:4,begin:this.startTime,end:this.endTime})
-          .then(res=>{
-            console.log(res);
-            if(res.data.code===200){
-              this.encyclopediaDataByDate=res.data.data;
-              this.carActivity=[];
-              this.motorActivity=[];
-              this.planeActivity=[];
-              this.intelligentActivity=[];
-              res.data.data.map(item=>{
-                if(item.folder_type==='汽车'){
-                  this.carActivity.push(item);
-                }else if(item.folder_type==='摩托'){
-                  this.motorActivity.push(item);
-                }else if(item.folder_type==='无人机'){
-                  this.planeActivity.push(item);
-                }else{
-                  this.intelligentActivity.push(item);
-                }
-              });
-              this.drawLine()
-            }
-          })
-      },
-      /*****初始化时间格式*****/
-      initFormat(date){
-        if(date<10){
-          date='0'+date;
-        }
-        return date
-      },
-      initDateValue(date){
-        let year=date.getFullYear(),
-          month=date.getMonth()+1,
-          day=date.getDate(),
-          hour=date.getHours(),
-          minutes=date.getMinutes(),
-          second=date.getSeconds();
-        month=this.initFormat(month);
-        day=this.initFormat(day);
-        hour=this.initFormat(hour);
-        minutes=this.initFormat(minutes);
-        second=this.initFormat(second);
-        return year+'-'+month+'-'+day+' '+hour + ':' + minutes + ':' + second
-      }
     },
-    created(){
-      let arr=this.initDateValue(new Date()).split('-');
-      // arr[1]=arr[1]-1;
-      if (arr[1] == "01") {
-        arr[0] = arr[0] - 1;
-        arr[1] = "12";
-      } else {
-        arr[1] = arr[1] - 1;
+
+    //按时间段获取统计数据
+    getDataByDate() {
+      
+      // let time = new Date(this.startTime)
+      // console.log(time.getMonth()+1)
+      // if(){
+
+      // }
+      this.HttpClient.post("/admin/analysis/diagram", {
+        type: 4,
+        begin: this.startTime,
+        end: this.endTime
+      }).then(res => {
+        if (res.data.code === 200) {
+          this.articleDate = res.data.data;
+          // console.log(this.articleDate)
+          this.totalByDate = 0;
+          this.car.normal = 0;
+          this.car.business = 0;
+          this.motorcycle.normal = 0;
+          this.motorcycle.business = 0;
+          this.plane.normal = 0;
+          this.plane.business = 0;
+          this.intelligent.normal = 0;
+          this.intelligent.business = 0;
+          this.carArticle = [];
+          this.motorArticle = [];
+          this.planeArticle = [];
+          this.intelligentArticle = [];
+          this.articleDate.map(item => {
+            if (item.folder_type === this.carMenuID) {
+              this.carArticle.push(item);
+              if (item.user_type === 1) {
+                this.car.normal += Number(item.encyc);
+                this.totalByDate += Number(item.encyc);
+              } else {
+                this.car.business += Number(item.encyc);
+                this.totalByDate += Number(item.encyc);
+              }
+            } else if (item.folder_type === this.motorMenuID) {
+              this.motorArticle.push(item);
+              if (item.user_type === 1) {
+                this.motorcycle.normal += Number(item.encyc);
+                this.totalByDate += Number(item.encyc);
+              } else {
+                this.motorcycle.business += Number(item.encyc);
+                this.totalByDate += Number(item.encyc);
+              }
+            } else if (item.folder_type === this.planeMenuID) {
+              this.planeArticle.push(item);
+              if (item.user_type === 1) {
+                this.plane.normal += Number(item.encyc);
+                this.totalByDate += Number(item.encyc);
+              } else {
+                this.plane.business += Number(item.encyc);
+                this.totalByDate += Number(item.encyc);
+              }
+            } else if (item.folder_type === this.intelligentMenuID) {
+              this.intelligentArticle.push(item);
+              if (item.user_type === 1) {
+                this.intelligent.normal += Number(item.encyc);
+                this.totalByDate += Number(item.encyc);
+              } else {
+                this.intelligent.business += Number(item.encyc);
+                this.totalByDate += Number(item.encyc);
+              }
+            }
+          });
+          // console.log(this.car)
+          this.drawLine();
+        }
+      });
+    },
+    /** liushuya  2019-01-04 */
+    //按时间段获取统计浏览量数据
+    getviewDataByDate() {
+      console.log(this.startviewTime)
+      console.log(this.endviewTime)
+      this.HttpClient.post("/admin/analysis/diagram", {
+        type: 4,
+        begin: this.startviewTime,
+        end: this.endviewTime
+      }).then(res => {
+        if (res.data.code === 200) {
+          this.articleviewDate = res.data.data;
+          console.log(this.articleviewDate)
+          this.totalByDateview = 0;
+          this.carview.normal = 0;
+          this.carview.business = 0;
+          this.motorcycleview.normal = 0;
+          this.motorcycleview.business = 0;
+          this.planeview.normal = 0;
+          this.planeview.business = 0;
+          this.intelligentview.normal = 0;
+          this.intelligentview.business = 0;
+          this.carviewArticle = [];
+          this.motorviewArticle = [];
+          this.planeviewArticle = [];
+          this.intelligentviewArticle = [];
+          this.articleviewDate.map(item => {
+            if (item.folder_type === this.carMenuID) {
+              this.carviewArticle.push(item);
+              if (item.user_type === 1) {
+                this.carview.normal += Number(item.encyc_view);
+                this.totalByDateview +=Number(item.encyc_view)
+              } else {
+                this.carview.business += Number(item.encyc_view);
+                this.totalByDateview +=Number(item.encyc_view)
+              }
+            } else if (item.folder_type === this.motorMenuID) {
+              this.motorviewArticle.push(item);
+              if (item.user_type === 1) {
+                this.motorcycleview.normal += Number(item.encyc_view);
+                this.totalByDateview +=Number(item.encyc_view)
+              } else {
+                this.motorcycleview.business += Number(item.encyc_view);
+                this.totalByDateview +=Number(item.encyc_view)
+              }
+            } else if (item.folder_type === this.planeMenuID) {
+              this.planeviewArticle.push(item);
+              if (item.user_type === 1) {
+                this.planeview.normal += Number(item.encyc_view);
+                this.totalByDateview +=Number(item.encyc_view)
+              } else {
+                this.planeview.business += Number(item.encyc_view);
+                this.totalByDateview +=Number(item.encyc_view)
+              }
+            } else if (item.folder_type === this.intelligentMenuID) {
+              this.intelligentviewArticle.push(item);
+              if (item.user_type === 1) {
+                this.intelligentview.normal += Number(item.encyc_view);
+                this.totalByDateview +=Number(item.encyc_view)
+              } else {
+                this.intelligentview.business += Number(item.encyc_view);
+                this.totalByDateview +=Number(item.encyc_view)
+              }
+            }
+          });
+          // console.log(this.car)
+          this.drawviewLine();
+        }
+      });
+    },
+    /** liushuya  2019-01-04 */
+    drawviewLine() {
+      let days =
+        (new Date(this.endviewTime).getTime() -
+          new Date(this.startviewTime).getTime()) /
+        1000 /
+        60 /
+        60 /
+        24;
+      let begin = new Date(this.startviewTime).getDate();
+      let year = new Date(this.startviewTime).getFullYear();
+      let month = new Date(this.startviewTime).getMonth() + 1;
+      let dates = [],
+        monthDay = 0;
+      //获取起始时间月份天数
+      switch (month) {
+        case 1:
+          monthDay = 31;
+          break;
+        case 2:
+          if (year % 400 === 0 || (year % 4 === 0 && year % 100 !== 0)) {
+            monthDay = 29;
+          } //判断是否闰年
+          else {
+            monthDay = 28;
+          }
+          break;
+        case 3:
+          monthDay = 31;
+          break;
+        case 4:
+          monthDay = 30;
+          break;
+        case 5:
+          monthDay = 31;
+          break;
+        case 6:
+          monthDay = 30;
+          break;
+        case 7:
+          monthDay = 31;
+          break;
+        case 8:
+          monthDay = 31;
+          break;
+        case 9:
+          monthDay = 30;
+          break;
+        case 10:
+          monthDay = 31;
+          break;
+        case 11:
+          monthDay = 30;
+          break;
+        case 12:
+          monthDay = 31;
+          break;
       }
-      arr.join('-');
-      this.startTime=arr.join('-');
-      this.endTime=this.initDateValue(new Date());
-      console.log(this.startTime);
-      console.log(this.endTime);
-      this.getEncyclopediaData();
-      this.getEncyclopediaDataByDate()
+      for (let i = 0; i < days; i++) {
+        if (begin + i > monthDay) {
+          dates.push(begin + i - monthDay);
+        } else {
+          dates.push(begin + i);
+        }
+      }
+      let carview = [],
+        motorcycleview = [],
+        planeview = [],
+        intelligentview = [];
+        
+      // console.log(this.carviewArticle)
+      dates.map(date => {
+          let carNumview = 0,
+          carNumview1 = 0,
+          carNumview2 = 0,
+          carNumview3 = 0;
+        
+          let motorNumview = 0,
+          motorNumview1 = 0,
+          motorNumview2 = 0,
+          motorNumview3 = 0;
+
+          let planeNumview = 0,
+          planeNumview1 = 0,
+          planeNumview2 = 0,
+          planeNumview3 = 0;
+
+          let intelligentNumview = 0,
+          intelligentNumview1 = 0,
+          intelligentNumview2 = 0,
+          intelligentNumview3 = 0;
+        date = this.initFormat(date);
+        
+        this.carviewArticle.map(item => {
+          if (
+            new Date(year + "-" + (month<10?'0' + month:month) + "-" + date).getTime() ===
+              new Date(item.created_at.split(" ")[0]).getTime() ||
+            new Date((month>=12?year+1+'-01':year + "-" + (month<10?'0' + (month+1):month + 1)) + "-" + date).getTime() ===
+              new Date(item.created_at.split(" ")[0]).getTime()
+          ) {
+            // console.log(item)
+            carNumview += Number(item.encyc_view);
+            //按用户类型搜索
+            if (item.user_type === 1) {
+              carNumview1 += Number(item.encyc_view);
+            } else if (item.user_type === 2) {
+              carNumview2 += Number(item.encyc_view);
+            } else if (item.user_type === 3) {
+              carNumview3 += Number(item.encyc_view);
+            }
+          }
+        });
+        this.motorviewArticle.map(item => {
+          if (
+            new Date(year + "-" + (month<10?'0' + month:month) + "-" + date).getTime() ===
+              new Date(item.created_at.split(" ")[0]).getTime() ||
+            new Date((month>=12?year+1+'-01':year + "-" + (month<10?'0' + (month+1):month + 1)) + "-" + date).getTime() ===
+              new Date(item.created_at.split(" ")[0]).getTime()
+          ) {
+            motorNumview += Number(item.encyc_view);
+            //按用户类型搜索
+            if (item.user_type === 1) {
+              motorNumview1 += Number(item.encyc_view);
+            } else if (item.user_type === 2) {
+              motorNumview2 += Number(item.encyc_view);
+            } else if (item.user_type === 3) {
+              motorNumview3 += Number(item.encyc_view);
+            }
+          }
+        });
+        this.planeviewArticle.map(item => {
+          if (
+            new Date(year + "-" + (month<10?'0' + month:month) + "-" + date).getTime() ===
+              new Date(item.created_at.split(" ")[0]).getTime() ||
+            new Date((month>=12?year+1+'-01':year + "-" + (month<10?'0' + (month+1):month + 1)) + "-" + date).getTime() ===
+              new Date(item.created_at.split(" ")[0]).getTime()
+          ) {
+            planeNumview += Number(item.encyc_view);
+            //按用户类型搜索
+            if (item.user_type === 1) {
+              planeNumview1 += Number(item.encyc_view);
+            } else if (item.user_type === 2) {
+              planeNumview2 += Number(item.encyc_view);
+            } else if (item.user_type === 3) {
+              planeNumview3 += Number(item.encyc_view);
+            }
+          }
+        });
+        this.intelligentviewArticle.map(item => {
+          if (
+            new Date(year + "-" + (month<10?'0' + month:month) + "-" + date).getTime() ===
+              new Date(item.created_at.split(" ")[0]).getTime() ||
+            new Date((month>=12?year+1+'-01':year + "-" + (month<10?'0' + (month+1):month + 1)) + "-" + date).getTime() ===
+              new Date(item.created_at.split(" ")[0]).getTime()
+          ) {
+            intelligentNumview += Number(item.encyc_view);
+            //按用户类型搜索
+            if (item.user_type === 1) {
+              intelligentNumview1 += Number(item.encyc_view);
+            } else if (item.user_type === 2) {
+              intelligentNumview2 += Number(item.encyc_view);
+            } else if (item.user_type === 3) {
+              intelligentNumview3 += Number(item.encyc_view);
+            }
+          }
+        });
+        // console.log(carNumview)
+        if (this.userviewType === 1) {
+          carview.push(carNumview1);
+          motorcycleview.push(motorNumview1);
+          planeview.push(planeNumview1);
+          intelligentview.push(intelligentNumview1);
+        } else if (this.userviewType === 2) {
+          carview.push(carNumview2);
+          motorcycleview.push(motorNumview2);
+          planeview.push(planeNumview2);
+          intelligentview.push(intelligentNumview2);
+        } else if (this.userviewType === 3) {
+          carview.push(carNumview3);
+          motorcycleview.push(motorNumview3);
+          planeview.push(planeNumview3);
+          intelligentview.push(intelligentNumview3);
+        } else if (this.userviewType === '') {
+          carview.push(carNumview);
+          motorcycleview.push(motorNumview);
+          planeview.push(planeNumview);
+          intelligentview.push(intelligentNumview);
+        }
+      });
+      // console.log(carview);
+      // console.log(motorcycleview);
+      // console.log(planeview);
+      // console.log(intelligentview);
+      // console.log(this.carArticle);
+
+      // 基于准备好的dom，初始化echarts实例
+      let myviewChart = echarts.init(document.getElementById("myviewChart"));
+      // 绘制图表
+      myviewChart.setOption({
+        tooltip: {
+          trigger: "axis"
+        },
+        xAxis: {
+          type: "category",
+          data: dates
+        },
+        yAxis: {
+          type: "value"
+        },
+        series: [
+          {
+            itemStyle: {
+              normal: {
+                color: "#009efb",
+                lineStyle: {
+                  color: "#009efb"
+                }
+              }
+            },
+            name: "汽车",
+            type: "line",
+            smooth: true,
+            data: carview
+          },
+          {
+            itemStyle: {
+              normal: {
+                color: "#55ce63",
+                lineStyle: {
+                  color: "#55ce63"
+                }
+              }
+            },
+            name: "摩托",
+            type: "line",
+            smooth: true,
+            data: motorcycleview
+          },
+          {
+            itemStyle: {
+              normal: {
+                color: "#ff7676",
+                lineStyle: {
+                  color: "#ff7676"
+                }
+              }
+            },
+            name: "无人机",
+            type: "line",
+            smooth: true,
+            data: planeview
+          },
+          {
+            itemStyle: {
+              normal: {
+                color: "#FFB82E",
+                lineStyle: {
+                  color: "#FFB82E"
+                }
+              }
+            },
+            name: "智能设备",
+            type: "line",
+            smooth: true,
+            data: intelligentview
+          }
+        ]
+      });
+    },
+    /*****初始化时间格式*****/
+    initFormat(date) {
+      if (date < 10) {
+        date = "0" + date;
+      }
+      return date;
+    },
+    initDateValue(date) {
+      let year = date.getFullYear(),
+        month = date.getMonth() + 1,
+        day = date.getDate(),
+        hour = date.getHours(),
+        minutes = date.getMinutes(),
+        second = date.getSeconds();
+      month = this.initFormat(month);
+      day = this.initFormat(day);
+      hour = this.initFormat(hour);
+      minutes = this.initFormat(minutes);
+      second = this.initFormat(second);
+      return (
+        year +
+        "-" +
+        month +
+        "-" +
+        day +
+        " " +
+        hour +
+        ":" +
+        minutes +
+        ":" +
+        second
+      );
     }
+  },
+  created() {
+    let arr = this.initDateValue(new Date()).split("-");
+    if (arr[1] == "01") {
+      arr[0] = arr[0] - 1;
+      arr[1] = "12";
+    } else {
+      arr[1] = arr[1] - 1;
+    }
+    arr.join("-");
+    this.startTime = arr.join("-");
+    console.log(this.initFormat((new Date(this.startTime)).getMonth() + 1));
+    this.startTime  = this.initDateValue(new Date(this.startTime));
+    console.log(this.startTime);
+    this.endTime = this.initDateValue(new Date());
+    console.log(this.endTime)
+    /** liushuya  2019-01-04 */
+    let arrview = this.initDateValue(new Date()).split("-");
+    if (arrview[1] == "01") {
+      arrview[0] = arrview[0] - 1;
+      arrview[1] = "12";
+    } else {
+      arrview[1] = arrview[1] - 1;
+    }
+    arrview.join("-");
+    this.startviewTime = arrview.join("-");
+    this.startviewTime  = this.initDateValue(new Date(this.startviewTime));
+    this.endviewTime = this.initDateValue(new Date());
+    // console.log(this.startTime);
+    // console.log(this.endTime);
+    this.HttpClient.post("/admin/analysis/numCache", { type: 4 }).then(res => {
+      console.log(res);
+      if (res.data.code === 200) {
+        this.articleNum = res.data.data;
+        console.log(res.data.data)
+        this.articleNum.map(item => {
+          if (item.name == "汽车") {
+              this.carMenuID = item.menu_id;
+            } else if (item.name == "摩托") {
+              this.motorMenuID = item.menu_id;
+            } else if (item.name == "模型") {
+              this.planeMenuID = item.menu_id;
+            } else if (item.name == "智能设备") {
+              this.intelligentMenuID = item.menu_id;
+            }
+          item.number = 0;
+          item.number += Number(item.analysis.company_encyc);
+          item.number += Number(item.analysis.normal_encyc);
+          item.numberview = 0;
+          item.numberview += Number(item.analysis.company_encyc_view);
+          item.numberview += Number(item.analysis.normal_encyc_view);
+          this.articleTotal += item.number;
+          this.articleviewTotal += item.numberview;
+        });
+        // console.log(this.articleTotal);
+        // console.log(this.articleNum);
+      }
+    });
+    this.getDataByDate();
+    this.getviewDataByDate();
   }
+};
 </script>
 
-<style lang="less">
-  .encyclopediaData{
-    .bread{
-      margin: 10px;
-    }
-    .encyclopediaData_main::-webkit-scrollbar {display:none}
-    .encyclopediaData_main{
-      background: white;
-      margin: 10px 10px 0 10px;
-      height: calc(100vh - 150px);
-      width: calc(100vw - 240px);
-      border-radius: 2px;
-      padding-bottom: 50px;
-      overflow-y: auto;
-
-      /*标题*/
-      .title{
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 20px 40px;
-        margin-bottom: 30px;
-        border-bottom: 1px solid #dedede;
+<style scoped lang="less">
+.bread {
+  margin: 10px;
+}
+.content::-webkit-scrollbar {
+  display: none;
+}
+.content {
+  background: white;
+  margin-left: 10px;
+  margin-right: 10px;
+  height: calc(100vh - 100px);
+  width: calc(100vw - 240px);
+  border-radius: 2px;
+  overflow-y: auto;
+  .title {
+    text-align: left;
+    line-height: 70px;
+    padding: 0 40px;
+    font-size: 20px;
+    border-bottom: 1px solid #f2f2f2;
+  }
+  table,
+  table tr table tr td {
+    border: 1px solid #f2f2f2;
+  }
+  th {
+    border: 1px solid #15bafe;
+  }
+  td {
+    line-height: 55px;
+    text-align: center;
+    width: 100px;
+    height: 55px;
+  }
+  .table {
+    text-align: center;
+    border-collapse: collapse;
+    margin-top: 20px;
+    margin-left: 20px;
+    .my_th {
+      height: 40px;
+      line-height: 40px;
+      background: #15bafe;
+      color: white;
+      font-size: 14px;
+      span {
+        margin-right: 10px;
+        i {
+          margin-right: 5px;
+        }
       }
-
-      .encyclopediaData_content{
-        text-align: left;
-        padding: 0 40px;
-
-        .encyclopedia_table{
-          display: inline-block;
-          .table_title{
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 40px;
+    }
+    .tr1 {
+      color: #808080;
+      font-size: 14px;
+    }
+    .tr2 {
+      color: #404040;
+      font-size: 15px;
+      font-weight: 600;
+    }
+  }
+  .conditions {
+    display: flex;
+    margin-top: 20px;
+    .date_item {
+      display: flex;
+      border: 1px solid #dcdfe6;
+      margin-left: 20px;
+      border-radius: 5px;
+      .date_label {
+        color: #808080;
+        font-size: 12px;
+        height: 28px;
+        line-height: 28px;
+        margin-left: 10px;
+      }
+      .date_picker_1 {
+        width: 140px;
+      }
+    }
+    .select_type {
+      width: 120px;
+      margin-left: 20px;
+    }
+  }
+  .shape_content {
+    min-width: 500px;
+    border: 1px solid #f2f2f2;
+    margin-top: 20px;
+    margin-left: 20px;
+    padding-bottom: 20px;
+    .shape_header {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+      margin-left: 20px;
+      .shape_header_left {
+        .left_title {
+          font-size: 16px;
+          font-weight: 600;
+          color: #404040;
+          text-align: left;
+        }
+        .time_range {
+          font-size: 12px;
+          color: #808080;
+          margin-top: 5px;
+        }
+      }
+      .shape_header_right {
+        display: flex;
+        .right_items {
+          display: flex;
+          align-items: center;
+          margin-right: 15px;
+          .point {
+            height: 8px;
+            width: 8px;
+            border-radius: 50%;
             background: #15bafe;
-            color: #fff;
-            .iconfont{
-              margin-right: 10px;
-              position: relative;
-              top: 2px;
-            }
           }
-          .table_box{
-            display: flex;
-            align-items: center;
-            .table_box_list{
-              min-width: 100px;
-              p{
-                border: 1px solid #dedede;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                height: 50px;
-              }
-            }
+          p {
+            font-size: 13px;
+            margin-left: 5px;
+          }
+          .color1 {
+            background: #15bafe;
+          }
+          .color2 {
+            background: #55ce63;
+          }
+          .color3 {
+            background: #ff5858;
+          }
+          .color4 {
+            background: #ffb82e;
           }
         }
-
-        .encyclopedia_chart{
-
-          .conditions{
-            display: flex;
-            margin-top: 20px;
-            .date_item{
-              display: flex;
-              border: 1px solid #dcdfe6;
-              border-radius: 5px;
-              .el-input__inner{
-                border: none !important;
-              }
-              .date_label{
-                color: #808080;
-                font-size: 12px;
-                height: 28px;
-                line-height: 28px;
-                margin-left: 10px;
-              }
-              .date_picker_1{
-                width: 140px;
-              }
-            }
-            .select_type{
-              width: 120px;
-              margin-left: 20px;
-            }
-          }
-          .shape_content{
-            min-width: 500px;
-            border: 1px solid #f2f2f2;
-            margin-top: 20px;
-            padding-bottom: 20px;
-            .shape_header{
-              display: flex;
-              justify-content: space-between;
-              margin-top: 20px;
-              margin-left: 20px;
-              .shape_header_left{
-                .left_title{
-                  font-size: 16px;
-                  font-weight: 600;
-                  color: #404040;
-                  text-align: left;
-                }
-                .time_range{
-                  font-size: 12px;
-                  color: #808080;
-                  margin-top: 5px;
-                }
-              }
-              .shape_header_right{
-                display: flex;
-                .right_items{
-                  display: flex;
-                  align-items: center;
-                  margin-right: 15px;
-                  .point{
-                    height: 8px;
-                    width: 8px;
-                    border-radius: 50%;
-                    background: #15bafe;
-                  }
-                  p{
-                    font-size: 13px;
-                    margin-left: 5px;
-                  }
-                  .color1{background: #15bafe}
-                  .color2{background: #55ce63}
-                  .color3{background: #ff5858}
-                  .color4{background: #FFB82E}
-                }
-              }
-            }
-          }
-
-        }
-
-        /*分类*/
-        .encyclopedia_category{
-          margin-top: 30px;
-
-          .category_box{
-            display: flex;
-            align-items: center;
-            background: #fff;
-            height: 80px;
-            border: 1px solid #f2f2f2;
-            margin-top: 20px;
-            width: 540px;
-
-            /*进度条*/
-            .category_box_left{
-              display: flex;
-              align-items: center;
-              width: 360px;
-              padding: 10px 20px;
-
-              .icon-qiche{
-                font-size: 40px;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                width: 60px;
-                height: 60px;
-                border-radius: 50%;
-                background: #15bafe;
-                color: #fff;
-                margin-right: 20px;
-              }
-              .category_box_line{
-                width: 100%;
-                display: flex;
-                flex: 1;
-                align-items: center;
-
-                .category_line_main{
-                  flex: 1;
-                  p{
-                    font-size: 19px;
-                    color: #222;
-                    margin-bottom: 10px;
-                    span{
-                      font-size: 16px;
-                      color: #999;
-                    }
-                  }
-                }
-                .category_line_nmb{
-                  display: flex;
-                  justify-content: center;
-                  align-items: center;
-                  width: 100px;
-                  font-size: 32px;
-                  color: #2f323e;
-                }
-              }
-            }
-
-            /*按钮*/
-            .category_box_btm{
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              padding: 0 20px;
-              height: 100%;
-              cursor: pointer;
-              border-left: 1px solid #f2f2f2;
-              color: #666666;
-              font-size: 16px;
-
-              i{
-                margin-left: 10px;
-                font-size: 24px;
-                color: #666666;
-              }
-            }
-          }
-
-          .category_content{
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-            .category_list{
-              width: 25%;
-              border: 1px solid #f2f2f2;
-              background: #fff;
-              padding: 20px 40px;
-              box-sizing: border-box;
-              .category_list_text{
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                margin-bottom: 10px;
-              }
-            }
-          }
-
-        }
-
-
       }
     }
   }
+}
+</style>
+<style lang="less">
+.date_item {
+  .el-input__inner {
+    border: none !important;
+  }
+}
 </style>

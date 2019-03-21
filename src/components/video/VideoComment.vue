@@ -32,6 +32,7 @@
                   class="date_picker_1"
                   type="date"
                   size="mini"
+                  value-format='yyyy-MM-dd HH:mm:ss'
                   placeholder="选择日期">
                 </el-date-picker>
               </div>
@@ -43,6 +44,7 @@
                   class="date_picker_1"
                   type="date"
                   size="mini"
+                  value-format='yyyy-MM-dd HH:mm:ss'
                   placeholder="选择日期">
                 </el-date-picker>
               </div>
@@ -118,7 +120,8 @@
                 label="评论内容"
                 align="center"
                 show-overflow-tooltip
-                width="220"
+                sortable
+                width="230"
                 prop="content">
                 <template slot-scope="scope">
                   <div v-html="scope.row.content"></div>
@@ -131,8 +134,8 @@
                 width="240">
                 <template slot-scope="scope">
                   <div v-if="scope.row.attachment !== null">
-                    <div class="table_images" v-for="item in scope.row.attachment" :key="item.path">
-                      <img :src="item.path" alt="">
+                    <div class="table_images">
+                      <img v-for="item in scope.row.attachment" :key="item.path" :src="Tools.handleImg(item.path)" alt="">
                     </div>
                   </div>
                   <div v-if="scope.row.attachment === null">无</div>
@@ -153,7 +156,7 @@
                 label="评论时间排列"
                 align="center"
                 show-overflow-tooltip
-                width="140"
+                width="160"
                 prop="created_at"
                 sortable>
               </el-table-column>
@@ -168,21 +171,22 @@
                 prop="statusName"
                 width="120">
                 <template slot-scope="scope">
-                  <el-tag><i class="iconfont icon-dian"></i>{{scope.row.statusName}}</el-tag>
+                  <el-tag>{{scope.row.statusName}}</el-tag>
                 </template>
               </el-table-column>
 
               <el-table-column
                 label="操作"
-                align="center"
-                class-name="comment_scope">
+                fixed="right"
+                min-width="300"
+                align="center">
                 <template slot-scope="scope">
-                  <div class="comment_btm">
-                    <el-button size="medium " v-if="scope.row.status == 1" type="text" @click="rejectModal(scope.row)">禁用</el-button>
-                    <el-button size="medium " type="text" @click="deleteModal(scope.row)">删除</el-button>
-                    <el-button size="medium " type="text" @click="viewModal(scope.row)">预览</el-button>
-                    <el-button size="medium " v-if="scope.row.status == 3" type="text" @click="renewModal(scope.row)">恢复</el-button>
-                  </div>
+                  
+                    <el-button type="primary" plain size="mini" v-if="scope.row.status == 1" @click="rejectModal(scope.row)">禁用</el-button>
+                    <el-button type="primary" plain size="mini" @click="deleteModal(scope.row)">删除</el-button>
+                    <el-button type="primary" plain size="mini" @click="viewModal(scope.row)">预览</el-button>
+                    <el-button type="primary" plain size="mini" v-if="scope.row.status == 3" @click="renewModal(scope.row)">恢复</el-button>
+                  
                 </template>
               </el-table-column>
             </el-table>
@@ -228,18 +232,28 @@
           <p>评论内容：</p>
           <div class="view_content" v-html="modifyObj.content"></div>
           <p>附件：</p>
-          <div v-if="modifyObj.attachment">
-            <div class="view_upload" v-for="item in modifyObj.attachment" :key="item.path">
-              <div @click="viewDialogChildren = true" class="view_upload_img"><img :src="item.path" alt=""></div>
-              <el-dialog
-                width="30%"
-                :visible.sync="viewDialogChildren"
-                append-to-body>
-                <div class="view_upload_bigImg">
-                  <img src="item.path" alt="">
+          <div v-if="modifyObj.attachment" class="view_upload">
+            <div v-for="(item,index) in modifyObj.attachment" :key="index">
+              <div class="view_upload_img" v-if="['png', 'jpg', 'jpeg', 'bmp', 'gif', 'webp', 'psd', 'svg', 'tiff'].indexOf(item.path.substr(item.path.lastIndexOf('.')+1).toLowerCase()) !== -1">
+                <div>
+                  <img :src="Tools.handleImg(item.path)" alt="" @click="viewImages(item.path)">
                 </div>
-              </el-dialog>
+              </div>
+              <div class="view_upload_img" v-if="['png', 'jpg', 'jpeg', 'bmp', 'gif', 'webp', 'psd', 'svg', 'tiff'].indexOf(item.path.substr(item.path.lastIndexOf('.')+1).toLowerCase()) == -1">
+                <div class="file-icon">
+                  <i class="el-icon-document"></i>
+                  <p :title="item.name">{{item.name}}</p>
+                </div>
+              </div>
             </div>
+            <el-dialog
+              width="30%"
+              :visible.sync="viewDialogChildren"
+              append-to-body>
+              <div class="view_upload_bigImg">
+                <img :src="Tools.handleImg(bigImgPath)" alt="" style="width: 100%;">
+              </div>
+            </el-dialog>
           </div>
           <div v-else style="text-align: center;">无</div>
         </div>
@@ -330,6 +344,7 @@
         }, // 评论
         rejectTypeList: [], // 筛选的禁用类别
         typeList: [], // 筛选类别
+        bigImgPath:'',//点击查看大图
       }
     },
     created() {
@@ -337,6 +352,11 @@
       this.getCommentScore();
     },
     methods:{
+      //  v-if="['png', 'jpg', 'jpeg', 'bmp', 'gif', 'webp', 'psd', 'svg', 'tiff'].indexOf(item.path.substr(item.path.lastIndexOf('.')+1).toLowerCase()) == -1"
+      viewImages(imgPath){
+        this.viewDialogChildren = true;
+        this.bigImgPath = imgPath;
+      },
       search() {
         this.getTableList(this.searchObj);
       },
@@ -350,8 +370,15 @@
         this.modifyObj = modifyObj;
       },
       viewModal(modifyObj) {
+        console.log(modifyObj)
         this.viewDialog = true;
         this.modifyObj = modifyObj;
+        // console.log(typeof this.modifyObj.attachment === 'string')
+        // if (typeof this.modifyObj.attachment === 'string') {
+        //   this.modifyObj.attachment = JSON.parse(this.modifyObj.attachment)
+        // }
+        // this.modifyObj.attachment = JSON.parse(this.modifyObj.attachment);
+        console.log(this.modifyObj)
       },
       renewModal(modifyObj) {
         this.modifyObj = modifyObj;
@@ -425,7 +452,7 @@
         this.search();
       },
       async getRejectList() {
-        let res2 = await this.HttpClient.post('/admin/webReview/getList', {type: 'upload'});
+        let res2 = await this.HttpClient.post('/admin/webReview/getList', {type: 'answers'});
         this.rejectList = res2.data.data;
       },
       filterSecondary(value, row, column) {
@@ -603,12 +630,15 @@ function totalComment(list) {
           .table_images{
             display: flex;
             align-items: center;
-            overflow: hidden;
+            // overflow: hidden;
+            justify-content:space-around;
+            flex-wrap: wrap;
             img:not(:last-child){
               margin-right: 10px;
             }
             img{
               width: 60px;
+              // margin: 0 auto;
             }
           }
 
@@ -759,6 +789,19 @@ function totalComment(list) {
             align-items: center;
             margin: 5px;
             cursor: pointer;
+            .file-icon{
+              height: 75px;
+              width: 75px;
+              p{
+                width: 75px;
+                overflow: hidden;
+                text-overflow:ellipsis;
+                white-space: nowrap;
+              }
+              .el-icon-document:before {
+                font-size: 54px;
+              }
+            }
             img{
               width: 100%;
             }

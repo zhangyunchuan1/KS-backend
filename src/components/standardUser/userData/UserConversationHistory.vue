@@ -370,6 +370,11 @@ export default {
           }
         }
       }
+      .content_time{
+        .el-date-editor{
+          width: 350px !important;
+        }
+      }
       /*表格*/
       .content_table {
         margin-top: 30px;

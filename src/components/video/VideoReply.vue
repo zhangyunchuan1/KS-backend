@@ -38,9 +38,12 @@
           <div class="reply_search">
             <div>
               <el-input
-                placeholder="文章名称搜索"
+                placeholder="视频名称搜索"
                 v-model="searchObj.topicSearch"
                 class="input-with-select"
+                :clearable='true'
+                @clear="search"
+                @keyup.enter.native="search"
               >
                 <el-button @click="search" slot="append" icon="el-icon-search"></el-button>
               </el-input>
@@ -50,6 +53,9 @@
                 placeholder="用户名搜索"
                 v-model="searchObj.userNameSearch"
                 class="input-with-select"
+                :clearable='true'
+                @clear="search"
+                @keyup.enter.native="search"
               >
                 <el-button @click="search" slot="append" icon="el-icon-search"></el-button>
               </el-input>
@@ -59,6 +65,9 @@
                 placeholder="昵称搜索"
                 v-model="searchObj.nickNameSearch"
                 class="input-with-select"
+                :clearable='true'
+                @clear="search"
+                @keyup.enter.native="search"
               >
                 <el-button @click="search" slot="append" icon="el-icon-search"></el-button>
               </el-input>
@@ -68,11 +77,11 @@
 
         <div class="reply_content_box">
           <el-table :data="tableData" :border="true" style="width: 100%">
-            <el-table-column label="ID" align="center" width="65" prop="id" sortable></el-table-column>
+            <el-table-column label="ID" align="center" width="65" prop="id" sortable show-overflow-tooltip></el-table-column>
 
-            <el-table-column label="昵称" align="center" width="90" prop="nickname"></el-table-column>
+            <el-table-column label="昵称" align="center" width="90" prop="nickname" show-overflow-tooltip></el-table-column>
 
-            <el-table-column label="用户名" align="center" width="150" prop="username"></el-table-column>
+            <el-table-column label="用户名" align="center" width="150" prop="username" show-overflow-tooltip></el-table-column>
 
             <el-table-column
               label="类别"
@@ -81,16 +90,18 @@
               :filter-method="filterSecondary"
               width="80"
               prop="menu"
+              show-overflow-tooltip
             ></el-table-column>
 
-            <el-table-column label="视频标题" align="center" width="220" prop="source_title"></el-table-column>
+            <el-table-column label="视频标题" align="center" width="220" prop="source_title" show-overflow-tooltip></el-table-column>
 
-            <el-table-column label="回复内容" align="center" width="280" prop="content"></el-table-column>
+            <el-table-column label="回复内容" align="center" width="280" prop="content" show-overflow-tooltip></el-table-column>
 
             <el-table-column
               label="禁用类别"
               align="center"
               width="120"
+              show-overflow-tooltip
               prop="review_name"
             ></el-table-column>
 
@@ -99,25 +110,26 @@
             <el-table-column
               label="通过状态"
               align="center"
-              :filters="[{text: '删除', value: 0}, {text: '正常', value: 1}, {text: '待审核', value: 2}, {text: '审核未通过', value: 3}, {text: '下架', value: 4}]"
+              :filters="[{text: '删除', value: 0}, {text: '正常', value: 1}, {text: '待审核', value: 2}, {text: '审核未通过', value: 3}, {text: '禁用', value: 4}]"
               :filter-method="filterHandler"
               width="125"
+              show-overflow-tooltip
               prop="status"
             >
               <template slot-scope="scope">
-                <span>{{scope.row.status==0?'删除':scope.row.status==1?'正常':scope.row.status==2?'待审核':scope.row.status==3?'审核未通过':scope.row.status==4?'下架':''}}</span>  
+                <span class="delete_color" v-if="scope.row.status===0">删除</span>
+                <span class="normal_color" v-if="scope.row.status===1">正常</span>
+                <span class="audit_color" v-if="scope.row.status===2">待审核</span>
+                <span class="notpass_color" v-if="scope.row.status===3">审核未通过</span>
+                <span class="sortout_color" v-if="scope.row.status===4">禁用</span>
+                <!-- <span>{{scope.row.status==0?'删除':scope.row.status==1?'正常':scope.row.status==2?'待审核':scope.row.status==3?'审核未通过':scope.row.status==4?'禁用':''}}</span>   -->
               </template>
             </el-table-column>
 
             <el-table-column label="操作" align="center" width="200" class-name="reply_scope">
               <template slot-scope="scope">
                 <div class="reply_btm">
-                  <el-button
-                    size="medium "
-                    v-if="scope.row.status == 1"
-                    type="text"
-                    @click="rejectModal(scope.row)"
-                  >禁用</el-button>
+                  <el-button size="medium " v-if="scope.row.status == 1" type="text" @click="rejectModal(scope.row)">禁用</el-button>
                   <el-button size="medium " type="text" @click="deleteModal(scope.row)">删除</el-button>
                   <el-button size="medium " type="text" @click="viewModal(scope.row)">预览</el-button>
                   <el-button

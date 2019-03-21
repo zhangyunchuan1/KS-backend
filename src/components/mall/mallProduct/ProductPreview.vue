@@ -79,7 +79,7 @@
           <div class="productPreview_list">
             <div class="list_title">附件</div>
             <div class="list_upload">
-              <p v-for="(item,index) in productInfo.attachment" :key="index"><a :href="item.path+'?attname='"><i class="iconfont icon-wenjian"></i>{{item.name}}<i class="xiaz el-icon-download"></i></a></p>
+              <p v-for="(item,index) in productInfo.attachment" :key="index"><a :href="Tools.handleImg(item.path)+'?attname='"><i class="iconfont icon-wenjian"></i>{{item.name}}<i class="xiaz el-icon-download"></i></a></p>
             </div>
           </div>
         </div>

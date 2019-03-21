@@ -102,11 +102,20 @@
                 <template slot-scope="scope">
                   <div class="ranking_btm">
                     <div @click="handleSeeData(scope.row)">数据</div>
-                    <div>查看用户</div>
+                    <div @click="handleSeeUser(scope.row.uid)">查看用户</div>
                   </div>
                 </template>
               </el-table-column>
             </el-table>
+            <div class="fenye">
+              <el-pagination
+                  v-if="total"
+                  layout="prev, pager, next"
+                  :total="total"
+                  :page-size="25"
+                  @current-change="currentChange"
+              ></el-pagination>
+            </div>
           </div>
         </div>
       </div>
@@ -172,7 +181,8 @@
 
         // 表格
         tableData: [],
-
+        total:0,
+        currentPage:1,
         dataDialog: false,  // 数据弹窗
 
       }
@@ -185,10 +195,13 @@
       handleSeeData(i){
           console.log(i)
           this.allVideoNum = i.video_total;
-          this.averageViewNum = i.video_view/i.video_total;
-          this.averageLikeNum = i.video_like/i.video_total;
-          this.averageDiscussNum = i.video_comment/i.video_total;
+          this.averageViewNum = i.video_view/i.video_total.toFixed(2);
+          this.averageLikeNum = i.video_like/i.video_total.toFixed(2);
+          this.averageDiscussNum = i.video_comment/i.video_total.toFixed(2);
           this.dataDialog = true;
+      },
+      handleSeeUser(id){
+        window.open(this.Urls.frontUrl+"home/others-users?uid="+id);  
       },
       //根据昵称搜索
       handleNickNameSearch(){
@@ -199,11 +212,13 @@
           this.HttpClient.post('/admin/users/ranking',{
               type:'video',
               nickname:this.nickNameSearch,
-
+              page:this.currentPage,
+              size:25
           })
           .then(res=>{
               console.log(res);
               this.tableData = res.data.data.data;
+              this.total = res.data.data.total;
           })
       },
       searchNickName(e){
@@ -224,6 +239,10 @@
       handlePictureCardPreview(file) {
         this.dialogImageUrl = file.url;
         this.dialogVisible = true;
+      },
+      currentChange(page) {
+        this.currentPage = page;
+        this.getVideoUserList();
       },
     }
   }
@@ -286,7 +305,12 @@
               }
             }
           }
-
+          .fenye{
+            .el-pagination{
+              text-align: left;
+              margin-left: 250px;
+            }
+          }
           /*操作按钮*/
           .ranking_scope {
             padding: 0;

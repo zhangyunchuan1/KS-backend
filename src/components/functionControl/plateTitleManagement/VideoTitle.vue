@@ -27,8 +27,14 @@
       <!-- 列表 -->
       <div class="videotitle_header videolist_box">
         <div class="onevideo" v-for="(item,index) in listData" :key="index">
-          <div class="title" @click="changeNameFn(item)">{{item.name}}</div>
-          <el-button size="mini" @click="deleteFn(item)">删除</el-button>
+          <div>
+            <img :src="Tools.judgeFullPath(item.icon)" alt="">
+            <div class="title">{{item.name}}</div>
+            <div>
+              <el-button class="el-icon-edit" size="mini" type="info" plain @click="changeNameFn(item)"></el-button>
+              <el-button class="el-icon-delete" size="mini" type="danger" plain @click="deleteFn(item)"></el-button>
+            </div>
+          </div>
         </div>
       </div>
       <!-- 修改弹框 -->
@@ -63,13 +69,10 @@
             action=""
             :show-file-list="false"
             :on-success="handleAvatarSuccess"
-            :before-upload="imageUpload"
-          >
-            <img
-              v-if="!imageUrl !==''"
-              :src="imageUrl"
-              class="avatar">
-            <img v-else-if="imageUrl" :src="imageUrl" class="avatar">
+            :before-upload="imageUpload">
+            <!-- <img v-if="!imageUrl !==''" :src="imageUrl" class="avatar">
+            <img v-else-if="imageUrl" :src="imageUrl" class="avatar"> -->
+            <img v-if="imageUrl" :src="imageUrl" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
           </el-upload>
         <span slot="footer" class="dialog-footer">
@@ -77,15 +80,19 @@
           <el-button type="primary" @click="addTypetitleFn">保 存</el-button>
         </span>
     </el-dialog>
+    <!--删除弹窗-->
+      <ModalDelete ref="delete" @doDelete="confirmDelete"></ModalDelete>
   </div>
 </template>
 
 <script>
 import BreadCrumb from "@/components/public/BreadCrumb";
+import ModalDelete from '@/components/public/modalDelete'
 export default {
   name: "VideoTitle",
   components: {
-    BreadCrumb
+    BreadCrumb,
+    ModalDelete
   },
   data() {
     return {
@@ -123,6 +130,7 @@ export default {
       changeName: "", //修改名
       listData:[],//列表数据
       videoTitleId: '',      // 小标题ID
+      deleteId:null,
     };
   },
   mounted() {
@@ -154,6 +162,7 @@ export default {
             type:this.selectVideotitle
         }
         this.HttpClient.post('/admin/videoTitle/getList',params).then(res=>{
+          console.log(res)
             if(res.data.code === 200){
               if (res.data.data.length) {
                 this.listData = res.data.data
@@ -174,7 +183,7 @@ export default {
       this.HttpClient.post('/admin/menu/getList',params).then(res => {
         console.log(res.data)
         if(res.data.code === 200){
-          this.menuList = res.data.data
+          this.menuList = res.data.data;
           this.selectVideotitle = this.menuList[1].menu_id;
           this.getlistData()
         }
@@ -188,6 +197,7 @@ export default {
     //打开添加弹窗
     handleOpenCreate(){
       this.createDialogVisible = true;
+      this.imageUrl = '';
     },
     // 新增视频小标题
     addTypetitleFn() {
@@ -213,7 +223,7 @@ export default {
     changeNameFn(i) {
       this.changeName = i.name;
       this.videoTitleId = i.id;
-      this.imageUrl = i.icon;
+      this.imageUrl = this.Tools.judgeFullPath(i.icon);
       this.centerDialogVisible = true;
     },
     // 确定修改标题
@@ -239,8 +249,14 @@ export default {
     },
     // 删除
     deleteFn(val) {
+        console.log(val);
+        this.deleteId = val.id;
+        this.$refs.delete.deleteDialog=true;
+    },
+    //确认删除
+    confirmDelete(){
         let params = {
-            id:val.id
+            id:this.deleteId
         }
         this.HttpClient.post('/admin/videoTitle/destroy',params).then(res => {
             if(res.data.code === 200){
@@ -250,7 +266,7 @@ export default {
                 },500)
             }
         })
-    }
+    },
   }
 };
 </script>
@@ -355,18 +371,35 @@ export default {
       flex-wrap: wrap;
       margin: 20px;
       .onevideo {
-        display: flex;
+        // display: flex;
+        box-shadow: 5px 5px 20px #d3dbde;
         margin: 10px;
-        .title {
-          border: 1px solid #dedede;
-          padding: 10px 15px;
-          font-size: 14px;
-          align-items: center;
-          border-radius: 4px;
-          cursor: pointer;
-        }
-        .el-button {
-          margin: 0 20px 0px 5px;
+        >div{
+          width: 120px;
+          box-sizing: border-box;
+          img{
+            width: 120px;
+            height: 120px;
+          }
+          .title {
+            width: 120px;
+            border: 1px solid #dedede;
+            padding: 10px 15px;
+            font-size: 14px;
+            align-items: center;
+            border-radius: 4px;
+            box-sizing: border-box;
+            text-align: center;
+            cursor: pointer;
+          }
+          >div{
+            margin-top: 2px;
+            display: flex;
+            .el-button{
+              width: 50%;
+            }
+          }
+          
         }
       }
     }

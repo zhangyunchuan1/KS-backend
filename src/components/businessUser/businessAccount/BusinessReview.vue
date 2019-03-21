@@ -12,16 +12,16 @@
       <div class="content">
         <div class="content_header">
           <div class="content_header_search">
-            <el-input placeholder="公司名称搜索" v-model="companyNameSearch" class="input-with-select">
+            <el-input placeholder="公司名称搜索" v-model="companyNameSearch" class="input-with-select" :clearable="true" @clear="handleCompanyNameSearch">
               <el-button slot="append" icon="el-icon-search" @click="handleCompanyNameSearch"></el-button>
             </el-input>
-            <el-input placeholder="账号搜索" v-model="accountSearch" class="input-with-select">
+            <el-input placeholder="账号搜索" v-model="accountSearch" class="input-with-select" :clearable="true" @clear="handleAccountSearch">
               <el-button slot="append" icon="el-icon-search" @click="handleAccountSearch"></el-button>
             </el-input>
-            <el-input placeholder="手机搜索" v-model="phoneNumberSearch" class="input-with-select">
+            <el-input placeholder="手机搜索" v-model="phoneNumberSearch" class="input-with-select" :clearable="true" @clear="handlePhoneNumberSearch">
               <el-button slot="append" icon="el-icon-search" @click="handlePhoneNumberSearch"></el-button>
             </el-input>
-            <el-input placeholder="联系人姓名搜索" v-model="contactsSearch" class="input-with-select">
+            <el-input placeholder="联系人姓名搜索" v-model="contactsSearch" class="input-with-select" :clearable="true" @clear="handleAccountNameSearch">
               <el-button slot="append" icon="el-icon-search" @click="handleAccountNameSearch"></el-button>
             </el-input>
           </div>
@@ -68,7 +68,10 @@
               align="center"
               show-overflow-tooltip
               width="140"
-              prop="phone">
+              >
+              <template slot-scope="scope">
+                <span>{{'+'+scope.row.country_code+' '+scope.row.phone}}</span>
+              </template>
             </el-table-column>
 
             <el-table-column
@@ -84,11 +87,13 @@
               label="通过状态"
               align="center"
               width="130"
-              prop="status"
-              show-overflow-tooltip>
+              prop="clear_status"
+              show-overflow-tooltip
+              :filters="[{text: '已通过', value: 1}, {text: '未通过', value: 0}]"
+              :filter-method="filterHandlerloginstatus">
               <template slot-scope="scope">
-                <span class="normal_color" v-if="scope.row.status === 1">已通过</span>
-                <span class="notpass_color" v-if="scope.row.status === 6||scope.row.status === 3||scope.row.status === 5||scope.row.status === 4">未通过</span>
+                <span class="normal_color" v-if="scope.row.clear_status === 1">已通过</span>
+                <span class="notpass_color" v-if="scope.row.clear_status === 0">未通过</span>
               </template>
             </el-table-column>
 
@@ -96,26 +101,26 @@
               label="审核状态"
               align="center"
               width="130"
-              prop="status">
+              prop="audit_status"
+              :filters="[{text: '已审核', value: 1}, {text: '未审核', value: 0}]"
+              :filter-method="filterHandlerloginstatus">
               <template slot-scope="scope">
-                <span class="top_color" v-if="scope.row.status !== 4">已审核</span>
-                <span class="audit_color" v-if="scope.row.status === 4">未审核</span>
+                <span class="top_color" v-if="scope.row.audit_status === 1">已审核</span>
+                <span class="audit_color" v-if="scope.row.audit_status === 0">未审核</span>
               </template>
             </el-table-column>
 
             <el-table-column
               label="操作"
               align="center"
-              class-name="mallReview_scope"
+              min-width="415"
               fixed="right">
               <template slot-scope="scope">
-                <div class="mallReview_btm">
                   <el-button type="primary" size="mini" plain @click="handleSeeLicense(scope.row.license)">查看执照</el-button>
-                  <el-button type="primary" size="mini" plain @click="handleModifyLicense(scope.row)">修改执照</el-button>
-                  <el-button type="primary" size="mini" plain v-if="scope.row.status === 6||scope.row.status === 3||scope.row.status === 5||scope.row.status === 4" @click="handleExamine(scope.row)">审核</el-button>
-                  <el-button type="primary" size="mini" plain v-if="scope.row.status === 1||scope.row.status === 4" @click="handleReject(scope.row)">驳回</el-button>
-                  <el-button type="primary" size="mini" plain  @click="handleModifyQualification(scope.row.company_id)">修改资质</el-button>
-                </div>
+                  <el-button type="primary" size="mini" plain v-if="scope.row.clear_status === 0 && scope.row.audit_status === 1" @click="handleModifyLicense(scope.row)">修改执照</el-button>
+                  <el-button type="primary" size="mini" plain v-if="scope.row.clear_status === 0" @click="handleExamine(scope.row)">审核</el-button>
+                  <el-button type="primary" size="mini" plain v-if="scope.row.audit_status === 0 || scope.row.clear_status === 1" @click="handleReject(scope.row)">驳回</el-button>
+                  <el-button type="primary" size="mini" plain v-if="scope.row.clear_status === 1 && scope.row.audit_status === 1" @click="handleModifyQualification(scope.row.company_id)">修改资质</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -169,6 +174,63 @@
     <!--审核弹窗-->
     <el-dialog
       width="700px"
+      custom-class="modifyQualification"
+      :visible.sync="reviewDialog">
+      <span slot="title" class="modifyQualification_title"><i class="iconfont icon-edit-square"></i>修改资质</span>
+      <div class="modifyQualification_box">
+        <div class="reviewList">
+          <span>公司全称</span>
+          <el-input v-model="reviewObj.name" placeholder="公司全称（无字数限制，无特殊字符）"></el-input>
+        </div>
+        <div class="reviewList">
+          <span>公司对外名字或者注册商标名称</span>
+          <el-input v-model="reviewObj.nickname" placeholder="填写公司对外名字或者注册商标名称（汉字和英文加数字）"></el-input>
+        </div>
+        <div class="reviewList">
+          <span>执照号</span>
+          <el-input v-model="reviewObj.license_num" placeholder="执照号（数字和英文字母,不能输入中文）" @blur="inputCheck1(reviewObj.license_num)"></el-input>
+          <p v-if="input1" style="color:red;font-size:12px;text-align:right;">*执照号不能含有中文！</p>
+        </div>
+        <div class="reviewList">
+          <span>公司法人姓名</span>
+          <el-input v-model="reviewObj.legal_person" placeholder="公司法人姓名（中英文）"></el-input>
+        </div>
+        <div class="reviewList">
+          <span>法人身份证号</span>
+          <el-input v-model="reviewObj.legal_idcard" placeholder="法人身份证号（数字+英文）"></el-input>
+        </div>
+        <div class="reviewList">
+          <span>公司注册地址</span>
+          <el-input v-model="reviewObj.address_register" placeholder="公司注册地址"></el-input>
+        </div>
+        <div class="reviewList">
+          <span>公司经营地址</span>
+          <el-input v-model="reviewObj.address_manage" placeholder="公司经营地址"></el-input>
+        </div>
+        <div class="reviewList">
+          <span>公司税号</span>
+          <el-input v-model="reviewObj.duty" placeholder="公司税号（不能输入中文）" @blur="inputCheck2(reviewObj.duty)"></el-input>
+          <p v-if="input2" style="color:red;font-size:12px;text-align:right;">*公司税号不能含有中文！</p>
+        </div>
+      </div>
+
+      <div class="contactInformation">
+        <div class="title">联系方式</div>
+        <div class="contactInformation_main">
+          <el-input v-model="reviewObj.contacts" placeholder="联系人姓名"></el-input>
+          <el-input v-model="reviewObj.telphone" placeholder="联系电话"></el-input>
+        </div>
+      </div>
+
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="reviewDialog = false">取 消</el-button>
+        <el-button type="primary" @click="reviewBtm">通 过</el-button>
+        <el-button type="primary" @click="handleReviewSaveModify">保 存</el-button>
+      </span>
+    </el-dialog>
+
+    <!-- <el-dialog
+      width="700px"
       custom-class="reviewDialog"
       :visible.sync="reviewDialog">
       <span slot="title" class="reviewDialog_title"><i class="iconfont icon-shenhe"></i>审核</span>
@@ -219,7 +281,7 @@
         <el-button @click="reviewDialog = false">取 消</el-button>
         <el-button type="primary" @click="reviewBtm">通 过</el-button>
       </span>
-    </el-dialog>
+    </el-dialog> -->
 
     <!--驳回弹窗-->
     <el-dialog
@@ -263,7 +325,7 @@
         </div>
         <div class="reviewList">
           <span>公司对外名字或者注册商标名称</span>
-          <el-input v-model="modifyObj.register_logo" placeholder="填写公司对外名字或者注册商标名称（汉字和英文加数字）"></el-input>
+          <el-input v-model="modifyObj.nickname" placeholder="填写公司对外名字或者注册商标名称（汉字和英文加数字）"></el-input>
         </div>
         <div class="reviewList">
           <span>执照号</span>
@@ -395,9 +457,9 @@
           console.log(res)
             this.tableData = res.data.data.data;
             this.total = res.data.data.total;
-            this.companyNameSearch = '';
-            this.accountSearch = '';
-            this.phoneNumberSearch = '';
+            // this.companyNameSearch = '';
+            // this.accountSearch = '';
+            // this.phoneNumberSearch = '';
         })
       },
       //公司名称搜索
@@ -475,8 +537,7 @@
         this.HttpClient.post('/admin/business/editProfile',{
             company_id:this.modifyObj.company_id,
             name:this.modifyObj.name,
-            nickname:this.modifyObj.register_logo,
-            register_logo:this.modifyObj.register_logo,
+            nickname:this.modifyObj.nickname,
             license_num:this.modifyObj.license_num,
             legal_person:this.modifyObj.legal_person,
             legal_idcard:this.modifyObj.legal_idcard,
@@ -491,6 +552,34 @@
           if (code === 200) {
             this.$message.success(msg)
             this.modifyQualificationDialog = false
+            setTimeout(() => {
+              this.getBusinessLists();
+            }, 500)
+          } else {
+            this.$message.error(msg)
+          }
+        })
+      },
+      //审核保存修改资质
+      handleReviewSaveModify(){
+        this.HttpClient.post('/admin/business/editProfile',{
+            company_id:this.reviewObj.company_id,
+            name:this.reviewObj.name,
+            nickname:this.reviewObj.nickname,
+            license_num:this.reviewObj.license_num,
+            legal_person:this.reviewObj.legal_person,
+            legal_idcard:this.reviewObj.legal_idcard,
+            address_register:this.reviewObj.address_register,
+            address_manage:this.reviewObj.address_manage,
+            duty:this.reviewObj.duty,
+            contacts:this.reviewObj.contacts,
+            telphone:this.reviewObj.telphone,
+        })
+        .then(res => {
+          const { code, msg } = res.data
+          if (code === 200) {
+            this.$message.success(msg)
+            // this.reviewDialog = false
             setTimeout(() => {
               this.getBusinessLists();
             }, 500)
@@ -576,6 +665,8 @@
                 setTimeout(() => {
                     this.getBusinessLists();
                 }, 500);
+            }else{
+              this.$message.error(res.data.msg);
             }
         })
       },
@@ -583,6 +674,11 @@
       currentChange(p){
         this.currentPage = p;
         this.getBusinessLists();
+      },
+      //状态筛选
+      filterHandlerloginstatus(value, row, column) {
+        const property = column["property"];
+        return row[property] === value;
       },
       //输入验证
       inputCheck1(val){

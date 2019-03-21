@@ -434,11 +434,11 @@
 
       beforeUpload(file,fileList){
         console.log(file);
-        const isJPG = file.type === "image/jpeg";
+        const isJPG = file.type === "image/jpeg" || "image/jpg" || "image/png";
       const isLt1M = file.size / 1024;
 
       if (!isJPG) {
-        this.$message.error("上传图片只能是 JPG 格式!");
+        this.$message.error("上传图片只能是 jpeg | jpg | png 格式!");
       }
       if (!isLt1M) {
         this.$message.error("上传图片大小不能超过 1MB!");
@@ -486,17 +486,26 @@
             //     this.form.content = res.file_id    //将上传的文件id赋值给表单from的content
             // })
             console.log(file);
-            this.uploadFile(file)
-            // this.HttpClient.form(this.$uploadPath,{file:file,token:this.$getQiNiuToken({saveKey:file.name})})
-            //     .then(res=>{
-            //         console.log(res);
-            //         // this.$message.success('上传成功!');
-            //         this.uploadFile(this.$imagePath + res.data.key)
-            //     })
-            //     .catch(error=>{
-            //         console.log(error);
-            //         this.$message.error('上传失败!')
-            //     })
+            // this.uploadFile(file)
+            let that = this;
+            //七牛云上传
+            let observable = this.$observable(file);
+            observable.subscribe({
+              next(res){
+                console.log('next',res);    
+              },
+              error(err){
+                // that.$message.error('上传失败!');
+              },
+              complete(res) {
+                console.log('成功结果', res);
+                that.images.push({
+                  name:'imgName',
+                  url:that.Urls.imageUrl+res.key
+                }) 
+                that.$message.success('上传成功!');
+              }
+            })
         })
     },
     uploadFile(file){
@@ -507,6 +516,7 @@
       }
         this.HttpClient.form('/admin/uploadOneImage',params)
             .then(res=>{
+              console.log(res);
                 if(res.data.code===200){
                     this.$message.success(res.data.msg);
                     this.isShowCropper=false;
@@ -671,6 +681,23 @@ function dealWithTable(table) {
     .addLineDialog_main{
 
       /*上传图片*/
+      .uploader{
+        height: 178px;
+        width: 100%;
+        border: 1px solid #e4e1e1;
+        .el-upload{
+          height: 178px;
+          width: 100%;
+          .upload{
+            height: 178px;
+            width: 178px;
+          }
+          .el-icon-plus{
+            font-size: 40px;
+            line-height: 178px;
+          }
+        }
+      }
       .images-uploader .el-upload {
         border: 1px dashed #d9d9d9;
         border-radius: 6px;

@@ -9,13 +9,13 @@
 
       <div class="feedback_header">
         <div>现有模板</div>
-        <el-button @click="addButton">添加新模板</el-button>
+        <el-button @click="addButton(null,2)">添加新模板</el-button>
       </div>
 
       <div class="feedback_content">
         <div class="feedback_type_list">
           <div class="feedback_type" v-for="item in mailData" :key="item.id">
-            <div class="feedback_type_name">{{item.name}}</div>
+            <div class="feedback_type_name" @click="handleModify(item,2)">{{item.name}}</div>
             <el-button type="danger" @click="deleteButton(item.id)">删除</el-button>
           </div>
         </div>
@@ -27,7 +27,7 @@
     <el-dialog :visible.sync="addVisible" width="800px" custom-class="mail_visible">
       <div slot="title" class="dialog_head_title">
         <i class="iconfont icon-faxian examine_icon"></i>
-        <span>新模板</span>
+        <!-- <span>新模板</span> -->
       </div>
       <div class="mail_content">
         <div class="mail_title">模板名称</div>
@@ -66,16 +66,28 @@
             </quill-editor> -->
           </div>
           <!-- <div class="mail_basic_info">
-            <div class="basic_info_item">邮箱:kslab@kushualab.com</div>
-            <div class="basic_info_item">TEL:400-8500-9999</div>
-            <div class="basic_info_item">地址:中国重庆渝中区大坪英利国际</div>
-            <div class="basic_info_item">邮编:400050</div>
+            <div class="basic_info_item">
+              <span>邮箱：</span>
+              <el-input v-model="mailbox"></el-input>
+            </div>
+            <div class="basic_info_item">
+              <span>TEL: </span>
+              <el-input v-model="phone"></el-input>
+            </div>
+            <div class="basic_info_item">
+              <span>地址：</span>
+              <el-input v-model="adress"></el-input>
+            </div>
+            <div class="basic_info_item">
+              <span>邮编: </span>
+              <el-input v-model="zipCode"></el-input>
+            </div>
           </div> -->
         </div>
       </div>
       <div class="user_footer" slot="footer">
         <el-row>
-          <el-button type="primary" class="btn_foot" @click="addVisible = false">取消</el-button>
+          <el-button class="btn_foot" @click="addVisible = false">取消</el-button>
           <el-button type="primary" class="btn_foot" @click="saveTemplate">保存</el-button>
         </el-row>
       </div>
@@ -210,6 +222,12 @@ export default {
       mailData:[],// 邮件模板列表
       templateTitle:'',// 新模板名称,
       mailContent:'',// 模板内容
+      operationType:null,  //操作类型
+      modifyInfo:null,  //修改前的模板信息
+      // mailbox:'',  //邮箱
+      // phone:'',  //电话
+      // adress:'',  //地址
+      // zipCode:'',
       
     }
   },
@@ -218,6 +236,14 @@ export default {
     DeleteModal
   },
   methods:{
+    handleModify(i,type){
+      console.log(i)
+      this.addVisible = true;
+      this.modifyInfo  = i;
+      this.templateTitle = i.name;
+      this.content = i.content;
+      this.operationType = type;
+    },
     // 获取模板列表
     getMailList () {
       this.HttpClient.post('/admin/templates/getList',{type:2})
@@ -247,7 +273,9 @@ export default {
     },
     //新增模板
     saveTemplate(){
-      this.HttpClient.post('/admin/templates/create',{type:2,name:this.templateTitle,content:this.content})
+      console.log(this.operationType)
+      if(this.operationType === 1){   //新增模板
+        this.HttpClient.post('/admin/templates/create',{type:2,name:this.templateTitle,content:this.content})
         .then(res=>{
           console.log(res);
           const { code, msg } = res.data
@@ -263,10 +291,28 @@ export default {
             this.$message.success(msg)
           }
         })
+      }else if(this.operationType === 2){  //修改模板
+        this.HttpClient.post('/admin/templates/edit',{id:this.modifyInfo.id,name:this.templateTitle,content:this.content,type:2})
+        .then(res=>{
+          console.log(res);
+          if(res.data.code === 200){
+            this.$message.success(res.data.msg)
+            this.addVisible = false;
+            this.templateTitle = '';
+            this.content  = '';
+            setTimeout(() => {
+              this.getMailList()
+            }, 500)
+          }
+        })
+      }
     },
     //添加模板按钮事件
     addButton(){
       this.addVisible=true;
+      this.templateTitle = '';
+      this.content = '';
+      this.operationType = 1;
     },
     //删除按钮事件
     deleteButton(id){
@@ -393,8 +439,10 @@ export default {
     .feedback_header{
       display: flex;
       align-items: center;
-      justify-content: space-between;
       padding: 30px 25px;
+      div{
+        margin-right: 20px;
+      }
 
     }
 
@@ -408,7 +456,7 @@ export default {
         justify-content:flex-start;
 
         .feedback_type{
-          width:150px;
+          // width:150px;
           display:flex;
           justify-content:flex-start;
           font-size:14px;
@@ -417,6 +465,7 @@ export default {
 
           .feedback_type_name{
             width:100%;
+            padding: 0 5px;
             line-height:40px;
             // color:#fff;
             // background:#15bafe;
@@ -505,53 +554,89 @@ export default {
           padding-left: 10px;
         }
         .mail_edit_body{
-          margin-top:15px;
-          height:192px;
+                        // margin-top:15px;
+                        // height:192px;
 
-          //富文本
-          .ql-toolbar.ql-snow{
-            border-left:none;
-            border-right:none;
-          }
-          .ql-container.ql-snow{
-            border-left:none;
-            border-right:none;
-            border-bottom:none;
-            height:150px;
-          }
-        }
+                        //富文本
+                        .ql-toolbar.ql-snow{
+                            border-left:none;
+                            border-right:none;
+                        }
+                        .ql-container.ql-snow{
+                            border-left:none;
+                            border-right:none;
+                            border-bottom:none;
+                            min-height:250px;
+                            overflow-y: auto;
+                            padding-bottom: 60px;
+                        }
+                    }
         .mail_basic_info{
-          position:absolute;
-          bottom:0;
-          left:0;
-          width:50%;
-          display:flex;
-          flex-wrap:wrap;
-          align-items:center;
-          justify-content:flex-start;
+                        position:absolute;
+                        bottom:0;
+                        left:0;
+                        width:65%;
+                        display:flex;
+                        flex-wrap:wrap;
+                        align-items:center;
+                        justify-content:flex-start;
 
-          .basic_info_item{
-            color:#fff;
-            font-size:14px;
-            background:#15bafe;
-            padding:5px 10px;
-            border:1px solid #ccc;
-            box-sizing:border-box;
-          }
-          .basic_info_item:first-child{
-            width:60%;
-          }
-          .basic_info_item:nth-child(2){
-            width:40%;
-            padding:6.5px 10px;
-          }
-          .basic_info_item:nth-child(3){
-            width:70%;
-          }
-          .basic_info_item:last-child{
-            width:30%;
-          }
-        }
+                        .basic_info_item{
+                            display: flex;
+                            justify-content:space-between;
+                            color:#fff;
+                            font-size:14px;
+                            background:#15bafe;
+                            padding:2px 10px;
+                            border:1px solid #ccc;
+                            box-sizing:border-box;
+                        }
+                        .basic_info_item:first-child{
+                            width:50%;
+                            span{
+                              width: 53px;
+                              line-height: 30px;
+                            }
+                            .el-input__inner{
+                              width: 180px;
+                              height: 30px;
+                            }
+                        }
+                        .basic_info_item:nth-child(2){
+                            width:50%;
+                            padding:2px 10px;
+                            span{
+                              width: 53px;
+                              line-height: 30px;
+                            }
+                            .el-input__inner{
+                              width: 180px;
+                              height: 30px;
+                            }
+                        }
+                        .basic_info_item:nth-child(3){
+                            width:60%;
+                            span{
+                              width: 53px;
+                              line-height: 30px;
+                            }
+                            .el-input__inner{
+                              width: 231px;
+                              height: 30px;
+                            }
+                        }
+                        .basic_info_item:last-child{
+                            width:40%;
+                            span{
+                              width: 53px;
+                              line-height: 30px;
+                            }
+                            .el-input__inner{
+                              width: 143px;
+                              height: 30px;
+                            }
+                        }
+                    }
       }
     }
   }

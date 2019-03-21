@@ -37,7 +37,7 @@
 
         <div class="content_table">
           <el-table :data="tableData" :border="true">
-            <el-table-column label="酷圈评论ID" align="center" width="150" prop="id" sortable></el-table-column>
+            <el-table-column label="酷圈ID" align="center" width="150" prop="id" sortable></el-table-column>
 
             <el-table-column
               label="用户昵称"
@@ -70,15 +70,15 @@
             ></el-table-column>
 
             <el-table-column
-              label="点赞次数"
+              label="附件数量"
               align="center"
               show-overflow-tooltip
               width="110"
-              prop="like_num"
+              prop="attachment_sum"
               sortable
             >
             <template slot-scope="scope">
-              <span v-if="scope.row.like_num">{{scope.row.like_num}}</span>
+              <span v-if="scope.row.attachment_sum">{{scope.row.attachment_sum}}</span>
               <span v-else class="sortout_color">暂无</span>
             </template>
             </el-table-column>
@@ -100,8 +100,8 @@
             <el-table-column label="操作" align="center" width="140" class-name="table_scope">
               <template slot-scope="scope">
                 <div class="scope_btm">
-                  <el-button size="medium" type="text" @click="deleteInfo(scope.row)">删除</el-button>
-                  <el-button size="medium" type="text" @click="previewContent(scope.row)">预览</el-button>
+                  <el-button size="medium" type="text" @click="deletedialogInfo(scope.row)">删除</el-button>
+                  <el-button size="medium" type="text" @click="previewfileContent(scope.row)">预览</el-button>
                 </div>
               </template>
             </el-table-column>
@@ -117,17 +117,95 @@
       </div>
     </div>
 
+    <!-- 预览弹框 -->
+    <el-dialog
+      width="550px"
+      title="预览"
+      custom-class="previewPictureDialog"
+      :visible.sync="previewFileDialog"
+    > 
+      <div class="contentbox">
+        <span>内容</span>
+        <div class="contentfile">
+          {{previewContent.content}}
+        </div>
+      </div>
+      <div class="contentbox">
+        <span>附件</span>
+        <div class="contentfile">
+          <!-- {{previewContent.content}} -->
+          <div style="width:100%" v-if="previewContent.image">
+            <div v-for="(item,index) in previewContent.image" :key="index">
+              <div class="images" v-if="item.type === '1'">
+                <img
+                  :src="item.path"
+                  alt
+                  @click="viewImages(item.path)"
+                >
+              </div>
+              <div class="video" v-if="item.type === '3'">
+                <video muted="muted" loop="loop"
+                  :src="item.path"
+                  @click="viewVideos(item.path)"
+                  
+                ></video>
+              </div>
+              <!-- 文件 -->
+              <div class="attachment" v-if="item.type === '2'">
+                <div class="file-icon" @mouseenter="enterDownload" @mouseleave="leaveDownload">
+                      <i class="el-icon-document"></i>
+                      <p :title="item.name">{{item.name}}</p>
+                      <div class="download" :class="isShowdownload?'showdownload':''">
+                        <a :href="item.path+'?attname='">下载</a>
+                      </div>
+                    </div>
+              </div>
+            </div>
+            
+          </div>
+          
+          
+        </div>
+      </div>
+    </el-dialog>
+
     <!--预览图片弹窗-->
-    <el-dialog width="400px" custom-class="previewDialog" :visible.sync="previewDialog">
-      <span slot="title" class="previewDialog_title">
-        <i class="iconfont icon-chakan"></i>预览
+    <!--预览图片弹窗-->
+    <el-dialog
+      width="550px"
+      custom-class="previewPictureDialog"
+      :visible.sync="previewPictureDialog"
+    >
+      <span slot="title" class="previewPictureDialog_title">
+        <i class="iconfont icon-image"></i>预览图片
       </span>
-      <div class="previewDialog_box">
-        <p>评论内容</p>
-        <div class="comment_content">{{precontent}}</div>
+      <div class="previewPictureDialog_box">
+        <img :src="imgPath" alt>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="previewDialog = false">关 闭</el-button>
+        <el-button @click="previewPictureDialog = false">关 闭</el-button>
+      </span>
+    </el-dialog>
+
+    <!--预览视频弹窗-->
+    <el-dialog width="650px" custom-class="previewVideoDialog" :visible.sync="previewVideoDialog">
+      <span slot="title" class="previewVideoDialog_title">
+        <i class="iconfont icon-image"></i>预览视频
+      </span>
+      <div class="previewVideoDialog_box">
+        <video id="video1" controls :src="videoPath"></video>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="previewVideoDialog = false">关 闭</el-button>
+      </span>
+    </el-dialog>
+
+    <!--确认删除弹框-->
+    <el-dialog width="650px" title="删除" center custom-class="sureDeleteDialog" :visible.sync="previewdeleteDialog">
+      <span>确认删除吗？</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="previewdeleteDialog = false">取 消</el-button>
+        <el-button type="primary" @click="deleteInfo">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -175,13 +253,51 @@ export default {
       // 分页
       PageSize: 25,
       total: null,
-      currentpage: 1
+      currentpage: 1,
+
+      previewContent:{},
+      previewFileDialog:false,
+
+      deleteData:{},
+      previewdeleteDialog:false,
+      // 附件文件
+      isShowdownload:false,//显示下载
+      // 预览视频
+      previewVideoDialog:false,
+      videoPath:'',
+      //预览图片
+      imgPath:'',
+      previewPictureDialog:false,
     };
   },
   mounted() {
     this.getTypelist();
   },
+  watch:{
+    previewVideoDialog(){
+      var video1 = document.getElementById('video1');
+      if(this.previewVideoDialog == false){
+        video1.pause();
+      }
+    },
+  },
   methods: {
+    // 查看图片
+    viewImages(imgurl) {
+      this.previewPictureDialog = true;
+      this.imgPath = imgurl;
+    },
+    // 查看视频
+    viewVideos(videourl) {
+      this.previewVideoDialog = true;
+      this.videoPath = videourl;
+    },
+    enterDownload(){
+      this.isShowdownload = true;
+    },
+    leaveDownload(){
+      this.isShowdownload = false;
+    },
     getTypelist() {
       let params = {
         menu_type: 2,
@@ -223,22 +339,41 @@ export default {
       return row[property] === value;
     },
     // 预览
-    previewContent(row) {
-      this.precontent = row.content;
-      this.previewDialog = true;
+    previewfileContent(row) {
+      this.previewContent = row;
+      console.log(this.previewContent)
+      // this.precontent = row.content;
+      // this.previewDialog = true;
+      this.previewFileDialog = true;
+    },
+    deletedialogInfo(row){
+      this.deleteData = row;
+      this.previewdeleteDialog = true;
     },
     // 删除
-    deleteInfo(row){
-      console.log(row)
-      this.HttpClient.post('/admin/coolComment/destroy',{id:row.id}).then(res => {
-        if(res.data.code == 200){
-          this.$message.success(res.data.msg)
-          setTimeout(() => {
-            this.getlistData()
-          }, 500);
-        }
-      })
+    deleteInfo() {
+        this.HttpClient.post('/admin/coolComment/destroy',{id:this.deleteData.id}).then(res => {
+          if(res.data.code == 200){
+            this.$message.success(res.data.msg);
+            this.previewdeleteDialog = false;
+            setTimeout(() => {
+              this.getlistData()
+            }, 500);
+          }
+        })
     }
+    // 删除
+    // deleteInfo(row){
+    //   console.log(row)
+    //   this.HttpClient.post('/admin/coolComment/destroy',{id:row.id}).then(res => {
+    //     if(res.data.code == 200){
+    //       this.$message.success(res.data.msg)
+    //       setTimeout(() => {
+    //         this.getlistData()
+    //       }, 500);
+    //     }
+    //   })
+    // }
   }
 };
 </script>
@@ -390,6 +525,101 @@ export default {
         box-sizing: border-box;
         padding: 10px 15px;
       }
+    }
+  }
+
+  .contentbox{
+    width: 100%;
+    span{
+      border: 1px solid #dedede;
+      padding: 5px 10px;
+    }
+    .contentfile{
+      width: 500px;
+      // height: 100px;
+      margin: 10px 0;
+      border: 1px solid #dedede;
+      padding: 10px;
+      overflow-y: scroll;
+      // display: flex;
+      /*图片*/
+      .images{
+        // height: 150px;
+        // display: flex;
+        // flex-wrap: wrap;
+        img{
+          width: 150px;
+        }
+      }
+      /*视频*/
+      .video {
+        // width: 200px;
+        height: 150px;
+        display: flex;
+        flex-wrap: wrap;
+        // display: flex;
+        // justify-content: center;
+        // align-items: center;
+        // margin: auto;
+        video {
+          width: 200px;
+        }
+      }
+      .attachment{
+        .file-icon{
+            height: 100px;
+            width: 100px;
+            text-align: center;
+            position: relative;
+            padding-top: 20px;
+            overflow: hidden;
+            border: 1px solid #dedede;
+            .download{
+              width: 100px;
+              height: 20px;
+              font-size: 12px;
+              display: -ms-flexbox;
+              display: flex;
+              -ms-flex-align: center;
+              align-items: center;
+              -ms-flex-pack: center;
+              justify-content: center;
+              position: absolute;
+              bottom: -20px;
+              left: 0;
+              color: #fff;
+              background: rgba(0,0,0,.4);
+              transition: all .4s linear;
+              cursor: pointer; 
+              a {  
+                text-decoration:none;
+                outline: none;
+                color:inherit;
+              }
+            }
+            .showdownload{
+              bottom: 0px;
+            }
+            p{
+              width: 100%;
+              overflow: hidden;
+              text-overflow:ellipsis;
+              white-space: nowrap;
+            }
+            .el-icon-document:before {
+              font-size: 54px;
+            }
+          }
+      }
+    }
+  }
+
+  .sureDeleteDialog{
+    .el-dialog__body {
+      padding-top: 0;
+      padding-bottom: 15px;
+      text-align: center;
+      font-size: 16px;
     }
   }
 }

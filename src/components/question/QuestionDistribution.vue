@@ -66,18 +66,22 @@
             label="所属板块"
             align="center"
             show-overflow-tooltip
-            prop="category.folder_name"
+            prop="folder[0]"
             width="110">
-            <!-- <template slot-scope="scope">
-              <span>{{scope.row.category.folder_name}}</span>
-            </template> -->
+            <template slot-scope="scope">
+              <span>{{scope.row.folder[0]}}</span>
+            </template>
           </el-table-column>
 
           <el-table-column
             label="子类"
             align="center"
             prop="category.menu_1_name"
-            width="110">
+            width="120">
+            <template slot-scope="scope">
+              <el-tag type="success" v-if="scope.row.category[0]">{{scope.row.category[0]}}</el-tag>
+              <el-tag type="success" v-if="scope.row.category[1]">{{scope.row.category[1]}}</el-tag>
+            </template>
           </el-table-column>
 
           <el-table-column
@@ -142,7 +146,7 @@
             class-name="question_scope">
             <template slot-scope="scope">
               <el-button type="primary" plain size="mini" @click="handleOpenAddCatalog(scope.row.question_id)">添加目录</el-button>
-              <el-button type="primary" plain size="mini">预览</el-button>
+              <el-button type="primary" plain size="mini" @click="handlePreview(scope.row.question_id)">预览</el-button>
               <el-button type="primary" plain size="mini" @click="handleOpenAll(scope.row.menu)">所有目录</el-button>
               <!-- <div class="question_btm">
                 <div @click="handleOpenAddCatalog(scope.row.question_id)">添加目录</div>
@@ -306,6 +310,10 @@
         this.getPassQuestionList(this.startTime,this.endTime,this.title);
     },
     methods:{
+      //预览
+      handlePreview(id){
+        window.open(this.Urls.frontUrl+"home/problemDetails?id="+id);  
+      },
       //打开所有目录
       handleOpenAll(menu){
           console.log(menu)

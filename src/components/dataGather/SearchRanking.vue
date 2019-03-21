@@ -10,22 +10,30 @@
         <el-table :data="tableData" border style="width: 100%">
           <el-table-column prop="keyword" label="输入内容" width="200" show-overflow-tooltip></el-table-column>
           <el-table-column prop="search_num" label="搜索次数" width="180"></el-table-column>
-          <el-table-column prop="time.date" label="最近一次搜索时间" width="220"></el-table-column>
-          <el-table-column prop="status" label="状态" width="200" :filters="[{text: '正常', value: 1}, {text: '删除', value: 2}, {text: '停用', value: 3}]"
+          <el-table-column prop="time.date" label="最近一次搜索时间" width="220">
+            <template slot-scope="scope">
+              <span>{{scope.row.time.date.replace('.000000','')}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="status" label="状态" width="200" :filters="[{text: '正常', value: 1}, {text: '删除', value: 2}, {text: '禁止', value: 0}]"
       :filter-method="filterHandler">
             <template slot-scope="scope">
               <!-- 1 正常 2 删除 3 停用 -->
-              <span>{{scope.row.status===1?'正常':scope.row.status===2?'删除':scope.row.status===0?'禁止':"暂无"}}</span>
+              <span :class="scope.row.status===1?'normal_color':scope.row.status===2?'delete_color':scope.row.status===0?'cancel_color':''">{{scope.row.status===1?'正常':scope.row.status===2?'删除':scope.row.status===0?'禁止':"暂无"}}</span>
             </template>
           </el-table-column>
-          <el-table-column label="操作">
+          <el-table-column 
+              label="操作"
+              fixed="right"
+              min-width="400"
+              align="center">
             <template slot-scope="scope">
               <el-button
-                type="text"
+                type="primary" plain size="mini"
                 @click="forbidAndrecoverFn(scope.row)"
               >{{scope.row.status===1?'禁止':"恢复 "}}</el-button>
-              <el-button type="text" @click="viewHisinformationFn(scope.row)">查看历史信息</el-button>
-              <el-button type="text" @click="addTitleFn(scope.row)">添加小标题</el-button>
+              <el-button type="primary" plain size="mini" @click="viewHisinformationFn(scope.row)">查看历史信息</el-button>
+              <el-button type="primary" plain size="mini" @click="addTitleFn(scope.row)">添加小标题</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -59,7 +67,7 @@
                 v-for="item in options"
                 :key="item.name"
                 :label="item.name"
-                :value="item.name"
+                :value="item.menu_id"
               ></el-option>
             </el-select>
           </div>
@@ -276,6 +284,7 @@ export default {
         type: 0
       };
       this.HttpClient.post("/admin/menu/getList", params).then(res => {
+        console.log(res.data.data)
         if (res.data.code === 200) {
           this.options = res.data.data;
         }
@@ -462,6 +471,9 @@ export default {
             }
           }
         }
+      }
+      .el-pagination{
+        text-align: center;
       }
     }
 

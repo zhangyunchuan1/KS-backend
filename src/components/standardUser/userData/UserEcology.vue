@@ -139,7 +139,7 @@
               prop="login_status"
             >
               <template slot-scope="scope">
-                <span>{{scope.row.login_status == 1?'正常':'禁用'}}</span>
+                <span :class="scope.row.login_status == 1?'normal_color':'delete_color'">{{scope.row.login_status == 1?'正常':'禁用'}}</span>
               </template>
             </el-table-column>
           </el-table>

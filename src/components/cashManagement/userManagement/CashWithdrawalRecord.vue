@@ -24,8 +24,9 @@
           </div>
 
           <div class="content_header_search">
-            <el-input placeholder="昵称搜索" v-model="nickNameSearch" clearable @change="getlistData"></el-input>
-            <el-button slot="append" icon="el-icon-search" @click="getlistData"></el-button>
+            <el-input placeholder="昵称搜索" v-model="nickNameSearch" @keyup.13.native="getlistData()" clearable @clear="getlistData()">
+                <el-button slot="append" icon="el-icon-search" @click="getlistData()"></el-button>
+            </el-input>
           </div>
         </div>
 
@@ -313,11 +314,10 @@
         .content_header {
           display: flex;
           align-items: center;
-          justify-content: space-between;
           .content_header_search {
             display: flex;
             align-items: center;
-
+            margin-left: 15px;
             .input-with-select {
               margin-right: 20px;
             }

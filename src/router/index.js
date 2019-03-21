@@ -42,6 +42,8 @@ const PageUploadEncyclopedias  = () => import ('@/components/page/pageManagement
 const PageUploadService  = () => import ('@/components/page/pageManagement/uploadMenu/PageUploadService')  //上传服务
 const PageUploadActivity  = () => import ('@/components/page/pageManagement/uploadMenu/PageUploadActivity')  //上传活动
 const PageUploadProblem  = () => import ('@/components/page/pageManagement/uploadMenu/PageUploadProblem')  //上传问题
+const PageUploadMarket  = () => import ('@/components/page/pageManagement/uploadMenu/PageUploadMarket')  //上传淘货
+const PageUploadMall  = () => import ('@/components/page/pageManagement/uploadMenu/PageUploadMall')  //上传商品
 
 const AuditManagement  = () => import ('@/components/page/pageManagement/auditManagement/AuditManagement')  // 审核失败类别管理
 const CommentAuditManagement  = () => import ('@/components/page/pageManagement/auditManagement/CommentAuditManagement')  // 评论审核管理
@@ -246,6 +248,7 @@ const DefiningAttributes  = () => import ('@/components/functionControl/mallMana
 const ModelManagement  = () => import ('@/components/functionControl/mallManagement/ModelManagement') // 适用车型管理
 const VehicleManagement  = () => import ('@/components/functionControl/mallManagement/VehicleManagement') // 车辆管理列表
 const AddVehicle  = () => import ('@/components/functionControl/mallManagement/AddVehicle') // 车辆添加
+const ProductTypeExplain  = () => import ('@/components/functionControl/mallManagement/ProductTypeExplain') // 产品类型解释
 
 const DataGather  = () => import ('@/components/dataGather/dataGather') // 用户行为分析
 const HeaderMessagePrompt  = () => import ('@/components/dataGather/HeaderMessagePrompt') // 头部消息提示
@@ -256,6 +259,7 @@ const HeaderMessageQueue  = () => import ('@/components/dataGather/HeaderMessage
 const ElectricFuelStatistics  = () => import ('@/components/dataGather/ElectricFuelStatistics') // 电量燃料统计
 const KeywordStatistics  = () => import ('@/components/dataGather/KeywordStatistics') // 关键词统计
 const PraiseRecord  = () => import ('@/components/dataGather/PraiseRecord') // 点赞记录
+const RecWordsCatalogue  = () => import ('@/components/dataGather/RecWordsCatalogue') // 推荐词目录
 
 
 const BusinessUser  = () => import ('@/components/businessUser/BusinessUser') // 商家管理
@@ -276,6 +280,7 @@ const UserManagement  = () => import ('@/components/standardUser/userManagement/
 const UserReport  = () => import ('@/components/standardUser/userManagement/UserReport') // 用户举报
 const UserStatus  = () => import ('@/components/standardUser/userManagement/UserStatus') // 用户状态
 const UserAmount  = () => import ('@/components/standardUser/userManagement/UserAmount') // 用户数量
+const UserLogin  = () => import ('@/components/standardUser/userManagement/UserLogin') // 用户登录统计
 const UserActivity  = () => import ('@/components/standardUser/userManagement/UserActivity') // 用户活跃度
 const UserAccountManagement  = () => import ('@/components/standardUser/userManagement/UserAccountManagement') // 用户账号管理
 const UserBindingManagement  = () => import ('@/components/standardUser/userManagement/UserBindingManagement') // 用户绑定管理
@@ -306,6 +311,17 @@ const AccountEvent  = () => import ('@/components/cashManagement/systemFinance/A
 const CoolCircle  = () => import ('@/components/coolCircle/CoolCircle') // 酷圈
 const CoolCircleManagement  = () => import ('@/components/coolCircle/CoolCircleManagement') // 酷圈管理
 const CoolCircleReviewManagement  = () => import ('@/components/coolCircle/CoolCircleReviewManagement') // 酷圈评论管理
+
+const Reptile  = () => import ('@/components/reptile/Reptile') // 爬虫管理
+const ReptileUser  = () => import ('@/components/reptile/ReptileUser') // 爬蟲用戶管理
+const QuestionReprileMeanagement  = () => import ('@/components/reptile/QuestionReprileMeanagement/QuestionReprileMeanagement') // 問題爬虫管理
+const QuestionReptile  = () => import ('@/components/reptile/QuestionReprileMeanagement/QuestionReptile') // 问题爬虫
+const AnswerReptile  = () => import ('@/components/reptile/QuestionReprileMeanagement/AnswerReptile') // 回答爬虫
+const QDataDistribution  = () => import ('@/components/reptile/QuestionReprileMeanagement/DataDistribution') // 问题数据分配
+const ArticleReptileMeanagement  = () => import ('@/components/reptile/ArticleReptileMeanagement/ArticleReptileMeanagement') // 文章爬虫管理 
+const ArticleReptile  = () => import ('@/components/reptile/ArticleReptileMeanagement/ArticleReptile') // 文章爬虫
+const ADataDistribution  = () => import ('@/components/reptile/ArticleReptileMeanagement/DataDistribution') // 文章数据分配
+
 
 const Login  = () => import ('@/components/login/Login')  // 登陆页
 
@@ -486,6 +502,16 @@ export default new Router({
               path: '/index/page/pageManagement/uploadMenu/page-upload-problem',
               name: 'PageUploadProblem',
               component: PageUploadProblem
+            },{
+              //上传淘货
+              path: '/index/page/pageManagement/uploadMenu/page-upload-market',
+              name: 'PageUploadMarket',
+              component: PageUploadMarket
+            },{
+              //上传商品
+              path: '/index/page/pageManagement/uploadMenu/page-upload-mall',
+              name: 'PageUploadMall',
+              component: PageUploadMall
             }]
           },{  // 审核失败类别管理
             path: '/index/page/pageManagement/auditManagement/audit-management',
@@ -1226,7 +1252,11 @@ export default new Router({
             path: '/index/functionControl/mallManagement/add-vehicle',
             name: 'AddVehicle',
             component: AddVehicle
-          }]
+          },{// 产品类型解释
+            path: '/index/functionControl/mallManagement/product-type-explain',
+            name: 'ProductTypeExplain',
+            component: ProductTypeExplain
+          },]
         }]
       },{ //用户行为分析数据
         path:'/index/data-gather',
@@ -1264,6 +1294,10 @@ export default new Router({
           path:'/index/dataGather/praise-record',
           name:'PraiseRecord',
           component:PraiseRecord
+        },{ //关键词目录
+          path:'/index/dataGather/rec-words-catalogue',
+          name:'RecWordsCatalogue',
+          component:RecWordsCatalogue
         },
       
       ]
@@ -1346,6 +1380,10 @@ export default new Router({
             path: '/index/standardUser/userManagement/user-binding-management',
             name: 'UserBindingManagement',
             component: UserBindingManagement,
+          },{  // 用户登录统计
+            path: '/index/standardUser/userManagement/user-login',
+            name: 'UserLogin',
+            component: UserLogin,
           }]
         }, { // 用户数据
           path: '/index/standardUser/userData/user-data',
@@ -1441,6 +1479,45 @@ export default new Router({
           path: '/index/coolCircle/cool-circle-review-management',
           name: 'CoolCircleReviewManagement',
           component: CoolCircleReviewManagement,
+        }]
+      },{  // 爬虫管理
+        path: '/index/reptile',
+        name: 'Reptile',
+        component: Reptile,
+        children: [{  // 爬蟲用戶管理
+          path: '/index/reptile/reptile-user',
+          name: 'ReptileUser',
+          component: ReptileUser,
+        },{  //問題爬蟲管理
+          path:'/index/reptile/questionReprileMeanagement/questionReprile-meanagement',
+          name:'QuestionReprileMeanagement',
+          component:QuestionReprileMeanagement,
+          children:[{  // 问题爬虫
+            path: '/index/reptile/questionReprileMeanagement/question-reptile',
+            name: 'QuestionReptile',
+            component: QuestionReptile,
+          },{  // 回答爬虫
+            path: '/index/reptile/questionReprileMeanagement/answer-reptile',
+            name: 'AnswerReptile',
+            component: AnswerReptile,
+          },{  // 数据分配
+            path: '/index/reptile/questionReprileMeanagement/data-distribution',
+            name: 'QDataDistribution',
+            component: QDataDistribution,
+          },]
+        },{  // 文章爬虫管理
+          path: '/index/reptile/articleReptileMeanagement/articleReptile_meanagement',
+          name: 'ArticleReptileMeanagement',
+          component: ArticleReptileMeanagement,
+          children:[{  // 文章爬虫
+            path: '/index/reptile/articleReptileMeanagement/article_reptile',
+            name: 'ArticleReptile',
+            component: ArticleReptile,
+          },{  // 文章爬虫数据分配
+            path: '/index/reptile/articleReptileMeanagement/data_distribution',
+            name: 'ADataDistribution',
+            component: ADataDistribution,
+          }]
         }]
       }
     ]}

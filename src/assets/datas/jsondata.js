@@ -115,12 +115,14 @@ export default {
       title: '票务管理',
       urls: '/index/activity/ticket-management',
       icons: 'icon-fenlei',
-    },{
-      id: 4006,
-      title: '查看报名',
-      urls: '/index/activity/activity-seeSignUp',
-      icons: 'icon-fenlei',
-    },{
+    },
+    // {
+    //   id: 4006,
+    //   title: '查看报名',
+    //   urls: '/index/activity/activity-seeSignUp',
+    //   icons: 'icon-fenlei',
+    // }
+    {
       id: 4007,
       title: '活动被修改',
       urls: '/index/activity/activity-modify',
@@ -175,6 +177,16 @@ export default {
           id: 5115,
           title: '上传问题',
           urls: '/index/page/pageManagement/uploadMenu/page-upload-problem',
+          icons: 'icon-menu',
+        },{
+          id: 5116,
+          title: '上传淘货',
+          urls: '/index/page/pageManagement/uploadMenu/page-upload-market',
+          icons: 'icon-menu',
+        },{
+          id: 5117,
+          title: '上传商品',
+          urls: '/index/page/pageManagement/uploadMenu/page-upload-mall',
           icons: 'icon-menu',
         }]
       },{
@@ -264,12 +276,15 @@ export default {
           urls: '/index/page/pageManagement/uploadPrompt/submit-questions',
           icons: 'icon-menu',
         }]
-      },{
-        id: 5051,
-        title: '百科问题分类页管理',
-        urls: '/index/page/pageManagement/classificationPageManagement/classification-page-management',
-        icons: 'icon-menu',
-      }]
+      }
+      // ,
+      // {
+      //   id: 5051,
+      //   title: '百科问题分类页管理',
+      //   urls: '/index/page/pageManagement/classificationPageManagement/classification-page-management',
+      //   icons: 'icon-menu',
+      // }
+    ]
     },{
       id: 5002,
       title: '敏感词管理',
@@ -874,7 +889,7 @@ export default {
         icons:'icon-menu',
       },{
         id:16203,
-        title:'淘货退款订单',
+        title:'退款订单',
         urls:'/index/market/marketOrder/refund-order',
         icons:'icon-menu',
       },{
@@ -1080,19 +1095,26 @@ export default {
         title: '车辆添加',
         urls: '/index/functionControl/mallManagement/add-vehicle',
         icons: 'icon-menu',
-      }]
+      },{
+        id: 17613,
+        title: '产品类型解释',
+        urls: '/index/functionControl/mallManagement/product-type-explain',
+        icons: 'icon-menu',
+      },]
     }]
   },{
     id:18000,
     title:'用户行为分析',
     urls:'/index/data-gather',
     icons:'icon-fenxi',
-    children:[{
-        id:18001,
-        title:'头部消息提示',
-        urls:'/index/dataGather/header-message-prompt',
-        icons:'icon-menu'
-      },{
+    children:[
+      // {
+      //   id:18001,
+      //   title:'头部消息提示',
+      //   urls:'/index/dataGather/header-message-prompt',
+      //   icons:'icon-menu'
+      // },
+      {
         id:18002,
         title:'访问记录',
         urls:'/index/dataGather/access-record',
@@ -1126,6 +1148,11 @@ export default {
         id:18008,
         title:'点赞记录',
         urls:'/index/dataGather/praise-record',
+        icons:'icon-menu'
+      },{
+        id:18009,
+        title:'推荐词目录',
+        urls:'/index/dataGather/rec-words-catalogue',
         icons:'icon-menu'
       }
     ]},{
@@ -1206,23 +1233,14 @@ export default {
         title: '用户状态',
         urls: '/index/standardUser/userManagement/user-status',
         icons: 'icon-menu',
-      },{
+      },
+      {
         id: 20103,
-        title: '用户数量',
-        urls: '/index/standardUser/userManagement/user-amount',
-        icons: 'icon-menu',
-      },{
-        id: 20104,
-        title: '用户活跃度',
-        urls: '/index/standardUser/userManagement/user-activity',
-        icons: 'icon-menu',
-      },{
-        id: 20105,
         title: '用户账号管理',
         urls: '/index/standardUser/userManagement/user-account-management',
         icons: 'icon-menu',
       },{
-        id: 20106,
+        id: 20104,
         title: '用户绑定管理',
         urls: '/index/standardUser/userManagement/user-binding-management',
         icons: 'icon-menu',
@@ -1237,7 +1255,8 @@ export default {
         title: '用户生态',
         urls: '/index/standardUser/userData/user-ecology',
         icons: 'icon-menu',
-      },{
+      },
+      {
         id: 20202,
         title: '用户对话历史',
         urls: '/index/standardUser/userData/user-conversation-history',
@@ -1257,7 +1276,23 @@ export default {
         title: '用户历史记录',
         urls: '/index/standardUser/userData/user-history',
         icons: 'icon-menu',
-      }]
+      },
+      {
+        id: 20206,
+        title: '用户数量',
+        urls: '/index/standardUser/userManagement/user-amount',
+        icons: 'icon-menu',
+      },{
+        id: 20207,
+        title: '用户活跃度',
+        urls: '/index/standardUser/userManagement/user-activity',
+        icons: 'icon-menu',
+      },{
+        id: 20208,
+        title: '用户登录统计',
+        urls: '/index/standardUser/userManagement/user-login',
+        icons: 'icon-menu',
+      },]
     }]
   },{
     id:21000,
@@ -1343,6 +1378,56 @@ export default {
       title:'酷圈评论管理',
       urls:'/index/coolCircle/cool-circle-review-management',
       icons:'icon-baoxiangui',
+    }]
+  },{
+    id:23000,
+    title:'爬虫管理',
+    urls:'/index/reptile',
+    icons:'icon-qichequanzi',
+    children: [{
+      id:23101,
+      title:'爬虫用户管理',
+      urls:'/index/reptile/reptile-user',
+      icons:'icon-baoxiangui',
+    },{
+      id:23201,
+      title:'问题爬虫管理',
+      urls:'/index/reptile/questionReprileMeanagement/questionReprile-meanagement',
+      icons:'icon-menu',
+      children:[{
+          id:23202,
+          title:'问题爬虫',
+          urls:'/index/reptile/questionReprileMeanagement/question-reptile',
+          icons:'icon-baoxiangui',
+        },
+        {
+          id:23203,
+          title:'回答爬虫',
+          urls:'/index/reptile/questionReprileMeanagement/answer-reptile',
+          icons:'icon-baoxiangui',
+        },{
+          id:23204,
+          title:'数据分配',
+          urls:'/index/reptile/questionReprileMeanagement/data-distribution',
+          icons:'icon-baoxiangui',
+        }]
+    },{
+      id:23301,
+      title:'文章爬虫管理',
+      urls:'/index/reptile/articleReptileMeanagement/articleReptile_meanagement',
+      icons:'icon-menu',
+      children:[{
+          id:23302,
+          title:'文章爬虫',
+          urls:'/index/reptile/articleReptileMeanagement/article_reptile',
+          icons:'icon-baoxiangui',
+        },
+        {
+          id:23303,
+          title:'数据分配',
+          urls:'/index/reptile/articleReptileMeanagement/data_distribution',
+          icons:'icon-baoxiangui',
+        }]
     }]
   }]
 }

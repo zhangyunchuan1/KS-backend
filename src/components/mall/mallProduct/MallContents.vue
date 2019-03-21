@@ -117,9 +117,9 @@
               :border="true"
               >
               <el-table-column
-                label="ID"
+                label="产品ID"
                 align="center"
-                width="65"
+                width="100"
                 prop="id"
                 sortable>
               </el-table-column>

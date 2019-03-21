@@ -52,6 +52,7 @@
                   placeholder="商家名称"
                   clearable
                   v-model="searchObj.company"
+                  @change="handleSearchCompany"
                   class="input-with-select">
                   <el-button slot="append" icon="el-icon-search" @click="handleSearchCompany"></el-button>
                 </el-input>
@@ -73,6 +74,7 @@
                   placeholder="商品名称"
                   clearable
                   v-model="searchObj.name"
+                  @change="handleSearchName"
                   class="input-with-select">
                   <el-button slot="append" icon="el-icon-search" @click="handleSearchName"></el-button>
                 </el-input>
@@ -82,6 +84,7 @@
                   placeholder="订单ID搜索"
                   clearable
                   v-model="searchObj.merchantSearch"
+                  @change="handleSearchId"
                   class="input-with-select">
                   <el-button slot="append" icon="el-icon-search" @click="handleSearchId"></el-button>
                 </el-input>
@@ -98,14 +101,17 @@
                 <el-table-column
                   label="订单ID"
                   align="center"
-                  width="90"
-                  prop="id"
+                  width="150"
+                  show-overflow-tooltip
+                  prop="order_no"
                   sortable>
                 </el-table-column>
 
                 <el-table-column
                   label="商品名称"
+                  show-overflow-tooltip
                   align="center"
+                  width="120"
                   prop="title">
                 </el-table-column>
 
@@ -113,6 +119,7 @@
                   label="卖家名称"
                   align="center"
                   width="200"
+                  show-overflow-tooltip
                   prop="nickname">
                 </el-table-column>
 
@@ -120,6 +127,7 @@
                   label="订单时间"
                   align="center"
                   width="200"
+                  show-overflow-tooltip
                   prop="created_at"
                   sortable>
                 </el-table-column>
@@ -127,7 +135,8 @@
                 <el-table-column
                   label="目的城市"
                   align="center"
-                  width="200"
+                  show-overflow-tooltip
+                  width="100"
                   prop="city_name">
                 </el-table-column>
 
@@ -135,6 +144,7 @@
                   label="退款时间"
                   align="center"
                   width="200"
+                  show-overflow-tooltip
                   prop="refund_time"
                   sortable>
                 </el-table-column>
@@ -143,6 +153,7 @@
                   label="实退金额"
                   align="center"
                   width="130"
+                  show-overflow-tooltip
                   prop="refund_price"
                   sortable>
                 </el-table-column>
@@ -150,16 +161,14 @@
                 <el-table-column
                   label="操作"
                   align="center"
-                  width="320"
-                  class-name="mallReview_scope">
+                  min-width="350"
+                  fixed="right">
                   <template slot-scope="scope">
-                    <div class="mallReview_btm">
-                      <el-button size="medium " type="text" @click="checkProductionModal(scope.row)">查看商品</el-button>
-                      <el-button size="medium " type="text" @click="refundReasonModal(scope.row)">退款原因</el-button>
-                      <el-button size="medium " type="text" v-if="scope.row.logistics_no !== null" @click="checkExpressModal(scope.row)">查看物流</el-button>
-                      <el-button size="medium " type="text" @click="orderDetailModal(scope.row)">订单详情</el-button>
-                      <el-button size="medium " type="text" @click="remarkModal(scope.row)">备注</el-button>
-                    </div>
+                      <el-button type="primary" plain size="mini" @click="checkProductionModal(scope.row)">查看商品</el-button>
+                      <el-button type="primary" plain size="mini" @click="refundReasonModal(scope.row)">退款原因</el-button>
+                      <el-button type="primary" plain size="mini" v-if="scope.row.logistics_no !== null" @click="checkExpressModal(scope.row)">查看物流</el-button>
+                      <el-button type="primary" plain size="mini" @click="orderDetailModal(scope.row)">订单详情</el-button>
+                      <el-button type="primary" plain size="mini" @click="remarkModal(scope.row)">备注</el-button>
                   </template>
                 </el-table-column>
               </el-table>
@@ -245,21 +254,33 @@
             <div class="content_list">
               <div class="content_title">姓名：</div>
               <div class="content_box">
-                <p>{{name}}</p>
+                <p>{{detailObj.conducts}}</p>
+              </div>
+            </div>
+            <div class="content_list">
+              <div class="content_title">用户昵称：</div>
+              <div class="content_box">
+                <p>{{detailObj.nickname}}</p>
+              </div>
+            </div>
+            <div class="content_list">
+              <div class="content_title">用户ID：</div>
+              <div class="content_box">
+                <p>{{detailObj.user_id}}</p>
               </div>
             </div>
 
             <div class="content_list">
               <div class="content_title">电话：</div>
               <div class="content_box">
-                <p>{{telphone}}</p>
+                <p>{{detailObj.telphone}}</p>
               </div>
             </div>
 
             <div class="content_list">
               <div class="content_title">收货地址：</div>
               <div class="content_box">
-                <p>{{detail}}</p>
+                <p>{{detailObj.province+' '+detailObj.city+' '+detailObj.area+' '+detailObj.detail}}</p>
               </div>
             </div>
           </div>
@@ -303,6 +324,26 @@
           <el-button type="primary" @click="handlePrimaryRemark">提 交</el-button>
         </span>
       </el-dialog>
+
+      <!-- 买家备注 -->
+    <el-dialog
+      :visible.sync="buyerVisible"
+      width="470px"
+      custom-class="RemarksDialog">
+      <span slot="title" class="RemarksDialog_title"><i class="iconfont icon-edit-square"></i>买家备注</span>
+      <div class="RemarksDialog_main">
+        <div class="main_content">
+          <div class="main_content_list">
+            <el-input
+              type="textarea"
+              :rows="4"
+              resize="none"
+              v-model="buyerRemark.content">
+            </el-input>
+          </div>
+        </div>
+      </div>
+    </el-dialog>
 
     </div>
 </template>
@@ -348,6 +389,10 @@
         cityId:null,
         folderId:null,
 
+        // 买家备注
+        buyerVisible:false,
+        buyerRemark:{},
+
         RefundReason:null,  //退款理由
         //详情
         commodityId:null,
@@ -391,6 +436,19 @@
         handleSearchName(){
             console.log(this.searchObj.name)
             this.getOrderList();
+        },
+        // 买家备注
+        handleBuyerRemark(row){
+          console.log(row)
+          this.HttpClient.post('/admin/marketOrder/orderLog',{order_id:row.order_id}).then(res => {
+            if(res.data.code == 200){
+              this.buyerRemark = res.data.data;
+              this.buyerVisible = true;
+              console.log(this.buyerRemark)
+            }else{
+              this.$message.warning(res.data.msg)
+            }
+          })
         },
         //选择城市
         tt(e){
@@ -530,10 +588,11 @@
             })
             .then(res=>{
                 console.log(res)
-                this.commodityId = res.data.data.product_id;
-                this.telphone = res.data.data.telphone;
-                this.detail = res.data.data.detail;
-                this.name = res.data.data.conducts;
+                // this.commodityId = res.data.data.id;
+                // this.telphone = res.data.data.telphone;
+                // this.detail = res.data.data.detail;
+                // this.name = res.data.data.conducts;
+                this.detailObj = res.data.data;
                 this.num = res.data.data.quantity;
                 this.UnitPrice = res.data.data.price;
                 this.totalPrice = res.data.data.total_price;
@@ -545,7 +604,9 @@
       checkExpressModal(i) {
           console.log(i);
           this.HttpClient.post('/admin/getLogisticsInfo',{
-                logisticcode:i.logistics_no
+                logisticcode:i.logistics_no,
+                order_id:i.order_id,
+                type:1
             })
             .then(res=>{
                 console.log(res)
@@ -559,7 +620,7 @@
       },
       checkProductionModal(modifyObj) {
         // 跳转商品页
-        window.open('http://frontend.kslab.com/home/productDetail?' + modifyObj.product_id, '_black');
+        window.open(this.Urls.frontUrl+"home/market-detail?id="+modifyObj.asin);
       },
       currentChange(page) {
           this.currentPage = page;
@@ -686,6 +747,13 @@
                   background-color: #15bafe;
                 }
               }
+              tbody{
+                .cell{
+                  .el-button{
+                    margin-top: 2px;
+                  }
+                }
+              }
             }
 
             /*操作按钮*/
@@ -696,10 +764,6 @@
                 .mallReview_btm {
                   display: flex;
                   align-items: center;
-                  .el-button{
-                    border: none;
-                    background: transparent;
-                  }
                 }
               }
             }

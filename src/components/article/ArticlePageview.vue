@@ -53,7 +53,7 @@
                   align="center"
                   label="类别"
                   :filters="[{ text: '汽车', value: '汽车'}
-                  , { text: '摩托车', value: '摩托车'}
+                  , { text: '摩托', value: '摩托'}
                   , { text: '无人机', value: '无人机'}
                   , { text: '智能设备', value: '智能设备'}
                   ]"
@@ -126,31 +126,40 @@
                   label="创建时间排列">
                 </el-table-column>
                 <el-table-column
-                  sortable
                   width="120px"
                   show-overflow-tooltip
                   align="center"
                   label="状态">
                   <template slot-scope="scope">
-                    <div :class="scope.row.status===1?'normal_color':scope.row.status===4?'置顶':'delete_color'">{{scope.row.status===1?'正常':scope.row.status===4?'置顶':'已删除'}}</div>
+                    <div :class="scope.row.status===1?'normal_color':scope.row.status===4?'start_color':'delete_color'">{{scope.row.status===1?'普通':scope.row.status===4?'置顶':'已删除'}}</div>
                   </template>
                 </el-table-column>
                 <el-table-column
-                  prop="operating"
-                  align="center"
-                  fixed="right"
-                  class-name="contentOperating"
-                  label="操作">
+                    label="操作"
+                    fixed="right"
+                    min-width="300"
+                    align="center">
                   <template slot-scope="scope">
                     <!-- <div> -->
-                      <div v-if="scope.row.status===1" @click="topping(scope.row.article_id)">置顶</div>
-                      <div v-if="scope.row.status===4" @click="unTopping(scope.row.article_id)">取消置顶</div>
+                      <!-- <div v-if="scope.row.status===1" @click="topping(scope.row.article_id)">置顶</div>
+                      <div v-if="scope.row.status===4" @click="unTopping(scope.row.article_id)">取消置顶</div> -->
                     <!-- </div> -->
-                    <div>查看用户</div>
-                    <div>查看文章</div>
+                    <!-- <div>查看用户</div>
+                    <div>查看文章</div> -->
+                    <el-button type="primary" plain size="mini" v-if="scope.row.status===1" @click="topping(scope.row.article_id)">置顶</el-button>
+                    <el-button type="primary" plain size="mini" v-if="scope.row.status===4" @click="unTopping(scope.row.article_id)">取消置顶</el-button>
+                    <el-button type="primary" plain size="mini" @click="handleSeeUser(scope.row.uid)">查看用户</el-button>
+                    <el-button type="primary" plain size="mini" @click="handleSeeArticle(scope.row.article_id)">查看文章</el-button>
                   </template>
                 </el-table-column>
               </el-table>
+              <el-pagination
+                          v-if="total"
+                          layout="prev, pager, next"
+                          :total="total"
+                          :page-size="pageSize"
+                          @current-change="currentChange"
+                  ></el-pagination>
             </div>
           </form>
         </div>
@@ -252,12 +261,23 @@
         article_id:null,
         articleName:'',
         nickname:'',
+        currentPage:1,//当前页
+        pageSize:25,//每页显示数量
+        total:0,//总条数
       }
     },
     mounted(){
       this.getArticleList();
     },
     methods: {
+      //查看用户，跳转前台他人主页
+      handleSeeUser(id){
+        window.open(this.Urls.frontUrl+"home/others-users?uid="+id);  
+      },
+      //查看文章，跳转前台文章详情页
+      handleSeeArticle(id){
+        window.open(this.Urls.frontUrl+"home/articleDetails?id="+id);  
+      },
       //昵称搜索
       nicknameSearch(){
           this.getnkNameArticleList();
@@ -274,49 +294,57 @@
       //昵称搜索
       getnkNameArticleList(){
           this.HttpClient.post('/admin/article/getList',{
-            page:1,
-            size:11,
+            page:this.currentPage,
+            size:25,
+            status:1,
             nickname:this.nickname
           })
           .then(res=>{
               console.log(res);
               this.contentData = res.data.data.data;
+              this.total = res.data.data.total;
           })
       },
       //名称搜索
       getNameArticleList(){
           this.HttpClient.post('/admin/article/getList',{
-            page:1,
-            size:11,
+            page:this.currentPage,
+            size:25,
+            status:1,
             username:this.articleName
           })
           .then(res=>{
               console.log(res);
               this.contentData = res.data.data.data;
+              this.total = res.data.data.total;
           })
       },
       //获取文章浏览量统计列表数据
       getArticleList(){
           this.HttpClient.post('/admin/article/getList',{
-            page:1,
-            size:11,
+            page:this.currentPage,
+            size:25,
+            status:1,
           })
           .then(res=>{
               console.log(res);
               this.contentData = res.data.data.data;
+              this.total = res.data.data.total;
           })
       },
       //时间区间请求数据
       getArticleTimeList(time){
           this.HttpClient.post('/admin/article/getList',{
-            page:1,
-            size:11,
+            page:this.currentPage,
+            size:25,
+            status:1,
             start_time:time[0],
             end_time:time[1]
           })
           .then(res=>{
               console.log(res);
               this.contentData = res.data.data.data;
+              this.total = res.data.data.total;
           })
       },
       // 置顶按钮
@@ -400,6 +428,10 @@
             this.imageUrl = '';
         }
         
+      },
+      currentChange(p){
+          this.currentPage=p;
+          this.getArticleList()
       },
       beforeAvatarUpload(file) {
         console.log(file)

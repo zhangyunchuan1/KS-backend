@@ -97,6 +97,10 @@
             <el-radio :label="item" v-for="(item,index) in menuList" :key="index" border>{{item}}</el-radio>
           </el-radio-group>
         </div>
+        <div class="grade infor">
+          <el-tag type="info">code</el-tag>
+          <el-input placeholder="请输入内容" v-model="inputCode" clearable></el-input>
+        </div>
         <!-- @close="deleteInforFn(tag)" -->
         <span slot="footer" class="dialog-footer">
           <el-button @click="centerDialogVisible = false;tags=[]">取 消</el-button>
@@ -150,6 +154,7 @@ export default {
       childValue: "", //子类别下拉框选中的内容
       tags: [], //显示在添加信息列表中的data
       inputValue: "", //添加的信息内容
+      inputCode:'',
       textarea: "", //添加的事件内容
       menuList: ["系统", "用户", "商家"], //发起对象list
       positionValue: "", //定位符
@@ -196,6 +201,7 @@ export default {
       this.inputValue = "";
       this.tags = [];
       this.textarea = "";
+      this.inputCode = '';
       this.selectVideotitle = "";
       this.centerDialogVisible = true;
       let params = {
@@ -232,12 +238,12 @@ export default {
       arr["description"] = this.textarea;
       arr["replace"] = this.tags;
       // console.log(arr)
-      var timestamp = new Date().getTime();
+      // var timestamp = new Date().getTime();
       if (this.alertTitle == "修改") {
         let params = {
           id: this.infoID,
           type: 5,
-          name: timestamp,
+          name: this.inputCode,
           content: JSON.stringify(arr)
         };
         // 修改数据
@@ -253,7 +259,7 @@ export default {
       } else if (this.alertTitle == "添加") {
         let params = {
           type: 5,
-          name: timestamp,
+          name: this.inputCode,
           content: JSON.stringify(arr)
         };
 
@@ -271,7 +277,7 @@ export default {
     },
     // 操作修改
     amendInfo(row) {
-      // console.log(row);
+      console.log(row);
       this.alertTitle = "修改";
       this.infoID = row.id;
       this.centerDialogVisible = true;
@@ -281,6 +287,7 @@ export default {
       this.tags = row.content.replace;
       this.textarea = row.content.description;
       this.selectVideotitle = row.content.for;
+      this.inputCode = row.name;
       let params = {
         menu_type: 4,
         type: 2

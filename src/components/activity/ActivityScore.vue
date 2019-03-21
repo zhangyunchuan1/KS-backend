@@ -345,7 +345,8 @@
     }
 </script>
 
-<style scoped>
+<style scoped lang='less'>
+.activityScore{
   .bread{
     margin: 10px;
   }
@@ -526,72 +527,72 @@
   .h_message{
     margin-left: 15px;
   }
-</style>
-<style lang="less">
-  .activityScore .el-table th>.cell{
+  /*111111111111111111111111111111111111111*/
+  .el-table th>.cell{
     text-align: center;
   }
-  .activityScore .el-upload-list{
+  .el-upload-list{
     height: 85px;
     /*overflow: auto;*/
     width:300px;
     flex-direction: row;
     flex-wrap: wrap;
   }
-  .activityScore .el-upload--picture-card{
+  .el-upload--picture-card{
     width: 90px;
     height: 90px;
   }
-  .activityScore .el-upload-list--picture-card .el-upload-list__item{
+  .el-upload-list--picture-card .el-upload-list__item{
     width: 90px;
     height: 90px;
   }
-  .activityScore .el-dialog__body{
+  .el-dialog__body{
     padding-top: 15px;
     padding-bottom: 15px;
   }
-  .activityScore .phone{display: flex;align-items:center;justify-content: space-between;margin-top:20px;}
-  .activityScore .phone>div{width: 210px;height: 35px;border:1px solid #e6e6e6;text-align:center;line-height:35px;}
-  .activityScore .conditions>div{height:35px ;border:1px solid #999999;padding:0 22px;margin-right:22px;color:#a9a9a9;font-size:14px;text-align:center;line-height:35px;}
-  .activityScore .slectDiv{width: 12px;height: 12px;border:1px solid #828282;padding: 1px;margin:0 auto;}
-  .activityScore .all{width: 100%;display:flex;height: 55px;border-top:1px solid #e8e8e8;margin-top:20px;align-items:center;}
-  .activityScore .all>span{font-size:14px;color: #808080;margin-left:25px;}
-  .activityScore .tips{width: 100%;padding:50px 0;border:1px solid #e6e6e6;}
-  .activityScore .liyou{text-align:left;margin:20px 0;}
-  .activityScore .btn{display: flex;justify-content: flex-end;margin-top:20px;}
-  .activityScore .info{text-align:start;margin-bottom:15px;}
-  .activityScore .pai{display: flex;justify-content: space-between;align-items:center;margin-top:15px;}
-  .activityScore .inp{width: 210px;height: 35px;border-radius:3px;outline:none;text-align:center;display: flex;justify-content: space-between;}
-  .activityScore .demo-input-suffix{margin-top:15px;display:flex;justify-content:space-between;}
+  .phone{display: flex;align-items:center;justify-content: space-between;margin-top:20px;}
+  .phone>div{width: 210px;height: 35px;border:1px solid #e6e6e6;text-align:center;line-height:35px;}
+  .conditions>div{height:35px ;border:1px solid #999999;padding:0 22px;margin-right:22px;color:#a9a9a9;font-size:14px;text-align:center;line-height:35px;}
+  .slectDiv{width: 12px;height: 12px;border:1px solid #828282;padding: 1px;margin:0 auto;}
+  .all{width: 100%;display:flex;height: 55px;border-top:1px solid #e8e8e8;margin-top:20px;align-items:center;}
+  .all>span{font-size:14px;color: #808080;margin-left:25px;}
+  .tips{width: 100%;padding:50px 0;border:1px solid #e6e6e6;}
+  .liyou{text-align:left;margin:20px 0;}
+  .btn{display: flex;justify-content: flex-end;margin-top:20px;}
+  .info{text-align:start;margin-bottom:15px;}
+  .pai{display: flex;justify-content: space-between;align-items:center;margin-top:15px;}
+  .inp{width: 210px;height: 35px;border-radius:3px;outline:none;text-align:center;display: flex;justify-content: space-between;}
+  .demo-input-suffix{margin-top:15px;display:flex;justify-content:space-between;}
 
-  .activityScore .el-date-editor.el-input, .el-date-editor.el-input__inner{width: 135px !important;}
-  .activityScore .el-input--small .el-input__inner{height: 40px !important;}
-  .activityScore .el-input__inner{ height: 40px !important;border-radius: 0 ! important;}
-  .activityScore .el-input--prefix .el-input__inner{
+  .el-date-editor.el-input, .el-date-editor.el-input__inner{width: 135px !important;}
+  .el-input--small .el-input__inner{height: 40px !important;}
+  .el-input__inner{ height: 40px !important;border-radius: 0 ! important;}
+  .el-input--prefix .el-input__inner{
     border: none;
 }
 
 
 
-  .activityScore .score{width: 735px;height: 96px;display:flex;margin-top:15px;margin: 20px 10px;}
-  .activityScore .score-left1{width: 90px;background: #15bafe;text-align:center;line-height:96px;}
-  .activityScore .score-left2{width: 90px;background: #009efb;text-align:center;line-height:96px;}
+  .score{width: 735px;height: 96px;display:flex;margin-top:15px;margin: 20px 10px;}
+  .score-left1{width: 90px;background: #15bafe;text-align:center;line-height:96px;}
+  .score-left2{width: 90px;background: #009efb;text-align:center;line-height:96px;}
 
-  .activityScore .start{height: 40px;width: 190px; border:1px solid #999999;display: flex;justify-content: space-between;border-radius: 5px;}
-  .activityScore .start>span{margin: auto;color: #666666;font-size: 14px;}
+  .start{height: 40px;width: 190px; border:1px solid #999999;display: flex;justify-content: space-between;border-radius: 5px;}
+  .start>span{margin: auto;color: #666666;font-size: 14px;}
     /* .el-date-editor.el-input, .el-date-editor.el-input__inner{width: 135px !important;} */
     /* .el-input--small .el-input__inner{height: 40px !important;} */
     /* .el-input__inner{ height: 40px !important;border-radius: 0 ! important;}
     .el-input--prefix .el-input__inner{
       outline:none;
     } */
-  .activityScore .slected{display: flex;margin: 20px 10px;}
-  .activityScore .slected>div{margin-right:15px;}
-  .activityScore .comment{border:1px solid #e6e6e6;padding:35px;text-align:start;}
-  .activityScore .picture{width: 100%;border:1px solid #e6e6e6;padding:30px 20px 3px 20px;box-sizing:border-box}
-  .activityScore .picture>img{width: 145px;height: 108px;float: left;margin: 0 16px 17px 0; }
+  .slected{display: flex;margin: 20px 10px;}
+  .slected>div{margin-right:15px;}
+  .comment{border:1px solid #e6e6e6;padding:35px;text-align:start;}
+  .picture{width: 100%;border:1px solid #e6e6e6;padding:30px 20px 3px 20px;box-sizing:border-box}
+  .picture>img{width: 145px;height: 108px;float: left;margin: 0 16px 17px 0; }
   .activityScore .clearfloat:after{display:block;clear:both;content:"";visibility:hidden;height:0}
-  .activityScore .p-til{text-align:start;margin:22px 0;}
-  .activityScore .bot{width: 106px;height: 40px;background: #15bafe;color:#fff;margin: 20px 10px;text-align:center;line-height:40px;}
-   /* .clearfloat{zoom:1} */
+  .p-til{text-align:start;margin:22px 0;}
+  .bot{width: 106px;height: 40px;background: #15bafe;color:#fff;margin: 20px 10px;text-align:center;line-height:40px;}
+}
 </style>
+

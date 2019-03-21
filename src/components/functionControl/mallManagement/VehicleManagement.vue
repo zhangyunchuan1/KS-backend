@@ -18,6 +18,24 @@
                     <el-radio-button :label="item.menu_id" v-for="(item,index) in carList" :key="index">{{item.name}}</el-radio-button>
                 </el-radio-group>
             </div>
+            <div class="select" v-if="isshowSelect">
+                <el-select v-model="brandValue" clearable placeholder="品牌选择" @change="brandChange">
+                    <el-option
+                    v-for="item in brandOptions"
+                    :key="item.brand_id"
+                    :label="item.name"
+                    :value="item.brand_id">
+                    </el-option>
+                </el-select>
+                <el-select v-model="seriesValue" clearable placeholder="系列选择" @change="seriesChange">
+                    <el-option
+                    v-for="item in seriesOptions"
+                    :key="item.series_id"
+                    :label="item.name"
+                    :value="item.series_id">
+                    </el-option>
+                </el-select>
+            </div>
         </div>
         <div class="table_content">
             <el-table
@@ -35,8 +53,6 @@
                     align="center"
                     width="150"
                     prop="brand_name"
-                    :filters="brandObjList"
-                    :filter-method="filterSecondary"
                     show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column
@@ -44,8 +60,6 @@
                     align="center"
                     width="150"
                     prop="series_name"
-                    :filters="seriesObjList"
-                    :filter-method="filterSecondary"
                     show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column
@@ -148,11 +162,16 @@
         modifyVisible:false,
         categoryName:null,
         tableData:[], 
-        brandObjList:[],
-        seriesObjList:[],
+        // brandObjList:[],
 
         total:0,
         currentPage:1, //当前页面
+
+        brandOptions: [],//品牌选择数据
+        brandValue: '',//当前选中的品牌
+        seriesValue:'',//当前选中的系列
+        seriesOptions:[],//系列选择品牌
+        isshowSelect:false,//是否显示品牌和系列选择框
       }
     },
     mounted(){
@@ -177,15 +196,28 @@
         //切换车子类别（汽车、摩托车）
         handleChangeCarCategory(e){
             console.log(e);
+            if(e !== ''){
+                this.isshowSelect = true;
+            }else{
+                this.isshowSelect = false;
+            }
             this.getCarList(e);
+            this.HttpClient.get('/brands',{menu_id:this.carCategory}).then(res => {
+                console.log(res.data)
+                if(res.data.code === 200){
+                    this.brandOptions = res.data.data;
+                }
+            })
         },
         //获取车辆管理列表
         getCarList(menu_id){
-            this.brandObjList = [];
-            this.seriesObjList = [];
+            // this.brandObjList = [];
+            // this.seriesObjList = [];
             this.HttpClient.post('/admin/product/relationIndex',{
-                product_id:null,
+                // product_id:null,
                 folder:menu_id,
+                brand_id:this.brandValue,
+                series_id:this.seriesValue,
                 size:25,
                 page:this.currentPage
             })
@@ -193,35 +225,35 @@
                 console.log(res);
                 this.tableData = res.data.data.data;
                 this.total = res.data.data.total;
-                let brandList = [];  //所有品牌数组
-                let seriesList = [];  //所有系列数组
-                for(let i in this.tableData){
-                    if(brandList.indexOf(this.tableData[i].brand_name) === -1){
-                        brandList.push(this.tableData[i].brand_name)
-                    }
-                    if(seriesList.indexOf(this.tableData[i].series_name) === -1){
-                        seriesList.push(this.tableData[i].series_name)
-                    }
-                }
+                // let brandList = [];  //所有品牌数组
+                // let seriesList = [];  //所有系列数组
+                // for(let i in this.tableData){
+                //     if(brandList.indexOf(this.tableData[i].brand_name) === -1){
+                //         brandList.push(this.tableData[i].brand_name)
+                //     }
+                //     if(seriesList.indexOf(this.tableData[i].series_name) === -1){
+                //         seriesList.push(this.tableData[i].series_name)
+                //     }
+                // }
                 //遍历品牌
-                for(let f in brandList){
-                    this.brandObjList.push(
-                        {
-                            text:brandList[f],
-                            value:brandList[f]
-                        }
-                    )
-                }
-                //遍历系列
-                for(let j in seriesList){
-                    this.seriesObjList.push(
-                        {
-                            text:seriesList[j],
-                            value:seriesList[j]
-                        }
-                    )
-                }
-                console.log(this.brandObjList,this.seriesObjList);
+                // for(let f in brandList){
+                //     this.brandObjList.push(
+                //         {
+                //             text:brandList[f],
+                //             value:brandList[f]
+                //         }
+                //     )
+                // }
+                // //遍历系列
+                // for(let j in seriesList){
+                //     this.seriesObjList.push(
+                //         {
+                //             text:seriesList[j],
+                //             value:seriesList[j]
+                //         }
+                //     )
+                // }
+                // console.log(this.brandObjList,this.seriesObjList);
             })
         },
         //禁用
@@ -263,10 +295,28 @@
             this.currentPage = p;
             this.getCarList(this.carCategory);
         },
-        filterSecondary(value, row, column) {
-          const property = column['property'];
-          return row[property] === value;
+        // filterSecondary(value, row, column) {
+        //   const property = column['property'];
+        //   return row[property] === value;
+        // },
+        // 品牌选择变化
+        brandChange(){
+            console.log(this.brandValue)
+            if(this.brandValue == ''){
+                this.seriesValue = '';
+                this.seriesOptions = [];
+            }else{
+                this.HttpClient.get('/brands',{brand_id:this.brandValue}).then(res => {
+                    console.log(res.data)
+                    if(res.data.code === 200){
+                        this.seriesOptions = res.data.data;
+                    }
+                }) 
+            }
         },
+        seriesChange(){
+            this.getCarList(this.carCategory);
+        }
     }
 
   }

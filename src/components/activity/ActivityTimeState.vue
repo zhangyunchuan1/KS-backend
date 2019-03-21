@@ -12,9 +12,9 @@
             <div class="content_contain">
                 <div class="search-top">
                     <!-- 活动时间 -->
-                    <el-select class="select_normal" v-model="typeValue" placeholder="活动状态" @change="changeSearchStatus($event)">
+                    <!-- <el-select class="select_normal" v-model="typeValue" placeholder="活动状态" @change="changeSearchStatus($event)">
                         <el-option v-for="item in TypeOptions" :key="item.value" :label="item.label" :value="item.value" class="hei"></el-option>
-                    </el-select>
+                    </el-select> -->
                     <!-- 活动开始时间区间选择 -->
                     <el-date-picker
                         v-model="contentTime"
@@ -24,11 +24,16 @@
                         end-placeholder="结束日期"
                         @change="selectTime">
                     </el-date-picker>
-                    <el-input class="select_normal" placeholder="活动名称" clearable v-model="name" @change="searchName"></el-input>
-                    <el-button icon="el-icon-search" @click="searchName()"></el-button>
+                    <!-- <el-input class="select_normal" placeholder="活动名称" clearable v-model="name" @change="searchName">
+                        
+                    </el-input>
+                    <el-button icon="el-icon-search" @click="searchName()"></el-button> -->
+                    <el-input placeholder="活动名称" v-model="name" @keyup.13.native="searchName()" clearable @clear="searchName()">
+                        <el-button slot="append" icon="el-icon-search" @click="searchName()"></el-button>
+                    </el-input>
                 </div>
                 <div class="tables">
-                    <el-table   :data="tableData" border :stripe="true" :header-row-style="{height:'40px'}" :header-cell-style="{padding:0,background:'#15bafe',color:'white'}" :row-style="{height:'40px'}" :cell-style="{padding:0}" style="width: 100%">
+                    <el-table   :data="tableData" border :stripe="true" :header-row-style="{height:'50px'}" :header-cell-style="{padding:0,background:'#15bafe',color:'white'}" :row-style="{height:'50px'}" :cell-style="{padding:0}" style="width: 100%">
                         <el-table-column align="center" prop="id" label="ID" width="50"></el-table-column>
                         <el-table-column align="center" prop="title" label="活动名称" width="150" show-overflow-tooltip></el-table-column>
                         <el-table-column align="center" prop="city_name" label="城市" width="80" show-overflow-tooltip> </el-table-column>
@@ -40,13 +45,18 @@
                         <el-table-column align="center" prop="sale_num" label="售票数量" width="100" show-overflow-tooltip> </el-table-column>
                         <el-table-column align="center" prop="view_num" label="浏览人数" width="100" show-overflow-tooltip> </el-table-column>
                         <el-table-column align="center" prop="score" label="评价分数" width="80" show-overflow-tooltip> </el-table-column>
-                        <el-table-column align="center" prop="score" label="报名状态" width="80" show-overflow-tooltip>
+                        <el-table-column align="center" label="报名状态" width="100" show-overflow-tooltip
+                        prop="signUpState"
+                        :filters="[{text:'正在报名',value:1},{text:'停止报名',value:0}]"
+                        :filter-method="filterSecondary">
                             <template slot-scope="scope">
-                                <span class="normal_color" v-if="ts(scope.row.registration_deadline) > (new Date().valueOf())">正常</span>
-                                <span class="sortout_color" v-if="ts(scope.row.registration_deadline) < (new Date().valueOf())">报名停止</span>
+                                <span class="normal_color" v-if="scope.row.signUpState === 1">正在报名</span>
+                                <span class="sortout_color" v-if="scope.row.signUpState === 0">停止报名</span>
                             </template>
                         </el-table-column>
-                        <el-table-column align="center" prop="status" label="活动状态" width="108" show-overflow-tooltip> 
+                        <el-table-column align="center" prop="status" label="活动状态" width="108" show-overflow-tooltip 
+                        :filters="[{text:'等待开始',value:1},{text:'已开始',value:2},{text:'待审核',value:3},{text:'已结束',value:4},{text:'已取消',value:5}]"
+                        :filter-method="filterSecondary"> 
                             <template slot-scope="scope">
                                 <span class="wait_color" v-if="scope.row.status === 1">等待开始</span>
                                 <span class="start_color" v-if="scope.row.status === 2">已开始</span>
@@ -55,7 +65,7 @@
                                 <span class="cancel_color" v-if="scope.row.status === 5">已取消</span>
                             </template>
                         </el-table-column>
-                        <el-table-column align="center" label="操作" width="240" fixed="right">
+                        <el-table-column align="center" label="操作" min-width="240" fixed="right">
                             <template slot-scope="scope">
                                 <el-button size="small" type="text">
                                     <el-dropdown trigger="click">
@@ -82,7 +92,7 @@
                                 <el-button size="small" type="text" v-if="scope.row.status === 2 && ts(scope.row.registration_deadline) > (new Date().valueOf())" @click="handleStopSigningUp(scope.row.active_id)">停止报名</el-button>
                                 <el-button size="small" type="text" v-if="scope.row.status === 1 && ts(scope.row.registration_deadline) < (new Date().valueOf())" @click="handleResumeApplication(scope.row.active_id)">恢复报名</el-button>
                                 <el-button size="small" type="text" v-if="scope.row.status === 2 && ts(scope.row.registration_deadline) < (new Date().valueOf())" @click="handleResumeApplication(scope.row.active_id)">恢复报名</el-button>
-                                <el-button size="small" type="text" v-if="scope.row.status === 1" @click="handleModify(scope.row.active_id)">修改</el-button>
+                                <el-button size="small" type="text" v-if="scope.row.status === 1" @click="handleModify(scope.row.id)">修改</el-button>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -104,17 +114,17 @@
             <div class="info">
                 <div>
                     <div class="info-left">
-                        <span>活动开始时间：</span>
+                        <span style="display: inline-block;width: 100px;">活动开始时间：</span>
                         <div>{{infoData.active_date_start}}</div>
                     </div>
                     <div class="info-right">
-                        <span>活动截止时间：</span>
+                        <span style="display: inline-block;width: 100px;">活动截止时间：</span>
                         <div>{{infoData.active_date_end}}</div>
                     </div>
                 </div>
                 <div>
                     <div class="info-left">
-                        <span>报名截止时间：</span>
+                        <span style="display: inline-block;width: 100px;">报名截止时间：</span>
                         <div>{{infoData.registration_deadline}}</div>
                     </div>
                     <div class="info-right">
@@ -139,7 +149,7 @@
                         <div>{{infoData.city_name}}</div>
                     </div>
                     <div class="info-right">
-                        <span>活动负责人:</span>
+                        <span>公司名称:</span>
                         <div>{{infoData.promotee}}</div>
                     </div>
                 </div>
@@ -153,8 +163,8 @@
                         <div>{{infoData.telphone}}</div>
                     </div>
                     <div class="info-right">
-                        <span>结束时间：</span>
-                        <div>{{infoData.active_date_end}}</div>
+                        <span style="display: inline-block;width: 100px;">实际结束时间：</span>
+                        <div>{{infoData.actual_end_time?infoData.actual_end_time.split(' ')[0]:'无'}}</div>
                     </div>
                 </div>
             </div>
@@ -168,6 +178,23 @@
                 </div>
             </div>
             <div class="preview">
+              <div>
+                    <p v-if="!infoData.admin_upload_protocol">上传的安全协议</p>
+                    <a v-for="item in infoData.admin_upload_protocol" :key="item.name" :href="item.path+'?attname='"><i class="el-icon-document" style="margin:0 10px 0 0;color: #bfbfbf;"></i>{{item.name}}</a>
+                    <!-- <p v-for="item in infoData.admin_upload_images" :key="item.name" @click="checkImages(item.url)"><i class="el-icon-picture-outline" style="margin:0 10px 0 0;color: #bfbfbf;"></i>{{item.name}}</p> -->
+                </div>
+                <div class="attachments">
+                        <p v-if="!infoData.admin_upload_images">上传的附件,图片为此公司现场图片，或者计划书等</p>
+                        <div v-for="item in infoData.admin_upload_images" :key="item.name">
+                            <p v-if="isPic(item.url)" @click="checkImages(item.url)"><i class="el-icon-picture-outline" style="margin:0 10px 0 0;color: #bfbfbf;"></i>{{item.name}}</p>
+                            <a v-else :href="item.url+'?attname='"><i class="el-icon-document" style="margin:0 10px 0 0;color: #bfbfbf;"></i>{{item.name}}</a>
+                        </div>
+                </div>
+            </div>
+            <el-dialog :visible.sync="imagesVisible" append-to-body>
+                <img width="100%" :src="imageUrl" alt="">
+            </el-dialog>
+            <!-- <div class="preview">
                 <div class="down_load">
                     <div class="examine_contents">
                         <div class="examine_contain">
@@ -192,7 +219,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> -->
         </el-dialog>
         <!-- 取消活动原因弹窗 -->
         <el-dialog :visible.sync="cancelVisible" width="360px">
@@ -326,10 +353,10 @@
                 <span class="til">标题：</span>
                 <el-input v-model="editData.title" placeholder="请输入内容"></el-input>
             </div>
-            <div class="introduce">
+            <!-- <div class="introduce">
                 <span class="inttil">简介：</span>
                 <el-input type="textarea" :rows="3" placeholder="请输入内容" v-model="editData.description"></el-input>
-            </div>
+            </div> -->
             <div class="introduce">
                 <span class="inttil">活动内容：</span>
                 <!-- <el-input type="textarea" :rows="3" placeholder="请输入内容" v-model="editData.content"></el-input> -->
@@ -621,35 +648,26 @@
                //选择框显示的值
                typeValue: null,plateValue:null,StateValue:null,PeopleValue:null,
             //    选择下拉框的值
-               TypeOptions: [
-                   {
-                    value: null,
-                    label: '全部'
-                },{
-                    value: 1,
-                    label: '报名中'
-                },{
-                    value: 2,
-                    label: '待审核'
-                },{
-                    value: 3,
-                    label: '等待开始'
-                },{
-                    value: 4,
-                    label: '已取消'
-                },{
-                    value: 5,
-                    label: '报名停止'
-                },{
-                    value: 6,
-                    label: '已暂停'
-                },{
-                    value: 7,
-                    label: '已开始'
-                },{
-                    value: 10,
-                    label: '置顶'
-                }],
+            //    TypeOptions: [
+            //        {
+            //         value: null,
+            //         label: '全部'
+            //     },{
+            //         value: 1,
+            //         label: '等待开始'
+            //     },{
+            //         value: 2,
+            //         label: '已开始'
+            //     },{
+            //         value: 3,
+            //         label: '待审核'
+            //     },{
+            //         value: 4,
+            //         label: '已结束'
+            //     },{
+            //         value: 5,
+            //         label: '已取消'
+            //     }],
                 // 数据
                 imgData: [{
                     img_urls: 'http://cdn.kushualab.com/0E2B038E-FD7D-4883-955C-4D900B6A7A25.png'
@@ -674,6 +692,8 @@
                 attachmentList:[], //用于存储需要上传附件数组
                 upTags:[], //需要上传的标签数组
                 newAttachment:[],//新增附件数组
+                imagesVisible:false,
+                imageUrl:'',
 
                 //翻页
                 total:null,
@@ -859,7 +879,7 @@
                     for(let i=0;i<res.data.data.pics.length;i++){ //处理上传的轮播图显示在组件内
                         this.showList.push({
                             name:res.data.data.pics[i].name,
-                            url:'http://cdn.kushualab.com/'+res.data.data.pics[i].path,
+                            url:this.Urls.imageUrl+res.data.data.pics[i].path,
                         })
                     };
                     console.log(this.showList);
@@ -993,13 +1013,13 @@
                     this.infoData = res.data.data;
                     if(this.infoData.admin_upload_images !== null){
                         for(let i=0;i<this.infoData.admin_upload_images.length;i++){
-                            let m = JSON.parse(this.infoData.admin_upload_images[i]);
+                            let m = this.infoData.admin_upload_images[i];
                             this.infoData.admin_upload_images[i] = m;
                         }
                     }
                     if(this.infoData.admin_upload_protocol !== null){
                         for(let i=0;i<this.infoData.admin_upload_protocol.length;i++){
-                            let n = JSON.parse(this.infoData.admin_upload_protocol[i]);
+                            let n = this.infoData.admin_upload_protocol[i];
                             this.infoData.admin_upload_protocol[i] = n;
                         }
                     }
@@ -1046,6 +1066,16 @@
                     .then(res=>{
                         console.log(res)
                         this.tableData = res.data.data.data;
+                        //遍历所有活动的报名状态
+                        for(let i=0;i<this.tableData.length;i++){
+                            if(this.ts(this.tableData[i].registration_deadline) > (new Date().valueOf())){  //正常
+                                this.tableData[i].signUpState = 1;
+                                console.log('555555555555555555555')
+                            }else if(this.ts(this.tableData[i].registration_deadline) < (new Date().valueOf())){  //停止报名
+                                this.tableData[i].signUpState = 0;
+                                console.log('6666666666666')
+                            }
+                        };
                         this.total = res.data.data.total;
                     })
                 }else{
@@ -1057,6 +1087,15 @@
                     .then(res=>{ 
                         console.log(res)
                         this.tableData = res.data.data.data;
+                        for(let i=0;i<this.tableData.length;i++){
+                            if(this.ts(this.tableData[i].registration_deadline) > (new Date().valueOf())){  //正常
+                                this.tableData[i].signUpState = 1;
+                                console.log('555555555555555555555')
+                            }else if(this.ts(this.tableData[i].registration_deadline) < (new Date().valueOf())){  //停止报名
+                                this.tableData[i].signUpState = 0;
+                                console.log('6666666666666')
+                            }
+                        };
                         this.total = res.data.data.total;
                     })
                 }
@@ -1090,7 +1129,7 @@
                 console.log(this.editData.description,this.editData.content,this.upTags,this.lunboImg,this.attachmentList)
                 this.HttpClient.post('/admin/actives/edit',{
                     active_id:this.active_id,
-                    description:this.editData.description,
+                    // description:this.editData.description,
                     content:this.editData.content,
                     tags:this.upTags,
                     image:this.lunboImg,
@@ -1142,8 +1181,8 @@
                     if(res.data.code === 200){
                         this.$message.success(res.data.msg);
                         this.showList.push({
-                            url:res.data.path,
-                            path:res.data.path
+                            name:file.name,
+                            url:res.data.path
                         })
                         console.log(this.showList)
                     }else{
@@ -1212,7 +1251,36 @@
             */
             ts(time){
                 return (new Date(time)).valueOf();
-            }
+            },
+            //是否是图片
+            isPic(url){
+                console.log(url)
+                let format = ["jpg", "jpeg", "png","bmp",'tiff','tif'];
+                let invertedStr = url.split('').reverse().join('');  //字符串倒叙
+                let index = invertedStr.indexOf(".");
+                // console.log('.位置',index)
+                // console.log('倒叙字符',invertedStr)
+                let newStr = invertedStr.substring(0,index);
+                let identification = newStr.split('').reverse().join('');
+                console.log('最后取字符',identification)
+                if(format.indexOf(identification) > -1){
+                    console.log('true')
+                    return true
+                }else{
+                    return false
+                    console.log('false')
+                }
+            },
+            //查看图片
+            checkImages(url){
+                console.log(url);
+                this.imageUrl = url;
+                this.imagesVisible = true;  
+            },
+            filterSecondary(value, row, column) {
+                const property = column['property'];
+                return row[property] === value;
+            },
         }
     }
 </script>
@@ -1226,7 +1294,15 @@
     .title{text-align: start;height: 70px;line-height: 70px;border-bottom: 2px solid #f2f2f2;padding:0 50px;display: flex;justify-content: space-between;color: #222222;font-size: 20px;}
     .title p:last-child{cursor: pointer}
     .content_contain{padding: 25px 45px;}
-    .search-top{text-align: start;display: flex;}
+    .search-top{
+        text-align: start;display: flex;
+        .el-date-editor.el-input__inner{
+            width: 270px !important;
+        }
+        .el-input-group{
+            width: 240px;
+        }
+    }
     .select_normal{width: 150px;margin-right: 10px;}
     .tables{margin-top: 23px;}
     // .el-dropdown-link{font-size: 14px;color: #29bdfe;}
@@ -1384,6 +1460,7 @@
       align-items: center;
       box-sizing: border-box;
       padding: 0 10px;
+      width: 350px !important;
       line-height: unset;
       .el-input__icon{
         line-height: unset;
@@ -1395,99 +1472,144 @@
         justify-content: center;
       }
     }
+.preview{
+      display: flex;
+      justify-content: space-between;
+        >div{width: 320px;
+          height: 157px;
+          border: 1px solid #ededed;
+          margin-bottom: 35px;
+          color: #aaaaaa;
+          display:flex;
+          flex-wrap:wrap;
+          justify-content:space-between;
+          align-items:center;
+            >p,>a{
+              width:300px;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+              text-align:left;
+              cursor:pointer;
+              margin-left: 10px;
 
-.down_load {
-    margin-top: 10px;
-    display: flex;
-    .examine_contents {
-      height: 120px;
-      width: 320px;
-      margin-right: 10px;
-      border: 1px solid #f2f2f2;
-      border-radius: 3px;
-      .examine_contain{
-        height: 100px;
-        overflow-y: auto;
-        margin-top: 10px;
-      }
-      .examine_list {
-        margin-top: 10px;
-        overflow: auto;
-        .examine_text{
-          display: flex;
-          justify-content: space-between;
-          margin-left: 10px;
-          margin-bottom: 10px;
-          cursor: pointer;
-          text-decoration: none;
-          a{
-            text-decoration:none;
-            width: 100%;
-          }
-          .examine_down_p{
-            text-align: left;
-            width: 320px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            font-size: 12px;
-            color: #15bafe;
-          }
-          .icon_examine{
-            margin-right: 10px;
-            color: #404040;
-          }
+            }
         }
-      }
+        .attachments{
+            padding: 10px;
+            display: flex;
+            flex-direction: column;  
+            align-items: flex-start;
+            box-sizing: border-box;
+            >div{
+                width: 280px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                >p,>a{
+                    // width: 250px;
+                    // overflow: hidden;
+                    // text-overflow: ellipsis;
+                    // white-space: nowrap;
+                  }
+              }
+        }
     }
-    .img_contents {
-      height: 120px;
-      width: 330px;
-      border: 1px solid #f2f2f2;
-      border-radius: 3px;
-      .img_contain{
-        margin: 0 10px;
-        display: flex;
-        flex-wrap: wrap;
-        height: 100px;
-        overflow-y: auto;
-        width: calc(100% - 20px);
-        .img_3{
-          width: 100%;
-          height: 100%;
-        }
-        .img_item1{
-          width: 30%;
-          margin-right: 5%;
-          height: 64px;
-          margin-top: 10px;
-        }
-        .img_item2{
-          width: 30%;
-          height: 64px;
-          margin-top: 10px;
-        }
-        .modal_img{
-          width: 100%;
-          height: 64px;
-          background: rgba(0,0,0,0.4);
-          position: relative;
-          margin-top: -67px;
-          opacity: 0;
-          .modal_icon{
-            position: relative;
-            font-size: 18px;
-            top: calc(50% - 12px);
-            color: white;
-          }
-        }
-        .modal_img:hover{
-          opacity: 1;
-        }
-      }
-    }
-  }
-  .modifyTitle{
+// .down_load {
+//     margin-top: 10px;
+//     display: flex;
+//     .examine_contents {
+//       height: 120px;
+//       width: 320px;
+//       margin-right: 10px;
+//       border: 1px solid #f2f2f2;
+//       border-radius: 3px;
+//       .examine_contain{
+//         height: 100px;
+//         overflow-y: auto;
+//         margin-top: 10px;
+//       }
+//       .examine_list {
+//         margin-top: 10px;
+//         overflow: auto;
+//         .examine_text{
+//           display: flex;
+//           justify-content: space-between;
+//           margin-left: 10px;
+//           margin-bottom: 10px;
+//           cursor: pointer;
+//           text-decoration: none;
+//           a{
+//             text-decoration:none;
+//             width: 100%;
+//           }
+//           .examine_down_p{
+//             text-align: left;
+//             width: 320px;
+//             overflow: hidden;
+//             text-overflow: ellipsis;
+//             white-space: nowrap;
+//             font-size: 12px;
+//             color: #15bafe;
+//           }
+//           .icon_examine{
+//             margin-right: 10px;
+//             color: #404040;
+//           }
+//         }
+//       }
+//     }
+//     .img_contents {
+//       height: 120px;
+//       width: 330px;
+//       border: 1px solid #f2f2f2;
+//       border-radius: 3px;
+//       .img_contain{
+//         margin: 0 10px;
+//         display: flex;
+//         flex-wrap: wrap;
+//         height: 100px;
+//         overflow-y: auto;
+//         width: calc(100% - 20px);
+//         .img_3{
+//           width: 100%;
+//           height: 100%;
+//         }
+//         .img_item1{
+//           width: 30%;
+//           margin-right: 5%;
+//           height: 64px;
+//           margin-top: 10px;
+//         }
+//         .img_item2{
+//           width: 30%;
+//           height: 64px;
+//           margin-top: 10px;
+//         }
+//         .modal_img{
+//           width: 100%;
+//           height: 64px;
+//           background: rgba(0,0,0,0.4);
+//           position: relative;
+//           margin-top: -67px;
+//           opacity: 0;
+//           .modal_icon{
+//             position: relative;
+//             font-size: 18px;
+//             top: calc(50% - 12px);
+//             color: white;
+//           }
+//         }
+//         .modal_img:hover{
+//           opacity: 1;
+//         }
+//       }
+//     }
+//   }
+.basic_content{
+    overflow-y: auto;
+    height: 700px;
+    .modifyTitle{
       display: flex;
       align-items: center;
       margin-top: 15px;
@@ -1501,7 +1623,7 @@
       align-items: center;
       margin-top: 15px;
       .inttil{
-          width: 105px;
+          width: 580px;
           text-align: left;
       }
   }
@@ -1509,7 +1631,8 @@
       text-align: left;
       margin-top: 15px;
       .imglist{
-          margin-top: 15px;
+            margin-top: 15px;
+            margin-left: 92px;
       }
   }
   .label{
@@ -1518,6 +1641,9 @@
         .babelsmall{
             display: flex;
             margin-bottom:10px;
+            .babeltil{
+                width: 92px;
+            }
             .el-tag{
                 margin-right:5px;
             }
@@ -1587,12 +1713,8 @@
   .btn3{
       text-align: right;
   }
-// .preview>div{
-//     display: flex;  
-//     flex-wrap: wrap;
-//     height: 100px;
-//     overflow-y: auto;  
-// }
+}
+  
 }
 </style>
 

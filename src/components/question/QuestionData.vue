@@ -34,6 +34,7 @@
                 class="date_picker_1"
                 type="date"
                 size="mini"
+                :clearable='false'
                 value-format="yyyy-MM-dd HH:mm:ss"
                 placeholder="选择日期"
                 @change="getDataByDate"
@@ -46,6 +47,7 @@
                 class="date_picker_1"
                 type="date"
                 size="mini"
+                :clearable='false'
                 placeholder="选择日期"
                 value-format="yyyy-MM-dd HH:mm:ss"
                 @change="getDataByDate"
@@ -85,7 +87,7 @@
                 </div>
                 <div class="right_items">
                   <div class="point color2"></div>
-                  <p>摩托车占{{((motorcycle.normal+motorcycle.business)/totalByDate*100).toFixed(2)}}%</p>
+                  <p>摩托占{{((motorcycle.normal+motorcycle.business)/totalByDate*100).toFixed(2)}}%</p>
                 </div>
                 <div class="right_items">
                   <div class="point color3"></div>
@@ -135,6 +137,7 @@
                 class="date_picker_1"
                 type="date"
                 size="mini"
+                :clearable='false'
                 value-format="yyyy-MM-dd HH:mm:ss"
                 placeholder="选择日期"
                 @change="getviewDataByDate"
@@ -147,6 +150,7 @@
                 class="date_picker_1"
                 type="date"
                 size="mini"
+                :clearable='false'
                 placeholder="选择日期"
                 value-format="yyyy-MM-dd HH:mm:ss"
                 @change="getviewDataByDate"
@@ -186,7 +190,7 @@
                 </div>
                 <div class="right_items">
                   <div class="point color2"></div>
-                  <p>摩托车占{{((motorcycleview.normal+motorcycleview.business)/totalByDateview*100).toFixed(2)}}%</p>
+                  <p>摩托占{{((motorcycleview.normal+motorcycleview.business)/totalByDateview*100).toFixed(2)}}%</p>
                 </div>
                 <div class="right_items">
                   <div class="point color3"></div>
@@ -526,7 +530,7 @@ export default {
                 }
               }
             },
-            name: "摩托车",
+            name: "摩托",
             type: "line",
             smooth: true,
             data: motorcycle
@@ -1015,6 +1019,7 @@ export default {
     }
     arr.join("-");
     this.startTime = arr.join("-");
+    this.startTime  = this.initDateValue(new Date(this.startTime));
     this.endTime = this.initDateValue(new Date());
     /** liushuya  2019-01-04 */
     let arrview = this.initDateValue(new Date()).split("-");
@@ -1026,6 +1031,7 @@ export default {
     }
     arrview.join("-");
     this.startviewTime = arrview.join("-");
+    this.startviewTime  = this.initDateValue(new Date(this.startviewTime));
     this.endviewTime = this.initDateValue(new Date());
     // console.log(this.startTime);
     // console.log(this.endTime);

@@ -81,6 +81,9 @@
               show-overflow-tooltip
               width="150"
               prop="phone">
+              <template slot-scope="scope">
+                <span>{{'+'+scope.row.country_code+' '+scope.row.phone}}</span>
+              </template>
             </el-table-column>
 
             <el-table-column
@@ -107,8 +110,8 @@
               show-overflow-tooltip>
               <template slot-scope="scope">
                 <span v-if="scope.row.status === 1">已审核</span>
-                <span v-if="scope.row.status === 2" class="audit_color">未审核</span>
-                <span v-if="scope.row.status !== 1 && scope.row.status !== 2" class="audit_color">暂无状态</span>
+                <span v-else class="audit_color">未审核</span>
+                <!-- <span v-if="scope.row.status !== 1 && scope.row.status !== 2" class="audit_color">暂无状态</span> -->
                 <!-- <span v-if="scope.row.status === 3">已处理未通过</span>
                 <span v-if="scope.row.status === 0">已删除</span> -->
               </template>
@@ -122,7 +125,7 @@
               prop="review">
               <template slot-scope="scope">
                 <span v-if="scope.row.review">{{scope.row.review}}</span>
-                <span v-else class="audit_color">暂无结论</span>
+                <span v-else class="audit_color">无</span>
               </template>
             </el-table-column>
 
@@ -248,6 +251,9 @@
         searchTime: '',  // 选择时间
         // 状态选择
         statusOptions:[{
+          value: null,
+          label: '全部'
+        },{
           value: 1,
           label: '已审核'
         }, {

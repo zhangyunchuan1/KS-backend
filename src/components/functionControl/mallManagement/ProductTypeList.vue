@@ -21,12 +21,18 @@
         <div class="product_header">
           <!-- 搜索 -->
           <div class="search">
-            <el-input placeholder="ID搜索" v-model="searchID" clearable @change="searchIDfn"></el-input>
-            <el-button type="primary" @click="searchIDfn">搜索</el-button>
+            <!-- <el-input placeholder="ID搜索" v-model="searchID" clearable @change="searchIDfn"></el-input>
+            <el-button type="primary" @click="searchIDfn">搜索</el-button> -->
+            <el-input placeholder="ID搜索" v-model="searchID" @keyup.13.native="searchIDfn()" clearable @clear="searchIDfn()">
+                <el-button slot="append" icon="el-icon-search" @click="searchIDfn()"></el-button>
+            </el-input>
           </div>
           <div class="search">
-            <el-input placeholder="名称搜索" v-model="searchName" clearable @change="searchIDfn"></el-input>
-            <el-button type="primary" @click="searchNamefn">搜索</el-button>
+            <!-- <el-input placeholder="名称搜索" v-model="searchName" clearable @change="searchIDfn"></el-input>
+            <el-button type="primary" @click="searchNamefn">搜索</el-button> -->
+            <el-input placeholder="名称搜索" v-model="searchName" @keyup.13.native="searchIDfn()" clearable @clear="searchIDfn()">
+                <el-button slot="append" icon="el-icon-search" @click="searchIDfn()"></el-button>
+            </el-input>
           </div>
         </div>
         <!-- 表格列表 -->

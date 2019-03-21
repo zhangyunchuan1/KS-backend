@@ -1,12 +1,17 @@
 <template>
   <div id="app">
     <router-view/>
+    <catalogPreview></catalogPreview>
   </div>
 </template>
 
 <script>
+import catalogPreview from "@/components/public/CatalogPreview";
 export default {
   name: 'App',
+  components: {
+      catalogPreview
+    },
   provide(){
     return {
         reload:this.reload

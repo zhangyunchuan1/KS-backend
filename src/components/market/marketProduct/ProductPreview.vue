@@ -52,10 +52,10 @@
                     </div>
                 </div>
 
-                <div class="productPreview_list">
+                <!-- <div class="productPreview_list">
                     <div class="list_title">商品简介</div>
                     <div class="list_textarea">{{productInfo.description}}</div>
-                </div>
+                </div> -->
 
                 <div class="productPreview_list richText">
                     <div class="list_title">商品详情</div>

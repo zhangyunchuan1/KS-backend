@@ -61,6 +61,9 @@
               show-overflow-tooltip
               width="150"
               prop="phone">
+              <template slot-scope="scope">
+                <span>{{'+'+scope.row.country_code+' '+scope.row.phone}}</span>
+              </template>
             </el-table-column>
 
             <el-table-column
@@ -163,7 +166,7 @@
         </div>
         <div class="reviewList">
           <span>公司对外名字或者注册商标名称</span>
-          <el-input v-model="modifyObj.register_logo" placeholder="填写公司对外名字或者注册商标名称（汉字和英文加数字）"></el-input>
+          <el-input v-model="modifyObj.nickname" placeholder="填写公司对外名字或者注册商标名称（汉字和英文加数字）"></el-input>
         </div>
         <div class="reviewList">
           <span>执照号</span>
@@ -276,12 +279,14 @@
         this.HttpClient.post('/admin/business/lists',{
             size:25,
             page:this.currentPage,
+            status:1,
             company_name:this.companyNameSearch,
             user_name:this.accountSearch,
             phone:this.phoneNumberSearch,
             contacts: this.accountNameSearch
         })
         .then(res=>{
+          console.log(res)
             this.tableData = res.data.data.data;
             this.total = res.data.data.total;
             this.companyNameSearch = '';
@@ -292,7 +297,8 @@
 
       // 打开角色分配弹窗
       updateRole (row) {
-        this.modifyObj = row
+        this.modifyObj = row;
+        this.roleRadio = row.type;
         this.roleDialog = true
       },
       // 保存更新后的角色分配
@@ -359,8 +365,7 @@
         console.log(this.modifyObj);
         this.HttpClient.post('/admin/business/editProfile',{
             company_id:this.modifyObj.company_id,
-            nickname:this.modifyObj.name,
-            register_logo:this.modifyObj.register_logo,
+            nickname:this.modifyObj.nickname,
             license_num:this.modifyObj.license_num,
             legal_person:this.modifyObj.legal_person,
             legal_idcard:this.modifyObj.legal_idcard,

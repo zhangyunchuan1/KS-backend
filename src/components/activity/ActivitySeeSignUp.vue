@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="activity_seeSiginUp">
       <BreadCrumb class="bread" :breadData="breadData"></BreadCrumb>
       <div class="content">
         <p class="title">查看报名</p>
@@ -15,11 +15,11 @@
               border
               :stripe="true"
               style="width: 100%">
-              <el-table-column label="选择" width="50">
+              <!-- <el-table-column label="选择" width="50">
                 <template slot-scope="scope">
                   <el-checkbox></el-checkbox>
                 </template> 
-              </el-table-column>
+              </el-table-column> -->
               <el-table-column
                 prop="id"
                 label="ID"
@@ -69,12 +69,17 @@
                 width="180">
               </el-table-column>
               <el-table-column
-                prop="endTime"
-                label="活动截止时间"
+                prop="payment"
+                label="购票方式"
                 align="center"
                 width="180">
+                <template slot-scope="scope">
+                    <span class="start_color" v-if="scope.row.payment === 1">微信</span>
+                    <span class="normal_color" v-if="scope.row.payment === 2">支付宝</span>
+                    <span class="wait_color" v-if="scope.row.payment === 3">余额</span>
+                </template>
               </el-table-column>
-              <el-table-column
+              <!-- <el-table-column
                 label="状态"
                 align="center"
                 width="120">
@@ -83,24 +88,27 @@
                     <span class="normal_color" v-if="scope.row.quantity > scope.row.use_num && scope.row.use_num !== 0">未用完</span>
                     <span class="wait_color" v-if="scope.row.use_num === 0">未使用</span>
                 </template>
-              </el-table-column>
+              </el-table-column> -->
               <el-table-column
                 label="操作"
+                fixed="right"
+                min-width="250"
                 align="center">
                 <template slot-scope="scope">
-                  <el-button size="small" type="text" @click="handleRefund(scope.row)">退款</el-button>
-                  <el-button size="small" type="text" @click="privateLetterVisible = true">私信用户</el-button>
-                  <el-button size="small" type="text" @click="handleInspectTicket(scope.row)">验票</el-button>
-                  <el-button size="small" type="text" @click="handleUserAuthentication(scope.row.created_id)">用户身份</el-button>
+                  <el-button type="primary" plain size="mini" v-if="tank(headData.active_date_end)" @click="handleRefund(scope.row)">退款</el-button>
+                  <el-button type="primary" plain size="mini" v-if="!tank(headData.active_date_end) && Tools.getDateDiff(headData.active_date_end) > 7" @click="handleRefund(scope.row)">退款</el-button>
+                  <el-button type="primary" plain size="mini" @click="handleTicketRecord(scope.row.order_id)">票务记录</el-button>
+                  <el-button type="primary" plain size="mini" @click="handleInspectTicket(scope.row)">验票</el-button>
+                  <el-button type="primary" plain size="mini" @click="handleUserAuthentication(scope.row.created_id)">用户身份</el-button>
                 </template>
               </el-table-column>
             </el-table>
-            <div class="all">
+            <!-- <div class="all">
               <template>
                 <el-checkbox  v-model="checkAll" >全选</el-checkbox>
               </template>
               <span>数量：1</span>
-            </div>
+            </div> -->
           </div>
         </div>
         <el-pagination
@@ -165,7 +173,8 @@
               退款金额： 
               <el-input
                 size="small"
-                v-model="input22">
+                v-model="input22"
+                :disabled="true">
               </el-input>
             </div>
             <div class="tips">
@@ -175,21 +184,38 @@
             <p class="liyou">退款理由：</p>
             <el-input type="textarea" :rows="2" placeholder="请输入退款理由" v-model="textarea"></el-input>
             <div class="btn">
-              <el-button>取消</el-button>
+              <el-button @click="refundVisible = false">取消</el-button>
               <el-button type="primary" @click="handleSendRefund">发送</el-button>
             </div>
         </el-dialog>
-        <!-- 私信用户弹窗 -->
+        <!-- 票务记录弹窗 -->
         <el-dialog :visible.sync="privateLetterVisible" width="565px">
           <div slot="title" class="dialog_delete_head_title">
                 <i class="iconfont icon-edit-square delete_icon"></i>
-                <span>商家名称：</span>
+                <span>票务记录</span>
             </div>
-            <p class="info">信息：</p>
-            <el-input type="textarea" :rows="5" placeholder="请输入消息内容" v-model="textarea"></el-input>
-            <div class="btn">
-              <el-button>取消</el-button>
-              <el-button type="primary">发送</el-button>
+            <div class="ticket_Record" v-for="(item,index) in ticketRecord" :key="index">
+              <!-- 验票 -->
+              <div v-if="item.type === 0">
+                <div> 
+                  <span>{{item.user_name}}</span>
+                  <span>{{item.created_at}}</span>
+                </div>
+                <div>
+                  <span class="normal_color">验票</span>
+                  <div>用户使用了{{item.num}}张票。</div>
+                </div>
+              </div>
+              <div v-if="item.type === 1">
+                <div> 
+                  <span>{{item.conducts}}</span>
+                  <span>{{item.created_at}}</span>
+                </div>
+                <div>
+                  <span class="sortout_color">退票</span>
+                  <div>退了{{item.num}}张票。</div>
+                </div>
+              </div>
             </div>
         </el-dialog>
         <!-- 验票弹窗 -->
@@ -211,7 +237,7 @@
                 <div v-if="state === 2" style="background: red;color:#fff;">验证失败</div>
               </div>
             <div class="btn">
-              <el-button @click="inspectTicketVisible === false">关闭</el-button>
+              <el-button @click="inspectTicketVisible = false">关闭</el-button>
               <el-button type="primary" @click="handleSubmitVerification">发送</el-button>
             </div>
         </el-dialog>
@@ -258,7 +284,7 @@
           idnumber:"54153216658545148",
           userId:"251561",
           businessPhone:"18996657240",
-          textarea:"",
+          textarea:'',
           // 全选
           checkAll: false,
           refundVisible:false,
@@ -331,6 +357,7 @@
             username:null
           },
           order_id:null,//验票暂存的订单id
+          ticketRecord:[],  //验票记录
 
           //分页
           total:null, 
@@ -342,6 +369,17 @@
         this.getApplicantList(this.$route.query.id);
       },
       methods: {
+        //查看票务记录
+        handleTicketRecord(id){
+          this.privateLetterVisible = true;
+          this.HttpClient.post('/admin/actives/getCheckTicketLog',{
+                order_id:id,
+          })
+          .then(res=>{ 
+            console.log(res);
+            this.ticketRecord = res.data.data.data;
+          })
+        },
         //提交验票
         handleSubmitVerification(){
             this.HttpClient.post('/admin/actives/checkTicket',{
@@ -356,9 +394,13 @@
                     setTimeout(() => {
                         this.getApplicantList(this.$route.query.id);
                         this.inspectTicketVisible = false;
+                        this.verificationCode = '';
+                        this.ticNumber = '';
+                        this.state = 0;
                     },1000);
                 }else{
                     this.state = 2;
+                    this.$message.warning(res.data.msg);
                 }
             })
         },
@@ -367,6 +409,8 @@
             this.order_id = i.order_id;
             this.verificationCode = i.code;
             this.inspectTicketVisible = true;
+            this.ticNumber = 0;
+            this.state = 0;
         },
         //用户身份认证
         handleUserAuthentication(uid){
@@ -413,6 +457,9 @@
                     setTimeout(() => {
                         this.getApplicantList(this.$route.query.id);
                         this.refundVisible = false;
+                        this.input21 = 0;
+                        this.input22 = 0;
+                        this.textarea = '';
                     }, 500);
                 }else{
                     this.$message.error(res.data.msg);
@@ -469,11 +516,21 @@
             this.currentPage=p;
             this.getApplicantList(this.$route.query.id);
         },
+        tank(date){
+          let time = new Date().getTime();
+          let time1 = new Date(date).getTime();
+          if(time < time1){  //未结束
+            return true;
+          }else{     //已结束
+            return false;
+          }   
+        }
       }
     }
 </script>
 
-<style scoped>
+<style scoped lang="less">
+
   .bread{
     margin: 10px;
   }
@@ -525,6 +582,28 @@
     padding-bottom: 10px;
     text-align: left;
     font-size: 15px;
+  }
+  .ticket_Record{
+    border: 1px solid #bfbfbf;
+    >div{
+      >div{
+        display: flex;
+        display: flex;
+        justify-content: space-between;
+        border-bottom: 1px dashed #bfbfbf;
+        >span{
+          height: 30px;
+          padding:0px 5px;
+          text-align: center;
+          line-height: 30px;
+        }
+        >div{
+          height: 30px;
+          line-height: 30px;
+        }
+      }
+    }
+    
   }
   .delete_icon{
     color: #15bafe;
@@ -660,6 +739,7 @@
     text-align: center;
     margin: 15px auto;
   }
+
 </style>
 <style scoped>
   .el-table th>.cell{

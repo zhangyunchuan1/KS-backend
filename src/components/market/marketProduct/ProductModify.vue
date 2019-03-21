@@ -4,7 +4,7 @@
         <div class="productModify_main">
             <!--标题-->
             <div class="title">
-                <p>DJI MAVIC2-修改</p>
+                <p>{{updateInfo.title}}-修改</p>
             </div>
 
             <!--

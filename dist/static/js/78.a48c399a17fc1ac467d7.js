@@ -1,0 +1,1 @@
+webpackJsonp([78],{eQvl:function(e,t){},gsoZ:function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var a={render:function(){var e=this.$createElement,t=this._self._c||e;return t("div",{staticClass:"page"},[t("router-view")],1)},staticRenderFns:[]};var r=n("VU/8")({name:"Page"},a,!1,function(e){n("eQvl")},"data-v-a2b38530",null);t.default=r.exports}});

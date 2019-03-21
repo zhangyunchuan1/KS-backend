@@ -251,6 +251,14 @@
                     <el-radio border label="公共" >公共</el-radio>
                   </el-radio-group>
                 </div>
+                <div class="rigth_cat">
+                  <span>code</span>
+                  <el-input v-model="inputCode" placeholder="请输入code" clearable></el-input>
+                </div>
+                <!-- <div class="grade infor">
+                    <el-tag type="info">code</el-tag>
+                    <el-input placeholder="请输入code" v-model="inputCode" clearable></el-input>
+                </div> -->
               </div>
             </div>
           </div>
@@ -341,6 +349,7 @@
                 dynamicTags:[],
 
                 infoID: null,//当前信息ID
+                inputCode:'',
             }
         },
         mounted(){
@@ -350,6 +359,7 @@
         methods:{
             //点击修改
             handleModify(i){
+                console.log(i)
                 this.alertTitle = "修改";
                 this.infoID = i.id;
                 this.valuea = i.content.parent;
@@ -361,6 +371,7 @@
                 this.remark = i.content.remark;
                 this.colorRadio = i.content.color;
                 this.targetRadio = i.content.for;
+                this.inputCode = i.name;
                 console.log(i)
                 this.addDirectoryDialog = true;
             },
@@ -486,13 +497,11 @@
                     jsonData["remark"] = this.remark;
                     jsonData["for"] = this.targetRadio;
                     jsonData["replace"] = this.dynamicTags;
-
                     console.log(JSON.stringify(jsonData))
-                    var timestamp = new Date().getTime();
                 if(this.alertTitle == "添加"){
                     let params = {
                         type: 3,
-                        name: timestamp,
+                        name: this.inputCode,
                         content: JSON.stringify(jsonData)
                     };
                     // 添加数据
@@ -509,7 +518,7 @@
                     let params = {
                         id: this.infoID,
                         type: 3,
-                        name: timestamp,
+                        name: this.inputCode,
                         content: JSON.stringify(jsonData)
                     };
                     // 修改数据
@@ -839,6 +848,31 @@
                   }
                 }
               }
+              .grade {
+                margin-bottom: 10px;
+                .el-textarea{
+                    margin-top: 10px;
+                }
+                .el-radio-group {
+                    .el-radio.is-bordered.is-checked {
+                    background: #409eff;
+                    }
+                    .el-radio__input.is-checked + .el-radio__label {
+                    color: #fff;
+                    }
+                    .el-radio__input {
+                    display: none;
+                    }
+                    .el-radio__label {
+                    padding-left: 5px;
+                    }
+                }
+                }
+                .infor {
+                    .el-input {
+                        width: 60%;
+                    }
+                }
             }
           }
           

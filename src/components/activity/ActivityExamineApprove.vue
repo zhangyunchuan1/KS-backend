@@ -44,11 +44,13 @@
             <el-table-column
               prop="id"
               label="ID"
+              show-overflow-tooltip
               width="50">
             </el-table-column>
             <el-table-column
               label="活动名称"
-              min-width="200">
+              min-width="200"
+              show-overflow-tooltip>
               <template slot-scope="scope">
                 <span class="row_activity">{{scope.row.title}}</span>
               </template>
@@ -56,28 +58,34 @@
             <el-table-column
               prop="company_name"
               label="公司对外名称"
+              show-overflow-tooltip
               width="200">
             </el-table-column>
             <el-table-column
               prop="folder"
+              show-overflow-tooltip
               label="板块"
-              width="80">
+              width="130">
             </el-table-column>
             <el-table-column
               prop="menu_name"
               label="二级"
-              width="80">
+              show-overflow-tooltip
+              width="350">
             </el-table-column>
             <el-table-column
               prop="city_name"
               label="城市"
+              show-overflow-tooltip
               width="120">
             </el-table-column>
             <el-table-column
               label="操作"
-              fixed="right">
+              align="center"
+              fixed="right"
+              min-width="250">
               <template slot-scope="scope">
-                <el-button type="primary" plain size="mini">预览活动</el-button>
+                <el-button type="primary" plain size="mini" @click="handlePersonal(scope.row.active_id)">预览活动</el-button>
                 <el-button type="primary" plain size="mini" @click="basicButton(scope.row.id)">基本信息</el-button>
                 <el-button type="primary" plain size="mini" @click="examineButton(scope.row.id,scope.row.active_id)">查看协议</el-button>
                 <el-button type="primary" plain size="mini" @click="rejectButton(scope.row.active_id)">驳回</el-button>
@@ -104,13 +112,17 @@
           <div class="info">
               <div>
                   <div class="info-left">
-                      <span>活动时间：</span>
+                      <span>活动开始时间：</span>
                       <div>{{basicData.active_date_start?basicData.active_date_start.split(' ')[0]:''}}</div>
                   </div>
                   <div class="info-right">
-                      <span>截止时间：</span>
+                      <span>报名截止时间：</span>
                       <div>{{basicData.registration_deadline?basicData.registration_deadline.split(' ')[0]:''}}</div>
                   </div>
+              </div>
+              <div class="p1">
+                    <span>活动结束时间：</span>
+                    <div>{{basicData.active_date_end?basicData.active_date_end.split(' ')[0]:''}}</div>
               </div>
               <div>
                   <div class="info-left">
@@ -142,8 +154,8 @@
                       <div>{{basicData.telphone}}</div>
                   </div>
                   <div class="info-right">
-                      <span>已结束：</span>
-                      <div>{{basicData.active_date_end?basicData.active_date_end.split(' ')[0]:''}}</div>
+                      <span>实际结束时间：</span>
+                      <div>{{basicData.actual_end_time?basicData.actual_end_time.split(' ')[0]:'无'}}</div>
                   </div>
               </div>
           </div>
@@ -159,12 +171,17 @@
           <div class="preview">
               <div>
                   <p v-if="!basicData.admin_upload_protocol">上传的安全协议</p>
-                  <a v-for="item in basicData.admin_upload_protocol" :key="item.name" :href="item.path+'?attname='">{{item.name}}</a>
+                  <a v-for="item in basicData.admin_upload_protocol" :key="item.name" :href="item.path+'?attname='"><i class="el-icon-document" style="margin:0 10px 0 0;color: #bfbfbf;"></i>{{item.name}}</a>
+                  <!-- <p v-for="item in basicData.admin_upload_images" :key="item.name" @click="checkImages(item.url)"><i class="el-icon-picture-outline" style="margin:0 10px 0 0;color: #bfbfbf;"></i>{{item.name}}</p> -->
               </div>
-              <div>
-                  <p v-if="!basicData.admin_upload_images">上传的附件,图片为此公司现场图片，或者计划书等</p>
-                  <p v-for="item in basicData.admin_upload_images" :key="item.name" @click="checkImages(item.url)">{{item.name}}</p>
-              </div>
+              <div class="attachments">
+                    <p v-if="!basicData.admin_upload_images">上传的附件,图片为此公司现场图片，或者计划书等</p>
+                    <div v-for="item in basicData.admin_upload_images" :key="item.name">
+                      <!-- <p @click="isPic(item)">{{item.name}}</p> -->
+                      <p v-if="isPic(item)" @click="checkImages(item.url)"><i class="el-icon-picture-outline" style="margin:0 10px 0 0;color: #bfbfbf;"></i>{{item.name}}</p>
+                      <a v-else :href="item.url+'?attname='"><i class="el-icon-document" style="margin:0 10px 0 0;color: #bfbfbf;"></i>{{item.name}}</a>
+                    </div>
+                </div>
           </div>
           <el-dialog :visible.sync="imagesVisible" append-to-body>
               <img width="100%" :src="imageUrl" alt="">
@@ -200,7 +217,7 @@
       </div>
       <div class="user_footer" slot="footer">
         <el-row>
-          <el-button type="primary" class="btn_foot" @click="examineVisible = false">取消</el-button>
+          <el-button class="btn_foot" @click="examineVisible = false">取消</el-button>
           <el-button type="primary" class="btn_foot" @click="agreeActivity">通过</el-button>
         </el-row>
       </div>
@@ -314,6 +331,10 @@
         }
       },
       methods: {
+        //跳转前台预览活动
+        handlePersonal(id){
+          window.open(this.Urls.frontUrl+"home/activity-detail?id="+id);  
+        },
         //查看图片
         checkImages(url){
           console.log(url);
@@ -485,6 +506,25 @@
             this.remarkVisible=true;
             this.getRemarkList(id)
         },
+        //是否是图片
+        isPic(i){
+          console.log(i)
+          let format = ["jpg", "jpeg", "png","bmp"];
+          let invertedStr = i.url.split('').reverse().join('');  //字符串倒叙
+          let index = invertedStr.indexOf(".");
+          // console.log('.位置',index)
+          // console.log('倒叙字符',invertedStr)
+          let newStr = invertedStr.substring(0,index);
+          let identification = newStr.split('').reverse().join('');
+          console.log('最后取字符',identification)
+          if(format.indexOf(identification) > -1){
+            console.log('true')
+            return true
+          }else{
+            return false
+            console.log('false')
+          }
+        },
         //分页
         currentChange(p){
             this.currentPage=p;
@@ -505,6 +545,7 @@
 </script>
 
 <style scoped lang="less">
+.activity_examine_approve{
   .bread{
     margin: 10px;
   }
@@ -729,20 +770,54 @@
   .info-left{display: flex;align-items: center;width: 46%;justify-content: space-between;}
   .info-right{display: flex;align-items: center;width: 46%;justify-content: space-between}
   .info-left>div{width: 210px;height: 35px;border: 1px solid #ededed;text-align: center;line-height: 35px}
+  .info-left>span{text-align: left;}
   .info-right>div{width: 210px;height: 35px;border: 1px solid #ededed;text-align: center;line-height: 35px;}
+  .info-right>span{text-align: left;}
   .p1{display: flex;align-items: center;}
   .p1>div{width: 540px;height: 35px;border: 1px solid #ededed;text-align: center;line-height: 35px}
   .act{display: flex;justify-content: space-between;margin-top: 25px;}
   .act>div{width: 320px;text-align: right;margin-right: 6px;}
-  .preview{display: flex;justify-content: space-between;}
-  .preview>div{width: 320px;height: 157px;border: 1px solid #ededed;margin-bottom: 35px;color: #aaaaaa;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;}
-  .preview>div>p,.preview>div>a{width:100%;text-align:left;cursor:pointer;}
+  .preview{
+      display: flex;
+      justify-content: space-between;
+        >div{width: 320px;
+          height: 157px;
+          border: 1px solid #ededed;
+          margin-bottom: 35px;
+          color: #aaaaaa;
+          display:flex;
+          flex-wrap:wrap;
+          justify-content:space-between;
+          align-items:center;
+            >p,>a{
+              width:100%;
+              text-align:left;
+              cursor:pointer;
+              margin-left: 10px;
+            }
+        }
+        .attachments{
+          padding: 10px;
+              display: flex;
+              flex-direction: column;  
+              align-items: flex-start;
+              box-sizing: border-box;
+        }
+    }
+  .el-table .cell .el-button{
+    margin: 5px 0;
+  }
+}
 </style>
-<style>
+<style >
   .activity_examine_approve .el-table th>.cell{
     text-align: center;
   }
   .activity_examine_approve .el-dialog__body{
     padding: 10px 20px;
   }
+  .activity_examine_approve .el-table th>.cell .el-button{
+    margin: 5px 0;
+  }
+  
 </style>

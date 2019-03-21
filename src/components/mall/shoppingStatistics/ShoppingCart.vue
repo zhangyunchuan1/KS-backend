@@ -21,7 +21,7 @@
             </el-input>
           </div>
         </div>
-        <div class="encyclopedia_content" style="width:80%">
+        <div class="encyclopedia_content" style="width:100%">
           <el-table :data="tableData" :border="true">
             <el-table-column label="用户ID" align="center" width="100" prop="id" sortable>
               <template slot-scope="scope">
@@ -55,15 +55,18 @@
 
             <el-table-column label="总计价格" align="center" width="110" show-overflow-tooltip prop="product_price" sortable></el-table-column>
 
-            <el-table-column label="操作" align="center" fixed="right" class-name="encyclopedia_scope">
+            <el-table-column 
+                    label="操作"
+                    fixed="right"
+                    min-width="300"
+                    align="center">
               <template slot-scope="scope">
-                <div class="encyclopedia_btm">
+                
                   <el-button
-                    size="medium "
-                    type="text"
+                    type="primary" plain size="mini"
                     @click="showProduct(scope.row.uid,scope.row.nickname)"
                   >商品列表</el-button>
-                </div>
+                
               </template>
             </el-table-column>
           </el-table>
@@ -345,15 +348,13 @@ export default {
       this.getProductList(id);
     },
     //删除购物车商品
-    deleteProductByCart({ uid, cartId }) {
-      let parameters = {
-        uid: uid
-      };
-      if (cartId) {
-        parameters.cart_id = cartId;
-      }
-      this.HttpClient.delete("/admin/marketShoppingCart", parameters).then(
-        res => {
+    deleteProductByCart(uid, cartId) {
+      console.log(uid,cartId)
+      this.HttpClient.delete("/admin/marketShoppingCart", {
+        uid:uid,
+        cart_id:cartId
+      }).then(res => {
+          console.log(res);
           if (res.data.code === 200) {
             this.$message.success(res.data.msg);
             setTimeout(() => {
@@ -368,6 +369,7 @@ export default {
     },
     //商品列表删除按钮
     deleteButton(uid, cid) {
+      console.log(uid,cid)
       this.userId = uid;
       this.cartId = cid;
       this.isClear = false;
@@ -379,14 +381,13 @@ export default {
       this.$refs.delete.deleteDialog = true;
     },
     //确认删除
-    confirmDelete(bool) {
-      if (bool) {
-        if (this.isClear) {
-          this.deleteProductByCart({ uid: this.userId });
-        } else {
-          this.deleteProductByCart({ uid: this.userId, cartId: this.cartId });
-        }
-      }
+    confirmDelete() {
+        if (this.isClear) {  //清空单个用户购物车
+          this.deleteProductByCart(this.userId);
+        } else {  //删除用户购物车单个商品
+          console.log(this.userId,this.cartId)
+          this.deleteProductByCart(this.userId, this.cartId);
+        } 
     },
 
     // 翻页
@@ -477,6 +478,7 @@ export default {
 
                   .product_list_item {
                     // width: 118px;
+                    border-radius: 5px;
                     padding: 0 10px;
                     margin-top: 5px;
                     height: 40px;

@@ -21,7 +21,8 @@
               <div class="main_title">品牌选择</div>
               <div class="main_box">
                 <el-radio-group v-model="brandRadio" @change="brandBtm">
-                  <el-radio border :label="item.brand_id" v-for="(item,index) in brandRadioData" :key="index">{{item.name}}</el-radio>
+                  <el-radio border :label="item.brand_id" v-for="(item,index) in brandRadioData" :key="index">{{item.name + '(' + item.product_count + ')'}}</el-radio>
+                  <!-- <el-radio border :label="item.brand_id" v-for="(item,index) in brandRadioData" :key="index">{{item.name}}</el-radio> -->
                 </el-radio-group>
               </div>
             </div>
@@ -32,7 +33,7 @@
               <div class="main_title">系列</div>
               <div class="main_box">
                 <el-radio-group v-model="seriesRadio" @change="seriesBtm">
-                  <el-radio border :label="item.series_id" v-for="(item,index) in seriesRadioData" :key="index">{{item.name}}</el-radio>
+                  <el-radio border :label="item.series_id" v-for="(item,index) in seriesRadioData" :key="index">{{item.name + '(' + item.product_count + ')'}}</el-radio>
                 </el-radio-group>
               </div>
             </div>
@@ -43,7 +44,7 @@
               <div class="main_title">一级目录</div>
               <div class="main_box">
                 <el-radio-group v-model="firstRadio" @change="firstBtm">
-                  <el-radio border :label="item.menu_id" v-for="(item,index) in firstRadioData" :key="index">{{item.name}}</el-radio>
+                  <el-radio border :label="item.menu_id" v-for="(item,index) in firstRadioData" :key="index">{{item.name + '(' + item.product_count + ')'}}</el-radio>
                 </el-radio-group>
               </div>
             </div>
@@ -54,7 +55,7 @@
               <div class="main_title">二级目录</div>
               <div class="main_box">
                 <el-radio-group v-model="secondRadio" @change="secondBtm">
-                  <el-radio border :label="item.menu_id" v-for="(item,index) in secondRadioData" :key="index">{{item.name}}</el-radio>
+                  <el-radio border :label="item.menu_id" v-for="(item,index) in secondRadioData" :key="index">{{item.name + '(' + item.product_count + ')'}}</el-radio>
                 </el-radio-group>
               </div>
             </div>
@@ -65,7 +66,7 @@
               <div class="main_title">三级目录</div>
               <div class="main_box">
                 <el-radio-group v-model="threeRadio" @change="threeBtm">
-                  <el-radio border :label="item.menu_id" v-for="(item,index) in threeRadioData" :key="index">{{item.name}}</el-radio>
+                  <el-radio border :label="item.menu_id" v-for="(item,index) in threeRadioData" :key="index">{{item.name + '(' + item.product_count + ')'}}</el-radio>
                 </el-radio-group>
               </div>
             </div>
@@ -76,7 +77,7 @@
               <div class="main_title">产品类型</div>
               <div class="main_box">
                 <el-radio-group v-model="productType" @change="productTypeBtm">
-                  <el-radio border :label="item.id" v-for="(item,index) in productTypeData" :key="index">{{item.name}}</el-radio>
+                  <el-radio border :label="item.id" v-for="(item,index) in productTypeData" :key="index">{{item.name + '(' + item.product_count + ')'}}</el-radio>
                 </el-radio-group>
               </div>
             </div>
@@ -143,7 +144,7 @@
                 class-name="mallReview_scope">
                 <template slot-scope="scope">
                   <div class="mallReview_btm">
-                    <el-button>预览</el-button>
+                    <el-button @click="viewMallFn(scope.row)">预览</el-button>
                   </div>
                 </template>
               </el-table-column>
@@ -230,12 +231,17 @@
       this.getSubjectFn();
     },
     methods:{
+      // 预览
+      viewMallFn(row){
+        console.log(row)
+        window.open(this.Urls.frontUrl+"home/product-detail?id="+row.product_id);
+      },
       // 板块数据
       getSubjectFn(){
-        let params = {
-          menu_type:1,
-        }
-        this.HttpClient.post('/admin/menu/getList',params).then(res => {
+        // let params = {
+        //   menu_type:1,
+        // }
+        this.HttpClient.get('/shop/menu/getSuitMenu').then(res => {
           this.plateRadioData = Object.values(res.data.data);
           console.log(this.plateRadioData)
         })
@@ -243,21 +249,28 @@
       // 获取一级目录
       getOneCatalogFn(menuid,type){
         let params = {
-          isFolder:0,
           menu_id:menuid,
-          last_menu:this.threeRadio
         }
-        this.HttpClient.post('/shop/menu/getOneChild',params).then(res => {
+        if(type === 1){
+          params.type = 'menu_1';
+        }else if(type === 2){
+          params.type = 'menu_2';
+        }else if(type === 3){
+          params.type = 'menu_3';
+        }else if(type === 4){
+          params.type = 'category_id';
+        }
+        this.HttpClient.post('/admin/product/getMenuWithCount',params).then(res => {
+          console.log(res.data.data)
           if(res.data.code === 200){
-            console.log(type)
             if(type === 1){
-              this.firstRadioData = res.data.data.child;
+              this.firstRadioData = res.data.data;
             }else if(type === 2){
               // console.log(res.data.data)
-              this.secondRadioData = res.data.data.child;
+              this.secondRadioData = res.data.data;
             }else if(type === 3){
               // console.log(res.data.data)
-              this.threeRadioData = res.data.data.child;
+              this.threeRadioData = res.data.data;
             }else if(type === 4){
               console.log(res.data.data)
               this.productTypeData = res.data.data;
@@ -325,7 +338,7 @@
         //   params.menu_id = this.plateRadio;
         // }
         console.log(params)
-        this.HttpClient.get('/brands',params).then(res => {
+        this.HttpClient.post('/admin/product/getRelation',params).then(res => {
           console.log(res.data)
           if(res.data.code === 200){
             if(menuID === 0){
@@ -371,7 +384,7 @@
       threeBtm(){  // 三级目录按钮
         this.productTypeShow = true;
         this.productType = null;
-        this.getOneCatalogFn(0,4)
+        this.getOneCatalogFn(this.threeRadio,4)
       },
     },
   }

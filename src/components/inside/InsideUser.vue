@@ -16,14 +16,6 @@
             @keyup.13.native="nameSearch"
             @change="nameSearch">
           </el-input>
-          <!-- <el-select size="mini" class="select_normal" v-model="roleValue" placeholder="角色状态" clearable @change="roleSearch">
-            <el-option
-              v-for="item in roleOption"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id">
-            </el-option>
-          </el-select> -->
         </div>
         <el-button @click="showUserDialog(1)" type="primary" size="mini" icon="el-icon-circle-plus-outline">新增用户</el-button>
       </div>
@@ -132,7 +124,7 @@
     <el-dialog :visible.sync="userVisible" width="400px" @close="cancelDialog">
       <div slot="title" class="dialog_head_title">
         <i class="iconfont icon-account examine_icon"></i>
-        <span>新增用户</span>
+        <span></span>
       </div>
       <div class="jurisdiction_content">
         <div class="jurisdiction_content_item">
@@ -177,11 +169,12 @@
           <label class="el_lbl">证件照:</label>
           <el-upload
             class="avatar-uploader up_img"
-            action=""
+            action="customize"
             :show-file-list="false"
-            :on-remove="handleRemove"	
+            :auto-upload="true"
             :on-success="handleAvatarSuccess"
-            :before-upload="beforeAvatarUpload">
+            :before-upload="beforeAvatarUpload"
+            :http-request="defaultBehavior">
             <img v-if="imageUrl" :src="imageUrl" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
           </el-upload>
@@ -250,36 +243,30 @@
       handleAvatarSuccess(res, file) {
         this.imageUrl = URL.createObjectURL(file.raw);
       },
-      handleRemove(file){},
       beforeAvatarUpload(file,filelist) {
-        filelist = []; 
-        const isJPG = file.type === 'image/jpeg';
-        const isLt2M = file.size / 1024 / 1024 < 2;
-
-        if (!isJPG) {
-          this.$message.error('上传头像图片只能是 JPG 格式!');
+        console.log(file);
+        if(this.Tools.pictureLimit(file)){
+          filelist = []; 
+          let that = this;
+          //七牛云上传
+          let observable = this.$observable(file);
+          observable.subscribe({
+            next(res){
+              console.log('next',res);    
+            },
+            error(err){
+              that.$message.error('上传失败!');
+            },
+            complete(res) {
+              console.log('成功结果', res);
+              that.$message.success('上传成功!');
+              that.imageUrl = that.Urls.imageUrl+res.key;
+              that.addUserData.image_path = that.Urls.imageUrl+res.key;
+            }
+          })
         }else{
-          if (!isLt2M) {
-            this.$message.error('上传头像图片大小不能超过 2MB!');
-          }else{
-            var FromData = new FormData();
-            //用户上传头像接口
-            FromData.append('token', window.localStorage.token);
-            FromData.append('images', file);
-            FromData.append('serialnum', this.serialnum);
-            this.$ajax.post(cfg.urls + cfg.api + '/admin/employee/uploadImg', FromData)
-            .then(res=>{
-                console.log(res);
-                if(res.data.code===200){
-                    this.imageUrl=res.data.path;
-                    this.addUserData.image_path=res.data.path;
-                    this.$message.success(res.data.msg)
-                }else{
-                    this.$message.error(res.data.msg)
-                }
-            });
-          }
-        }
+          this.$message.warning('请上传下面格式图片：jpg/png/jpeg/tiff/tif。');
+        }  
       },
       //新增用户按钮事件
       async showUserDialog(info) {
@@ -446,7 +433,9 @@
       filterHandler(value, row, column) {
         const property = column['property'];
         return row[property] === value;
-      }
+      },
+      //用于覆盖element默认上传
+      defaultBehavior(param){},
     },
     created(){
         this.serialnum=this.Tools.GetNumber();

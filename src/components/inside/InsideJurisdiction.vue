@@ -45,17 +45,22 @@
                 <template slot-scope="scope">
                 </template>
             </el-table-column>
-            <el-table-column prop="plate" label="板块" width="100" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="menu_1" label="一级菜单" width="150" show-overflow-tooltip>
+            <el-table-column prop="menu_1" label="板块" width="100" show-overflow-tooltip>
               <template slot-scope="scope">
                     <span  v-if="scope.row.menu_1 === undefined">无</span>
                     <span  v-else>{{scope.row.menu_1}}</span>
                 </template>
             </el-table-column>
-            <el-table-column prop="menu_2" label="二级菜单" width="150" show-overflow-tooltip>
+            <el-table-column prop="menu_2" label="一级菜单" width="150" show-overflow-tooltip>
               <template slot-scope="scope">
                     <span  v-if="scope.row.menu_2 === undefined">无</span>
                     <span  v-else>{{scope.row.menu_2}}</span>
+                </template>
+            </el-table-column>
+            <el-table-column prop="menu_3" label="二级菜单" width="150" show-overflow-tooltip>
+              <template slot-scope="scope">
+                    <span  v-if="scope.row.menu_3 === undefined">无</span>
+                    <span  v-else>{{scope.row.menu_3}}</span>
                 </template>
             </el-table-column>
             <!-- <el-table-column label="类型" width="100" show-overflow-tooltip>
@@ -227,10 +232,13 @@
           }],
           arrayOptions: [{
             value: 1,
-            label: '全部'
+            label: '操作权限'
           }, {
             value: 2,
-            label: '长期'
+            label: '数据权限'
+          }, {
+            value: 3,
+            label: '页面权限'
           }],
           list: [],
           name:'',//方法搜索
@@ -369,7 +377,7 @@
           this.HttpClient.post('/admin/permission/create',{
             label:this.jucsName,
             name:this.routerName,
-            type:1,
+            type:this.arrayValue,
             description:this.description,
             cid:1,
             icon:null

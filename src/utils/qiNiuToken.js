@@ -160,7 +160,7 @@ const safe64 = (base64) =>{
 };
 
 const getQiNiuToken = ({saveKey}) =>{
-  console.log(1111111111,saveKey)
+  // console.log(1111111111,saveKey)
   let policy = {};
   let accessKey = cfg.accessKey;
   let secretKey = cfg.secretKey;

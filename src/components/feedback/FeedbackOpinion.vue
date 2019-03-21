@@ -45,7 +45,7 @@
                     <el-table-column
                             label="内容"
                             align="center"
-                            width="280"
+                            width="300"
                             show-overflow-tooltip>
                         <template slot-scope="scope">
                             <p v-html="scope.row.content || '无'"></p>
@@ -56,7 +56,7 @@
                             label="Email"
                             align="center"
                             prop="email"
-                            width="180">
+                            width="220">
                     </el-table-column>
 
                     <el-table-column
@@ -78,12 +78,15 @@
 
                     <el-table-column
                             label="操作"
-                            align="center"
-                            class-name="feedback_scope">
+                    fixed="right"
+                    min-width="150"
+                    align="center">
                         <template slot-scope="scope">
                             <div class="feedback_btm" v-if="scope.row.status===1">
-                                <div @click="mailButton(scope.$index)">发邮件</div>
-                                <div class="sortout_color" @click="replyButton(scope.row.opinions_id)">无需回复</div>
+                                <!-- <div @click="mailButton(scope.$index)">发邮件</div> -->
+                                <el-button type="primary" plain size="mini" @click="mailButton(scope.$index)">发邮件</el-button>
+                                <el-button type="primary" plain size="mini" @click="replyButton(scope.row.opinions_id)">无需回复</el-button>
+                                <!-- <div class="sortout_color" @click="replyButton(scope.row.opinions_id)">无需回复</div> -->
                             </div>
                             <div class="feedback_btm" v-else>
                                 <div>暂无操作</div>
@@ -131,11 +134,10 @@
                 </div>
             </div>
             <div class="mail_content">
-                <div class="mail_title">模块选择</div>
+                <div class="mail_title">模板选择</div>
                 <div class="mail_select">
-                    <el-radio-group v-model="plateValue">
-                        <el-radio-button label="意见反馈"></el-radio-button>
-                        <el-radio-button label="商业推广"></el-radio-button>
+                    <el-radio-group v-model="plateValue" @change="handleChangeTemplate()">
+                        <el-radio-button v-for="(item,index) in mailTemplate" :key="index" :label="item">{{item.name}}</el-radio-button>
                     </el-radio-group>
                 </div>
             </div>
@@ -176,12 +178,30 @@
                                 @change="onEditorChange($event)">
                         </quill-editor> -->
                     </div>
+                    <div class="mail_basic_info">
+                        <div class="basic_info_item">
+                        <span>邮箱：</span>
+                        <el-input v-model="mailbox"></el-input>
+                        </div>
+                        <div class="basic_info_item">
+                        <span>TEL: </span>
+                        <el-input v-model="phone"></el-input>
+                        </div>
+                        <div class="basic_info_item">
+                        <span>地址：</span>
+                        <el-input v-model="adress"></el-input>
+                        </div>
+                        <div class="basic_info_item">
+                        <span>邮编: </span>
+                        <el-input v-model="zipCode"></el-input>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="user_footer" slot="footer">
                 <el-row>
                     <el-button type="primary" class="btn_foot" @click="mailVisible = false">取消</el-button>
-                    <el-button type="primary" class="btn_foot" @click="sendMessageFn(opinionData[index].email)">发送</el-button>
+                    <el-button type="primary" class="btn_foot" @click="sendMessageFn(opinionData[index])">发送</el-button>
                 </el-row>
             </div>
         </el-dialog>
@@ -337,6 +357,10 @@
                 currentPage:1,// 当前页
                 pageSize:25,// 每页显示数量
                 total:0,// 总记录数
+                mailbox:'kslab@kushualab.com',  //邮箱
+                phone:'400-8500-9999',  //电话
+                adress:'中国重庆渝中区大坪英利国际',  //地址
+                zipCode:'400050',
             }
         },
         components:{
@@ -464,10 +488,14 @@
                 this.index=index;
                 this.HttpClient.post('/admin/templates/getList',{type:2})
                     .then(res=>{
+                        console.log(res)
                         if(res.data.code===200){
-                            this.mailTemplate=res.data.data;
+                            this.mailTemplate=res.data.data.data;
                         }
                     })
+            },
+            handleChangeTemplate(){
+                this.content = this.plateValue.content;
             },
             //无需回复按钮事件
             replyButton(id){
@@ -476,25 +504,28 @@
                 this.confirmDialog=true;
             },
             //发邮件点击发送
-            sendMessageFn(email){
-                console.log(this.content)
+            sendMessageFn(row){
+                console.log(row)
+                let str = '<p style="margin-top: 0px; margin-bottom: 0px; padding: 0px; cursor: text; box-sizing: border-box; counter-reset: list-1 0 list-2 0 list-3 0 list-4 0 list-5 0 list-6 0 list-7 0 list-8 0 list-9 0; color: rgb(96, 98, 102); font-family: Helvetica, Arial, sans-serif; font-size: 13px; white-space: pre-wrap;"><br/></p><p style="margin-top: 0px; margin-bottom: 0px; padding: 0px; cursor: text; box-sizing: border-box; counter-reset: list-1 0 list-2 0 list-3 0 list-4 0 list-5 0 list-6 0 list-7 0 list-8 0 list-9 0; color: rgb(96, 98, 102); font-family: Helvetica, Arial, sans-serif; font-size: 13px; white-space: pre-wrap;">邮箱：'+this.mailbox+'&nbsp; &nbsp;TEL：'+this.phone+'</p><p style="margin-top: 0px; margin-bottom: 0px; padding: 0px; cursor: text; box-sizing: border-box; counter-reset: list-1 0 list-2 0 list-3 0 list-4 0 list-5 0 list-6 0 list-7 0 list-8 0 list-9 0; color: rgb(96, 98, 102); font-family: Helvetica, Arial, sans-serif; font-size: 13px; white-space: pre-wrap;">地址：'+this.adress+' &nbsp; &nbsp;邮编：'+this.zipCode+'</p><p><br/></p>'
                 let params = {
-                    email:email,
-                    content:this.content,
-                    type:'html'
+                    opinions_id:row.opinions_id,
+                    email:row.email,
+                    content:this.content+str,
+                    // title:this.mailTitle,
+                    status:2
                 }
-                this.HttpClient.post('/admin/positionApply/sendEmail',params).then(res => {
+                this.HttpClient.post('/admin/opinions/changeStatus',params).then(res => {
                     console.log(res.data)
-                    if (code === 200) {
-                        this.$message.success(msg)
+                    if (res.data.code === 200) {
+                        this.$message.success(res.data.msg)
                         this.mailVisible = false;
                         this.templateTitle = ''
                         this.mailContent = ''
                         setTimeout(() => {
-                        this.getMailList()
+                            this.getFeedback();
                         }, 500)
                     } else {
-                        this.$message.success(msg)
+                        this.$message.error(res.data.msg)
                     }
                 })
                 // this.mailVisible = false
@@ -617,8 +648,8 @@
                     .cell{
                         line-height: unset;
                         .feedback_btm{
-                            display: flex;
-                            align-items: center;
+                            // display: flex;
+                            // align-items: center;
                             div:not(:last-child){
                                 border-right: 1px solid #ebeef5;
                             }
@@ -741,39 +772,75 @@
                             border-left:none;
                             border-right:none;
                             border-bottom:none;
-                            height:150px;
+                            min-height:250px;
+                            overflow-y: auto;
+                            padding-bottom: 60px;
                         }
                     }
                     .mail_basic_info{
                         position:absolute;
                         bottom:0;
                         left:0;
-                        width:50%;
+                        width:65%;
                         display:flex;
                         flex-wrap:wrap;
                         align-items:center;
                         justify-content:flex-start;
 
                         .basic_info_item{
+                            display: flex;
+                            justify-content:space-between;
                             color:#fff;
                             font-size:14px;
                             background:#15bafe;
-                            padding:5px 10px;
+                            padding:2px 10px;
                             border:1px solid #ccc;
                             box-sizing:border-box;
                         }
                         .basic_info_item:first-child{
-                            width:60%;
+                            width:50%;
+                            span{
+                              width: 53px;
+                              line-height: 30px;
+                            }
+                            .el-input__inner{
+                              width: 180px;
+                              height: 30px;
+                            }
                         }
                         .basic_info_item:nth-child(2){
-                            width:40%;
-                            padding:6.5px 10px;
+                            width:50%;
+                            padding:2px 10px;
+                            span{
+                              width: 53px;
+                              line-height: 30px;
+                            }
+                            .el-input__inner{
+                              width: 180px;
+                              height: 30px;
+                            }
                         }
                         .basic_info_item:nth-child(3){
-                            width:70%;
+                            width:60%;
+                            span{
+                              width: 53px;
+                              line-height: 30px;
+                            }
+                            .el-input__inner{
+                              width: 231px;
+                              height: 30px;
+                            }
                         }
                         .basic_info_item:last-child{
-                            width:30%;
+                            width:40%;
+                            span{
+                              width: 53px;
+                              line-height: 30px;
+                            }
+                            .el-input__inner{
+                              width: 143px;
+                              height: 30px;
+                            }
                         }
                     }
                 }

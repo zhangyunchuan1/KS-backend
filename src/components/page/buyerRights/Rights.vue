@@ -19,7 +19,7 @@
 
         <div class="buyerEquity_box">
           <p>买家权益：</p>
-          <el-input
+          <!-- <el-input
             type="textarea"
             :rows="7"
             :readonly="readonly"
@@ -27,15 +27,23 @@
             placeholder="输入买家权益"
             ref="modifyInput"
             v-model="textarea">
-          </el-input>
+          </el-input> -->
+          <el-upload
+            class="avatar-uploader"
+            action=""
+            :show-file-list="false"
+            :on-success="handleAvatarSuccess"
+            :before-upload="beforeAvatarUpload">
+            <img v-if="imageUrl" :src="Tools.handleImg(imageUrl)" class="avatar">
+            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+          </el-upload>
         </div>
 
         <div class="buyerEquity_btm">
           <el-button @click="cancelBtm" v-if="cancel">取 消</el-button>
           <el-button type="primary" @click="modifyBtm" v-if="modify">修 改</el-button>
-          <el-button type="success" @click="modifyBtm" v-else>保 存</el-button>
+          <!-- <el-button type="success" @click="modifyBtm" v-else>保 存</el-button> -->
         </div>
-
       </div>
     </div>
   </div>
@@ -82,45 +90,49 @@
         
 
         cancel: false,  // 取消按钮
+        imageUrl:'',
 
       }
     },
     mounted(){
-      this.getcontent()
+      this.getcontent();
     },
     methods:{
+      handleAvatarSuccess(res, file) {
+        this.imageUrl = URL.createObjectURL(file.raw);
+      },
+      beforeAvatarUpload(file) {
+        this.HttpClient.form('/admin/uploadOneImage',{images:file}).then(res => {
+          if(res.data.code === 200){
+            console.log(res.data.data)
+            this.$message.success(res.data.msg);
+            this.imageUrl = res.data.path.replace('http://cdn.kushualab.com/','');
+          }
+        })
+      },
       getcontent(){
         this.HttpClient.post('/admin/saleRights/getList',{type:this.plateRadio}).then(res => {
           if(res.data.code == 200){
           console.log(res.data.data)
+          this.imageUrl = res.data.data[0].content;
           this.textData = res.data.data[0]
-            this.textarea = res.data.data[0].content
+          //   this.textarea = res.data.data[0].content
           }
         })
       },
       // 修改
       modifyBtm(){
-        if(this.readonly === true){
-          this.readonly = false;
-          this.modify = false;
-          this.cancel = true;
-          this.$refs.modifyInput.focus();          
-        } else {
-          this.readonly = true;
-          this.modify = true;
-          this.cancel = false;
-          let params = {
-            id:this.textData.id,
-            name:this.textData.name,
-            content:this.textarea,
-            type:this.plateRadio
-          }
-          this.HttpClient.post('/admin/saleRights/edit',params).then(res => {
-            if(res.data.code === 200){
-              this.$message.success(res.data.msg)
-            }
-          })
+        let params = {
+          id:this.textData.id,
+          name:this.textData.name,
+          content:this.imageUrl,
+          type:this.plateRadio
         }
+        this.HttpClient.post('/admin/saleRights/edit',params).then(res => {
+          if(res.data.code === 200){
+            this.$message.success(res.data.msg)
+          }
+        })
       },
       // 板块选择
       changePlate(){
@@ -211,6 +223,30 @@
           .el-textarea{
             width: 600px;
           }
+          .avatar-uploader .el-upload {
+            border: 1px dashed #d9d9d9;
+            border-radius: 6px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+          }
+          .avatar-uploader .el-upload:hover {
+            border-color: #409EFF;
+          }
+          .avatar-uploader-icon {
+            font-size: 28px;
+            color: #8c939d;
+            width: 600px;
+            height: 600px;
+            line-height: 600px;
+            text-align: center;
+          }
+          .avatar {
+            width: 600px;
+            // height: 600px;
+            min-height: 200px;
+            display: block;
+          }
         }
 
         .buyerEquity_btm{
@@ -219,7 +255,15 @@
           width: 600px;
           margin-top: 10px;
         }
-
+        .container {
+          position: relative;
+        }
+        #text {
+          position: absolute;
+          left: 0px;
+          top: 0px;
+          z-index: 10;
+        }
       }
     }
   }

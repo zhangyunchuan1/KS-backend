@@ -230,7 +230,7 @@
                         <el-input readonly v-model="viewObj.content"></el-input>
                     </el-form-item>
                     <el-form-item v-if="viewObj.attachment" label="图片">
-                        <div v-for="pic in JSON.parse(viewObj.attachment)" :key="pic.path" class="pic">
+                        <div v-for="pic in viewObj.attachment" :key="pic.path" class="pic">
                             <img class="pic" :src="'http://cdn.kushualab.com/'+pic.path"/>
                         </div>
                     </el-form-item>

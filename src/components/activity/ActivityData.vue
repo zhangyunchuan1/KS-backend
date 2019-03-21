@@ -489,7 +489,7 @@ export default {
       });
       // console.log(this.caractive);
       // 基于准备好的dom，初始化echarts实例
-      let myChart = echarts.init(document.getElementById("myChart"));
+        let myChart = echarts.init(document.getElementById("myChart"));
       // 绘制图表
       myChart.setOption({
         tooltip: {
@@ -897,7 +897,7 @@ export default {
       // console.log(this.caractive);
 
       // 基于准备好的dom，初始化echarts实例
-      let myviewChart = echarts.init(document.getElementById("myviewChart"));
+        let myviewChart = echarts.init(document.getElementById("myviewChart"));
       // 绘制图表
       myviewChart.setOption({
         tooltip: {
@@ -1014,6 +1014,7 @@ export default {
     }
     arr.join("-");
     this.startTime = arr.join("-");
+    this.startTime  = this.initDateValue(new Date(this.startTime));
     this.endTime = this.initDateValue(new Date());
     /** liushuya  2019-01-04 */
     let arrview = this.initDateValue(new Date()).split("-");
@@ -1025,6 +1026,7 @@ export default {
     }
     arrview.join("-");
     this.startviewTime = arrview.join("-");
+    this.startviewTime  = this.initDateValue(new Date(this.startviewTime));
     this.endviewTime = this.initDateValue(new Date());
     // console.log(this.startTime);
     // console.log(this.endTime);

@@ -7,7 +7,7 @@
                 <div class="title">企业关系</div>
             </div>
 
-            <div class="business_header">
+            <!-- <div class="business_header">
                 <div class="business_search">
                     <div>
                         <el-input placeholder="公司名称搜索" v-model="companySearch" class="input-with-select">
@@ -15,7 +15,7 @@
                         </el-input>
                     </div>
                 </div>
-            </div>
+            </div> -->
 
             <div class="business_content">
 
@@ -30,14 +30,14 @@
                             prop="id"
                             sortable>
                     </el-table-column>
-                    <el-table-column
+                    <!-- <el-table-column
                             label="公司名称"
                             align="center"
                             width="280">
                         <template slot-scope="scope">
                             <p>{{ scope.row.company_name}}</p>
                         </template>
-                    </el-table-column>
+                    </el-table-column> -->
 
                     <el-table-column
                             label="联系人"
@@ -58,9 +58,12 @@
                     <el-table-column
                             label="状态"
                             align="center"
-                            width="130">
+                            width="130"
+                            prop="status"
+                            :filters="[{ text: '不感兴趣', value: 0}, { text: '待联系', value:1 }, { text: '继续跟进', value:2 }, { text: '结束', value:4 }]"
+                            :filter-method="filterHandler">
                             <template slot-scope="scope">
-                                {{scope.row.status===0?'不感兴趣':scope.row.status===1?'待联系':scope.row.status===2?'继续跟进':'结束'}}
+                                <span :class="scope.row.status===0?'cancel_color':scope.row.status===1?'audit_color':scope.row.status===2?'normal_color':'delete_color'">{{scope.row.status===0?'不感兴趣':scope.row.status===1?'待联系':scope.row.status===2?'继续跟进':'结束'}}</span>
                             </template>
                     </el-table-column>
 
@@ -75,15 +78,16 @@
                     <el-table-column
                             label="操作"
                             align="center"
-                            class-name="business_scope">
+                            min-width="350"
+                            fixed="right">
                         <template slot-scope="scope">
-                            <div class="business_btm">
-                                <div v-if="scope.row.status===1" @click="continueButton(scope.row.business_id)">继续跟进</div>
-                                <div v-if="scope.row.status===2 || scope.row.status===1" @click="interestButton(scope.row.business_id)">不感兴趣</div>
-                                <div v-if="scope.row.status===2" @click="finishButton(scope.row.business_id)">结束</div>
-                                <div @click="remarkButton(scope.row.business_id)">备注</div>
-                                <div @click="accessoryButton(scope.$index)">查看详情附件</div>
-                            </div>
+                            
+                                <el-button type="primary" plain size="mini" v-if="scope.row.status===1" @click="continueButton(scope.row.business_id)">继续跟进</el-button>
+                                <el-button type="primary" plain size="mini" v-if="scope.row.status===2 || scope.row.status===1" @click="interestButton(scope.row.business_id)">不感兴趣</el-button>
+                                <el-button type="primary" plain size="mini" v-if="scope.row.status===2" @click="finishButton(scope.row.business_id)">结束</el-button>
+                                <el-button type="primary" plain size="mini" @click="remarkButton(scope.row.business_id)">备注</el-button>
+                                <el-button type="primary" plain size="mini" @click="accessoryButton(scope.row)">查看详情附件</el-button>
+                            
                         </template>
                     </el-table-column>
                 </el-table>
@@ -129,20 +133,23 @@
         </el-dialog>
 
         <!--查看详情-->
-        <el-dialog :visible.sync="accessoryVisible" width="400px">
+        <el-dialog :visible.sync="accessoryVisible" width="600px">
             <div slot="title" class="dialog_head_title">
                 <i class="iconfont icon-faxian examine_icon"></i>
                 <span>查看详情</span>
             </div>
             <div class="examine_content">
-                <div class="examine_list">
-                    <div class="examine_text" v-html="companyData[index].content"></div>
-                </div>
+                <quill-editor
+                    v-model="attachmentInfo.content"
+                    ref="myQuillEditor"
+                    :options="editorOption">
+                </quill-editor>
             </div>
             <div class="img_content">
-                <div class="img_items">
-                    <a :href="Tools.handleImg(item)+'?attname='" v-for="(item,i) in companyData[index].attachment" :key="i" :class="i%3===0?'img_item1':'img_item'">
-                        <img :src="Tools.handleImg(item)+'?imageView2/1/w/60/h/60'" alt="" class="img">
+                <div class="img_items" v-for="(item,index) in attachmentInfo.attachment" :key="index">
+                    <img v-if="Tools.isPic(item.path)" :src="Tools.handleImg(item.path)" alt="" class="img">
+                    <img v-else src="/static/img/icon/accessory_e.png" alt="" class="imgModle">
+                    <a :href="Tools.handleImg(item.path)+'?attname='">
                         <div class="modal_img">
                             <i class="el-icon-download modal_icon"></i>
                         </div>
@@ -178,7 +185,32 @@
 <script>
 
     import BreadCrumb from '@/components/public/BreadCrumb';
+    import {quillEditor} from 'vue-quill-editor'
+    import * as Quill from 'quill'  //引入编辑器
 
+    //quill图片可拖拽改变大小
+    import ImageResize from 'quill-image-resize-module';
+
+    Quill.register('modules/imageResize', ImageResize);
+
+    //quill图片可拖拽上传
+    import {ImageDrop} from 'quill-image-drop-module';
+
+    Quill.register('modules/imageDrop', ImageDrop);
+    import {container, ImageExtend, QuillWatch} from 'quill-image-extend-module'
+    Quill.register('modules/ImageExtend', ImageExtend);
+
+    var toolbarOptions = [
+        ['italic', 'underline', 'strike', 'bold'],
+        ['blockquote', 'code-block'],
+        [{'list': 'ordered'}, {'list': 'bullet'}],
+        [{'script': 'sub'}, {'script': 'super'}],
+        [{'indent': '-1'}, {'indent': '+1'}],
+        [{'direction': 'rtl'}],
+        [{'color': []}],
+        [{'align': []}],
+        ['image','link']
+    ];
     export default {
         name: "Business-Connection",
         data(){
@@ -197,10 +229,65 @@
                         icon: 'icon-home'
                     }
                 ],
+                content: null,//编辑器输入内容
+                editorOption: {
+                    modules: {
+                        toolbar: {
+                            container: toolbarOptions,
+                            handlers: {
+                                'image': function (value) {// 劫持原来的图片点击按钮事件
+                                    console.log(value);
+                                    if (value) {
+                                        document.querySelector('#editorImg').click()
+                                    } else {
+                                        this.quill.format('image', false);
+                                    }
+                                }
+                            }
+                        },
+                        imageDrop: true,
+                        imageResize: {
+                            displayStyles: {
+                                backgroundColor: 'black',
+                                border: 'none',
+                                color: 'white'
+                            },
+                            modules: ['Resize', 'DisplaySize', 'Toolbar']
+                        },
+                        ImageExtend: {
+                            loading: true,
+                            name: 'img',
+                            size: 1,
+                            action: '',
+                            response: (res) => {
+                                return res.info
+                            },
+                            headers: (xhr) => {
+                                // xhr.setRequestHeader('myHeader','myValue')
+                            },  //设置请求头部
+                            sizeError: () => {
+                                this.$message.error('图片大小超过限制10M')
+                            },  // 图片超过大小的回调
+                            start: () => {
+                            }, //this.ImgStart(),//() => {},  //自定义开始上传触发事件
+                            end: () => {
+                            },  //自定义上传结束触发的事件，无论成功或者失败
+                            error: () => {
+                            },  //上传失败触发的事件
+                            success: () => {
+                            },  //上传成功触发的事件
+                            change: (xhr, formData) => {
+                                // xhr.setRequestHeader('myHeader','myValue')
+                                // formData.append('token', 'myToken')
+                            } //每次选择图片触发，也可用来设置头部，但比headers多了一个参数，可设置formData
+                        },
+                    }
+                },//富文本配置
                 companySearch:'',// 公司名称搜索
                 companyData:[{attachment:''}],// 公司数据列表
                 remarkVisible:false,// 备注弹窗
                 accessoryVisible:false,// 查看详情弹窗
+                attachmentInfo:{},  //附件详情
                 confirmDialog:false,// 确认弹窗
                 remark:'',// 新增备注信息
                 historyData:[],// 备注历史记录
@@ -303,9 +390,10 @@
                 this.getRemarkList(id)
             },
             //查看详情
-            accessoryButton(index){
-                console.log(index);
-                this.index=index;
+            accessoryButton(i){
+                console.log(i);
+                // this.index=index;
+                this.attachmentInfo = i;
                 this.accessoryVisible=true;
             },
             //确认操作
@@ -317,7 +405,11 @@
             currentChange(p){
                 this.currentPage=p;
                 this.getCompanyList()
-            }
+            },
+            filterHandler(value, row, column) {
+                const property = column['property'];
+                return row[property] === value;
+            },
         },
         created(){
             this.getCompanyList()
@@ -403,6 +495,10 @@
                         th,tr{
                             background-color: #15bafe;
                         }
+                    }
+                    .el-icon-arrow-down{
+                        font-size: 20px;
+                        color:#fff;
                     }
                 }
 
@@ -503,8 +599,17 @@
             color: #15bafe;
         }
         .examine_content{
-            height: 120px;
+            height: 325px;
+            width:100%;
             border: 1px solid #f2f2f2;
+            
+            .ql-container{
+                min-height:260px;
+                overflow-y: auto;
+                .ql-editor{
+                    height:260px;
+                }
+            }
             .examine_text{
                 display: flex;
                 justify-content: space-between;
@@ -537,37 +642,42 @@
         .img_content{
             height: 120px;
             border: 1px solid #f2f2f2;
+            display: flex;
+            flex-wrap: wrap;
             margin-top: 10px;
             .img_items{
-                display: flex;
-                flex-wrap: wrap;
                 height: 100px;
-                overflow-y: auto;
-                .img_item{
-                    width: 17%;
-                    margin-right: 4%;
-                    margin-top: 10px;
+                width: 100px;
+                margin: 5px;
+                // overflow-y: auto;
+                
                     .img{
-                        width: 100%;
-                        height: 60px;
+                        width: 100px;
+                        height: 100px;
+                        margin: 5px;
+                        box-shadow: 0px 0px 5px #bfbfbf;
                     }
-                }
-                .img_item1{
-                    width: 17%;
-                    margin-left: 4%;
-                    margin-right: 4%;
-                    margin-top: 10px;
-                    .img{
-                        width: 100%;
-                        height: 60px;
+                    .imgModle{
+                        width: 50px;
+                        height: 50px;
+                        margin: 30px;
                     }
-                }
+                // .img_item1{
+                //     width: 17%;
+                //     margin-left: 4%;
+                //     margin-right: 4%;
+                //     margin-top: 10px;
+                //     .img{
+                //         width: 100%;
+                //         height: 60px;
+                //     }
+                // }
                 .modal_img{
                     position: relative;
-                    top: 0;margin-top: -64px;
-                    left: 0;
+                    top: 31px;margin-top: -64px;
+                    left: 5px;
                     width: 100%;
-                    height: 60px;
+                    height: 25px;
                     background: rgba(101, 101, 101, 0.6);
                     color: #ffffff;
                     opacity: 0;
@@ -578,7 +688,7 @@
                 .modal_icon{
                     position: relative;
                     font-size: 18px;
-                    top: 50% - 9px;
+                    top: 6%;
                 }
             }
         }

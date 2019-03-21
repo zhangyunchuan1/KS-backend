@@ -17,7 +17,8 @@
                 placeholder="用户名搜索"
                 v-model="userNameSearch"
                 class="input-with-select"
-              >
+                :clearable="true"
+                @clear="userNameSearchFn">
                 <el-button slot="append" icon="el-icon-search" @click="userNameSearchFn"></el-button>
               </el-input>
             </div>
@@ -26,19 +27,20 @@
                 placeholder="公司名字搜索"
                 v-model="companyNameSearch"
                 class="input-with-select"
-              >
+                :clearable="true"
+                 @clear="companynameSearchFn">
                 <el-button slot="append" icon="el-icon-search" @click="companynameSearchFn"></el-button>
               </el-input>
             </div>
-            <div class="content_header_search">
+            <!-- <div class="content_header_search">
               <el-select v-model="status" clearable placeholder="审核状态" @change="filterStatus">
                 <el-option value="0" label="删除"></el-option>
                 <el-option value="1" label="正常"></el-option>
                 <el-option value="2" label="注销"></el-option>
                 <el-option value="3" label="禁用"></el-option>
-                <!-- <el-option value="4" label="待审核"></el-option> -->
+                <el-option value="4" label="待审核"></el-option>
               </el-select>
-            </div>
+            </div> -->
           </div>
 
           <div class="content_table">
@@ -64,7 +66,7 @@
               <el-table-column label="商标LOGO" align="center" show-overflow-tooltip width="120">
                 <template slot-scope="scope">
                   <div class="trademark_list">
-                    <img :src="Tools.handleImg(scope.row.avatar)" alt>
+                    <img :src="Tools.judgeFullPath(scope.row.avatar)" alt>
                   </div>
                 </template>
               </el-table-column>
@@ -223,7 +225,7 @@ export default {
       let params = {
         company_name: this.companyNameSearch,
         user_name: this.userNameSearch,
-        status: this.status
+        status: 1
       };
       this.HttpClient.post("/admin/business/lists", params).then(res => {
         console.log(res)
@@ -268,7 +270,10 @@ export default {
     },
     // 点击修改基本信息
     modifybasicInfoFn(row) {
+      console.log(row)
+      this.imageUrl = this.Tools.handleImg(row.avatar);
       this.rowData = row;
+      this.signature = row.signature;
       this.modifyInformationDialog = true;
     },
     // 点击修改密码
@@ -278,12 +283,8 @@ export default {
     },
     // 保存修改基本信息
     savemodifyInfoFn() {
-      // console.log(this.rowData.avatar)
       var str = this.imageUrl.substring(25);
       console.log(str)
-      // str=str.replace("http://cdn.kushualab.com/","");
-      // console.log(this.imageUrl)
-
       let params = {
         uid: this.rowData.uid,
         avatar: str,
@@ -299,6 +300,8 @@ export default {
             this.signature = ''
             this.imageUrl = ''
           }, 500);
+        }else{
+          this.$message.warning(res.data.msg)
         }
       });
     },

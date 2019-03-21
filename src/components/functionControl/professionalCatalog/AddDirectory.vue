@@ -75,18 +75,13 @@
         </div>
         <div class="dialog_images">
           <el-upload
-            action="http://test.kslab.com/api/article/null"
-            list-type="picture-card"
-            :limit="1"
-            :file-list="fileList"
-            :on-preview="handlePictureCardPreview"
-            :on-remove="handleRemove"
+            class="avatar-uploader"
+            action="/"
+            :show-file-list="false"
             :before-upload="beforeFileUpload">
-            <i class="el-icon-plus"></i>
+            <img v-if="imgUrl" :src="imgUrl" class="avatar">
+            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
           </el-upload>
-          <el-dialog :visible.sync="dialogVisible">
-            <img width="100%" :src="dialogImageUrl" alt="">
-          </el-dialog>
         </div>
         <div class="dialog_textarea">
           <el-input
@@ -117,18 +112,13 @@
         </div>
         <div class="dialog_images">
           <el-upload
-            action="http://test.kslab.com/api/article/null"
-            list-type="picture-card"
-            :limit="1"
-            :file-list="fileList2"
-            :on-preview="handlePictureCardPreview"
-            :on-remove="handleRemove"
+            class="avatar-uploader"
+            action="/"
+            :show-file-list="false"
             :before-upload="beforeFileUpload">
-            <i class="el-icon-plus"></i>
+            <img v-if="imgUrl" :src="imgUrl" class="avatar">
+            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
           </el-upload>
-          <el-dialog :visible.sync="dialogVisible">
-            <img width="100%" :src="dialogImageUrl" alt="">
-          </el-dialog>
         </div>
         <div class="dialog_textarea">
           <el-input
@@ -208,6 +198,7 @@
         twoMenuId:null,
         type:null,  //几级目录
         imgUrl:null, //上传成功的图片返回的地址
+        imgUrlInfo:[],
         fileList:[],
         fileList2:[],
         CategoryName:null,  //类别名称
@@ -239,7 +230,10 @@
                 type :this.type,
                 name:this.CategoryName,
                 description:this.textarea,
-                images:this.imgUrl
+                images:[{
+                  name:'imgName',
+                  path:this.imgUrl
+                }]
             })
             .then(res=>{
                 console.log(res)
@@ -287,7 +281,10 @@
                 type :0,
                 name:this.CategoryName,
                 description:this.textarea,
-                images:this.imgUrl
+                images:[{
+                  name:'imgName',
+                  path:this.imgUrl
+                }]
             })
             .then(res=>{
                 console.log(res)
@@ -315,9 +312,11 @@
                 FromData.append('images', file);
                 this.$ajax.post('http://test.kslab.com/api/admin/uploadOneImage', FromData)
                 .then((res) => {
-                    console.log(res)
+                    console.log(res);
+                    this.$message.success(res.data.msg);
                     if(res.data.code === 200){
                         this.imgUrl = res.data.path;
+                        this.imgUrlInfo = [{name:file.name,path:res.data.path}]
                     }
                 })
       },
@@ -526,12 +525,14 @@
           }
           .content_list_box{
             .el-radio-group{
-              height: 40px;
               line-height: 40px;
+              display: flex;
+              flex-wrap: wrap;
               .el-radio{
                 height: 100%;
                 line-height: 40px;
                 padding: 0 20px;
+                margin-bottom: 5px;
                 .el-radio__input{
                   display: none;
                 }
@@ -554,7 +555,11 @@
     }
   }
 
-
+.el-icon-check:before{
+    right: -26px;
+    position: absolute;
+    top: -25px;
+}
 
   /*批准弹窗*/
   .addDirectoryDialog{
@@ -586,13 +591,40 @@
         box-sizing: border-box;
         padding: 15px;
         margin-bottom: 30px;
-
-        .el-upload--picture-card,
-        .el-upload-list--picture-card .el-upload-list__item{
-          width: 80px;
-          height: 80px;
-          line-height: 80px;
+        .avatar-uploader {
+          .el-upload {
+            border: 1px dashed #d9d9d9;
+            border-radius: 6px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+              .el-upload:hover {
+              border-color: #409EFF;
+            }
+            .avatar-uploader-icon {
+              font-size: 28px;
+              color: #8c939d;
+              width: 178px;
+              height: 178px;
+              line-height: 178px;
+              text-align: center;
+            }
+            .avatar {
+              width: 178px;
+              height: 178px;
+              display: block;
+            }
+          }
         }
+        
+        
+        
+        // .el-upload--picture-card,
+        // .el-upload-list--picture-card .el-upload-list__item{
+        //   width: 80px;
+        //   height: 80px;
+        //   line-height: 80px;
+        // }
       }
     }
   }

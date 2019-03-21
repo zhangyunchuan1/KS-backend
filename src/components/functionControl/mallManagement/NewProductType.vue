@@ -395,15 +395,20 @@ export default {
   mounted() {},
   watch: {
     productType() {
-      this.HttpClient.post("/admin/category/checkValue", {
-        value_name: this.productType
-      }).then(res => {
-        console.log(res.data);
-        if (res.data.code === 200) {
-          this.optionsChoseData = res.data.data;
-          this.isshowchosedata = true;
-        }
-      });
+      if(this.productType !== ''){
+        this.HttpClient.post("/admin/category/checkValue", {
+          value_name: this.productType
+        }).then(res => {
+          console.log(res.data);
+          if (res.data.code === 200) {
+            this.optionsChoseData = res.data.data;
+            this.isshowchosedata = true;
+          }
+        });
+      }else{
+        this.isshowchosedata = false;
+      }
+      
     }
   },
   methods: {
@@ -449,16 +454,17 @@ export default {
         image: this.imageUrl,
         property_array: this.propertyArray
       };
-      this.HttpClient.post("/admin/category/create", params).then(res => {
-        if (res.data.code === 200) {
-          this.$message.success(res.data.msg);
-          setTimeout(() => {
-            this.$router.push({path:"/index/functionControl/mallManagement/product-catalog-assignment"})
-          }, 500);
-        } else {
-          this.$message.warning(res.data.msg);
-        }
-      });
+      console.log(params);
+      // this.HttpClient.post("/admin/category/create", params).then(res => {
+      //   if (res.data.code === 200) {
+      //     this.$message.success(res.data.msg);
+      //     setTimeout(() => {
+      //       this.$router.push({path:"/index/functionControl/mallManagement/product-catalog-assignment"})
+      //     }, 500);
+      //   } else {
+      //     this.$message.warning(res.data.msg);
+      //   }
+      // });
     },
     // 选择框选择
     changeTitleFn(val) {

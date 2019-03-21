@@ -39,7 +39,7 @@
         <el-dialog :visible.sync="sureVisible" width="300px">
             <div slot="title" class="dialog_delete_head_title">
                 <i class="iconfont icon-trash delete_icon"></i>
-                <span>删除</span>
+                <span>分配</span>
             </div>
             <div class="delete_content">
                 <img class="boolean_delete" src="../../assets/image/warm.png"/>

@@ -50,42 +50,32 @@
 
 <script>
 /*************富文本**************/
-// region
-  import {quillEditor} from 'vue-quill-editor'
-  import * as Quill from 'quill'  //引入编辑器
-  import moment from 'moment'
+    import {quillEditor} from 'vue-quill-editor'
+    import * as Quill from 'quill'  //引入编辑器
 
+    //quill图片可拖拽改变大小
+    import ImageResize from 'quill-image-resize-module';
 
-  // 自定义字体大小
-  let fontSize = ['10px', '12px', '14px', '16px', '18px', '20px'];
-  let Size = Quill.import('attributors/style/size');
-  Size.whitelist = fontSize;
-  Quill.register(Size, true);
+    Quill.register('modules/imageResize', ImageResize);
 
-  var fonts = ['SimSun', 'SimHei', 'Microsoft-YaHei', 'KaiTi', 'FangSong', 'Arial', 'Times-New-Roman', 'sans-serif'];
-  var Font = Quill.import('formats/font');
-  Font.whitelist = fonts; //将字体加入到白名单
+    //quill图片可拖拽上传
+    import {ImageDrop} from 'quill-image-drop-module';
 
-  import {container, QuillWatch} from 'quill-image-extend-module'
+    Quill.register('modules/imageDrop', ImageDrop);
+    import {container, ImageExtend, QuillWatch} from 'quill-image-extend-module'
+    Quill.register('modules/ImageExtend', ImageExtend);
 
-  var toolbarOptions = [
-    ['italic', 'underline', 'strike', 'bold'],
-    ['blockquote', 'code-block'],
-    // [{'header':1},{'header':2}],
-    [{'list': 'ordered'}, {'list': 'bullet'}],
-    [{'script': 'sub'}, {'script': 'super'}],
-    [{'indent': '-1'}, {'indent': '+1'}],
-    [{'direction': 'rtl'}],
-    [{'size': fontSize}],
-    // [{'header':[1,2,3,4,5,6,false]}],
-    [{'color': []}],
-    // [{'font':fonts}],
-    [{'align': []}],
-    // ['clear'],
-    // ['image']
-  ];
-  //endregion
-  /*************************************/
+    var toolbarOptions = [
+        ['italic', 'underline', 'strike', 'bold'],
+        ['blockquote', 'code-block'],
+        [{'list': 'ordered'}, {'list': 'bullet'}],
+        [{'script': 'sub'}, {'script': 'super'}],
+        [{'indent': '-1'}, {'indent': '+1'}],
+        [{'direction': 'rtl'}],
+        [{'color': []}],
+        [{'align': []}],
+        ['image','link']
+    ];
   import BreadCrumb from "@/components/public/BreadCrumb"
 
   export default {
@@ -125,14 +115,59 @@
         // textarea:'',
         currentObj:{},
 
-        editorOption:{ // 富文本编辑器配置
-          modules:{
-            toolbar:{
-              container: toolbarOptions,
-            },
-            
-          }
-        },
+        editorOption: {
+                    modules: {
+                        toolbar: {
+                            container: toolbarOptions,
+                            handlers: {
+                                'image': function (value) {// 劫持原来的图片点击按钮事件
+                                    console.log(value);
+                                    if (value) {
+                                        document.querySelector('#editorImg').click()
+                                    } else {
+                                        this.quill.format('image', false);
+                                    }
+                                }
+                            }
+                        },
+                        imageDrop: true,
+                        imageResize: {
+                            displayStyles: {
+                                backgroundColor: 'black',
+                                border: 'none',
+                                color: 'white'
+                            },
+                            modules: ['Resize', 'DisplaySize', 'Toolbar']
+                        },
+                        ImageExtend: {
+                            loading: true,
+                            name: 'img',
+                            size: 1,
+                            action: '',
+                            response: (res) => {
+                                return res.info
+                            },
+                            headers: (xhr) => {
+                                // xhr.setRequestHeader('myHeader','myValue')
+                            },  //设置请求头部
+                            sizeError: () => {
+                                this.$message.error('图片大小超过限制10M')
+                            },  // 图片超过大小的回调
+                            start: () => {
+                            }, //this.ImgStart(),//() => {},  //自定义开始上传触发事件
+                            end: () => {
+                            },  //自定义上传结束触发的事件，无论成功或者失败
+                            error: () => {
+                            },  //上传失败触发的事件
+                            success: () => {
+                            },  //上传成功触发的事件
+                            change: (xhr, formData) => {
+                                // xhr.setRequestHeader('myHeader','myValue')
+                                // formData.append('token', 'myToken')
+                            } //每次选择图片触发，也可用来设置头部，但比headers多了一个参数，可设置formData
+                        },
+                    }
+                },//富文本配置
         contentUpData: {}, // 上传参数
         content: '', // 富文本编辑内容
       }

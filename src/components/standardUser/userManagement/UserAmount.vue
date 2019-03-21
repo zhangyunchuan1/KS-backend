@@ -36,20 +36,20 @@
                   @change="handleChangeEndTime">
                 </el-date-picker>
               </div>
-              <el-select size="mini" class="select_type" v-model="userType" placeholder="全部" @change="handleChangeGender">
+              <!-- <el-select size="mini" class="select_type" v-model="userType" placeholder="全部" @change="handleChangeGender">
                 <el-option
                   v-for="item in userOptions"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value">
                 </el-option>
-              </el-select>
-              <div class="userTotal">当前注册用户数量： {{allUser.total}}</div>
+              </el-select> -->
+              <div class="userTotal">当前总用户数量 {{allUser.total}}</div>
             </div>
             <div class="shape_content">
               <div class="shape_header">
                 <div class="shape_header_left">
-                  <p class="left_title">用户注册数量曲线图</p>
+                  <p class="left_title">注册数量统计</p>
                   <div class="time_range">
                     <span>{{startTimeChange}}</span>
                     <span>---</span>
@@ -114,12 +114,12 @@
                   :value="item.value">
                 </el-option>
               </el-select>
-              <div class="userTotal">当前登录用户数量： {{allloginUser.total}}</div>
+              <div class="userTotal">今日登录用户数量： {{allloginUser.total}}</div>
             </div>
             <div class="shape_content">
               <div class="shape_header">
                 <div class="shape_header_left">
-                  <p class="left_title">用户登录数量曲线图</p>
+                  <p class="left_title">登录数据统计</p>
                   <div class="time_range">
                     <span>{{startTimeloginChange}}</span>
                     <span>---</span>

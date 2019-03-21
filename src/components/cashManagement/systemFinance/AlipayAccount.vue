@@ -88,13 +88,13 @@
 
             <el-table-column label="实际金额" align="center" show-overflow-tooltip width="120">
               <template slot-scope="scope">
-                <span>{{scope.row.amount-scope.row.poundage}}</span>
+                <span>{{scope.row.amount+scope.row.poundage}}</span>
               </template>
             </el-table-column>
 
             <el-table-column label="类型" align="center" show-overflow-tooltip width="100">
               <template slot-scope="scope">
-                <span>{{scope.row.amount > 0?'收入':'支出'}}</span>
+                <span>{{scope.row.amount >= 0?'收入':'支出'}}</span>
               </template>
             </el-table-column>
 
@@ -106,7 +106,10 @@
               prop="pay_type"
             >
               <template slot-scope="scope">
-                <span>{{scope.row.pay_type ==1?'活动':scope.row.pay_type ==2?'商城':scope.row.pay_type ==3?'淘货':''}}</span>
+                <span v-if="scope.row.pay_type === 1">活动</span>
+                <span v-if="scope.row.pay_type === 2">商城</span>
+                <span v-if="scope.row.pay_type === 3">淘货</span>
+                <span v-if="scope.row.pay_type === null" class="sortout_color">暂无</span>
               </template>
             </el-table-column>
 
@@ -167,7 +170,7 @@ export default {
 
       searchTime: "",
       nickNameSearch: "",
-      options: [{ value: 1, label: "收入" },{ value: 2, label: "支出" }],
+      options: [{ value:null, label: "全部" },{ value: 1, label: "收入" },{ value: 2, label: "支出" }],
       typeValue: "", //收入支出value
       amountNum:null,//余额
 
@@ -204,9 +207,6 @@ export default {
     // 类型选择
     changeTypeFn() {
       console.log(this.typeValue);
-      if (this.typeValue !== 0 && this.typeValue !== 1) {
-        this.getlistdata();
-      } else {
         let params = {
           payment: 2,
           page: this.currentPage,
@@ -219,11 +219,10 @@ export default {
         this.HttpClient.post("/admin/revenues/paylists", params).then(res => {
           console.log(res.data);
           if (res.data.code == 200) {
-            this.tableData = res.data.data.data;
+            this.tableData = res.data.data.lists.data;
             this.total = res.data.data.total;
           }
         });
-      }
     },
     // 分页
     currentChange(p) {

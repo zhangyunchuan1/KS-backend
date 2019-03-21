@@ -12,7 +12,7 @@
       <div class="content">
         <div class="content_header">
           <div class="content_header_search">
-            <el-input placeholder="活动ID搜索" v-model="idSearch" clearable @change="handleIDSearch" class="input-with-select">
+            <el-input placeholder="输入活动ID进行查找添加" v-model="idSearch" clearable @change="handleIDSearch" class="input-with-select" @keyup.13.native="handleIDSearch()">
               <el-button slot="append" icon="el-icon-search" @click="handleIDSearch"></el-button>
             </el-input>
           </div>
@@ -98,24 +98,21 @@
               width="110"
               prop="status">
               <template slot-scope="scope">
-                <span v-if="scope.row.status !== 10">已下架</span>
-                <span v-if="scope.row.status === 10">已置顶</span>
+                <span class="sortout_color" v-if="scope.row.status !== 10">已下架</span>
+                <span class="normal_color" v-if="scope.row.status === 10">已置顶</span>
               </template>
             </el-table-column>
 
             <el-table-column
-              label="操作"
-              align="center"
-              width="350"
-              class-name="table_scope">
+                label="操作"
+                fixed="right"
+                min-width="300"
+                align="center">
               <template slot-scope="scope">
-                <div class="scope_btm">
-                  <el-button size="medium" type="text" v-if="scope.row.status === 10" @click="handleLowerShelf(scope.row)">下架</el-button>
-                  <el-button size="medium" type="text" v-if="scope.row.status !== 10 && (new Date(scope.row.registration_deadline).valueOf()) > (new Date().valueOf())" @click="handleRoofPlacement(scope.row)">置顶</el-button>
-                  <el-button size="medium" type="text" v-if="scope.row.status !== 10 && (new Date(scope.row.registration_deadline).valueOf()) < (new Date().valueOf())" style="color:#efcd1e">报名截止，不能置顶</el-button>
-                  <el-button size="medium" type="text" v-if="scope.row.status === 10" @click="handleRoofPlacement(scope.row)">修改图片</el-button>
-                  <el-button size="medium" type="text">售票情况</el-button>
-                </div>
+                  <el-button type="primary" plain size="mini" v-if="scope.row.status === 10" @click="handleLowerShelf(scope.row)">下架</el-button>
+                  <el-button type="primary" plain size="mini" v-if="scope.row.status !== 10" @click="handleRoofPlacement(scope.row)">置顶</el-button>
+                  <el-button type="primary" plain size="mini" v-if="scope.row.status === 10" @click="handleRoofPlacement(scope.row)">修改图片</el-button>
+                  <el-button type="primary" plain size="mini">售票情况</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -313,13 +310,18 @@
       },
       //查询活动详情
       handleIDSearch(){
-        this.searchDialog = true;
         this.HttpClient.post('/admin/actives/getActiveInfo',{
             id:this.idSearch
         })
         .then(res=>{
             console.log(res);
-            this.infoData = res.data.data;
+            if(res.data.code === 200){
+              this.infoData = res.data.data;
+              this.searchDialog = true;
+            }else if(res.data.code === -1){
+              this.$message.warning('未搜索到该视频！')
+            }
+            
         })
       },
       //打开下架弹窗
@@ -345,10 +347,15 @@
       },
       // 打开置顶弹窗
       handleRoofPlacement(i){
-        this.imgPath = '';
-        console.log(i);
-        this.currentObj = i;
-        this.shelfDialog = true;
+        if((new Date(i.registration_deadline).valueOf()) > (new Date().valueOf())){
+          this.imgPath = '';
+          console.log(i);
+          this.currentObj = i;
+          this.shelfDialog = true;
+        }else{
+          this.$message.warning('报名已截止，无法置顶！');
+        }
+        
       },
       // 确认置顶
       shelfDialogBtm(){

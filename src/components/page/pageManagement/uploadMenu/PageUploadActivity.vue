@@ -24,7 +24,7 @@
           <div class="content_box" v-if="plateBox">
             <div class="addBtm">
               <p>新增板块：</p>
-              <el-button type="primary" @click="addPlateDialog = true">添加新板块</el-button>
+              <el-button type="primary" @click="handleAddNewPlate">添加新板块</el-button>
             </div>
 
             <div class="content_box_list">
@@ -161,12 +161,17 @@ export default {
     this.getTypedata();
   },
   methods: {
+    handleAddNewPlate(){
+      this.addPlateDialog = true;
+      this.addName = '';
+      this.adddesinfo = '';
+    },
     getTypedata() {
       let params = {
         menu_type: 2,
         type: 4
       };
-      this.HttpClient.post("/admin/menu/getList", params).then(res => {
+      this.HttpClient.post("/admin/menu/getListWithDel", params).then(res => {
         console.log(res.data.data);
         if (res.data.code == 200) {
           this.plateData = res.data.data;
@@ -224,8 +229,16 @@ export default {
     // 修改板块
     modifyInfo(item) {
       console.log(item);
+      this.HttpClient.get("/admin/menu/edit", {
+        id:item.id,
+        menu_type:2
+      }).then(res => {
+        console.log(res);
+        if (res.data.code === 200) {
+          this.itemValueDes = res.data.data.upload_tips;
+        }
+      })
       this.itemValue = item;
-      this.itemValueDes = item.description;
       this.itemValueName = item.name;
       this.modifyPlateDialog = true;
     },
@@ -243,7 +256,7 @@ export default {
         id: this.itemValue.id,
         menu_type: 2,
         name: this.itemValueName,
-        description: this.itemValueDes,
+        upload_tips: this.itemValueDes,
         pid: this.itemValue.pid,
         type: 4
       };

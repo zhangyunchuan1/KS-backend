@@ -129,17 +129,15 @@
 
                             <el-table-column
                                     label="操作"
-                                    align="center"
-                                    show-overflow-tooltip
-                                    class-name="mallReview_scope">
+                                    fixed="right"
+                                    min-width="400"
+                                    align="center">
                                 <template slot-scope="scope">
-                                    <div class="mallReview_btm">
-                                        <el-button v-if="scope.row.status===3" @click="approveButton(scope.row.id)">批准</el-button>
-                                        <el-button v-if="scope.row.status===3 || scope.row.status===1" @click="rejectButton(scope.row.id)">驳回</el-button>
-                                        <el-button @click="updateButton(scope.row.id)">修改</el-button>
-                                        <el-button @click="previewButton(scope.row.id)">预览</el-button>
-                                        <el-button @click="deleteButton(scope.row.id)">删除</el-button>
-                                    </div>
+                                        <el-button type="primary" plain size="mini" v-if="scope.row.status===3 || scope.row.status===4" @click="approveButton(scope.row.id)">批准</el-button>
+                                        <el-button type="primary" plain size="mini" v-if="scope.row.status===3 || scope.row.status===1" @click="rejectButton(scope.row.id)">驳回</el-button>
+                                        <el-button type="primary" plain size="mini" v-if="scope.row.status===4" @click="updateButton(scope.row.id)">修改</el-button>
+                                        <el-button type="primary" plain size="mini" @click="previewButton(scope.row.id)">预览</el-button>
+                                        <el-button type="primary" plain size="mini" v-if="Tools.getDateDiff(scope.row.created_at) > 10 ||scope.row.status===4" @click="deleteButton(scope.row.id)">删除</el-button>
                                 </template>
                             </el-table-column>
                         </el-table>
@@ -391,7 +389,7 @@
                 })
             },
             //删除按钮
-            deleteButton(id){
+            deleteButton(id,i){
                 this.id=id;
                 this.$refs.delete.deleteDialog=true;
             },

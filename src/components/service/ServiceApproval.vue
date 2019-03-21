@@ -118,7 +118,7 @@
               width="400">
               <template slot-scope="scope">
                 <div class="service_btm">
-                  <div>预览服务</div>
+                  <div @click="previewButton(scope.row)">预览服务</div>
                   <div @click="basicButton(scope.row.id)">基本信息</div>
                   <div @click="examineButton(scope.row.id,scope.row.service_id)">查看协议</div>
                   <div style="color: red" @click="rejectButton(scope.row.service_id)">驳回</div>
@@ -366,6 +366,11 @@
       }
     },
     methods:{
+      //预览
+      previewButton(row){
+        console.log(row)
+        window.open(this.Urls.frontUrl+"home/service-detail?id="+row.service_id);  
+      },
 
       handleRemove(file, fileList) {
         console.log(file, fileList);

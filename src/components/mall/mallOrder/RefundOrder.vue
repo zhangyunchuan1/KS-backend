@@ -19,15 +19,6 @@
             :key="item.id"
           >{{item.name}}</el-radio>
         </el-radio-group>
-        <!-- <el-radio-group v-model="mallReviewSelect">
-          <el-radio
-            border
-            v-for="item in mallReviewList"
-            @change="chengePlate"
-            :key="item"
-            :label="item"
-          >{{item}}</el-radio>
-        </el-radio-group>-->
       </div>
 
       <div class="content">
@@ -59,40 +50,22 @@
 
           <div class="content_search">
             <div>
-              <el-input
-                placeholder="商家名称"
-                clearable
-                v-model="searchObj.company"
-                class="input-with-select"
-                @change="search"
-              >
+              <el-input placeholder="商家名称" v-model="searchObj.company" @keyup.13.native="search()" clearable @clear="search()">
+                  <el-button slot="append" icon="el-icon-search" @click="search()"></el-button>
               </el-input>
-              <el-button slot="append" icon="el-icon-search" @click="search"></el-button>
             </div>
             <div>
               <el-cascader @change="search" clearable :options="cityList" v-model="searchObj.city"></el-cascader>
             </div>
             <div>
-              <el-input
-                placeholder="商品名称"
-                clearable
-                v-model="searchObj.name"
-                class="input-with-select"
-                @change="search"
-              >
-              </el-input>
-                <el-button slot="append" icon="el-icon-search" @click="search"></el-button>
+                <el-input placeholder="商品名称" v-model="searchObj.name" @keyup.13.native="search()" clearable @clear="search()">
+                    <el-button slot="append" icon="el-icon-search" @click="search()"></el-button>
+                </el-input>
             </div>
             <div>
-              <el-input
-                placeholder="订单ID搜索"
-                clearable
-                v-model="searchObj.merchantSearch"
-                class="input-with-select"
-                @change="search"
-              >
-              </el-input>
-                <el-button slot="append" icon="el-icon-search" @click="search"></el-button>
+                <el-input placeholder="订单ID搜索" v-model="searchObj.merchantSearch" @keyup.13.native="search()" clearable @clear="search()">
+                    <el-button slot="append" icon="el-icon-search" @click="search()"></el-button>
+                </el-input>
             </div>
           </div>
         </div>
@@ -100,9 +73,9 @@
         <div class="content_main">
           <div class="content_table" style="width:100%">
             <el-table :data="tableData" :border="true">
-              <el-table-column label="订单ID" align="center" width="90" prop="id" sortable></el-table-column>
+              <el-table-column label="订单ID" align="center" width="150" prop="order_no" sortable></el-table-column>
 
-              <el-table-column label="商品名称" align="center" prop="title"></el-table-column>
+              <el-table-column label="商品名称" align="center" prop="title" show-overflow-tooltip></el-table-column>
 
               <el-table-column label="公司名称" align="center" width="200" prop="company_name" show-overflow-tooltip></el-table-column>
 
@@ -116,19 +89,14 @@
 
               <el-table-column label="实退金额" align="center" width="110" prop="refund_price" show-overflow-tooltip sortable></el-table-column>
 
-              <el-table-column label="操作" align="center" fixed="right" min-width="320" class-name="mallReview_scope">
+              <el-table-column label="操作" align="center"  min-width="320" fixed="right">
                 <template slot-scope="scope">
-                  <div class="mallReview_btm">
-                    <el-button
-                      size="medium "
-                      type="text"
-                      @click="checkProductionModal(scope.row)"
-                    >查看商品</el-button>
-                    <el-button size="medium " type="text" @click="refundReasonModal(scope.row)">退款原因</el-button>
-                    <el-button size="medium " type="text" @click="checkExpressModal(scope.row)">查看物流</el-button>
-                    <el-button size="medium " type="text" @click="orderDetailModal(scope.row)">订单详情</el-button>
-                    <el-button size="medium " type="text" @click="remarkModal(scope.row)">备注</el-button>
-                  </div>
+                    <el-button type="primary" plain size="mini" @click="checkProductionModal(scope.row)">查看商品</el-button>
+                    <el-button type="primary" plain size="mini" @click="refundReasonModal(scope.row)">退款原因</el-button>
+                    <el-button type="primary" plain size="mini" @click="checkExpressModal(scope.row)">查看物流</el-button>
+                    <el-button type="primary" plain size="mini" @click="orderDetailModal(scope.row)">订单详情</el-button>
+                    <el-button type="primary" plain size="mini" @click="remarkModal(scope.row)">备注</el-button>
+                    <el-button type="primary" plain size="mini" @click="buyerRemarks(scope.row.order_id)">买家备注</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -216,6 +184,18 @@
               <p>{{detailObj.conducts}}</p>
             </div>
           </div>
+          <div class="content_list">
+            <div class="content_title">用户昵称：</div>
+            <div class="content_box">
+              <p>{{detailObj.nickname}}</p>
+            </div>
+          </div>
+          <div class="content_list">
+            <div class="content_title">用户ID：</div>
+            <div class="content_box">
+              <p>{{detailObj.user_id}}</p>
+            </div>
+          </div>
 
           <div class="content_list">
             <div class="content_title">电话：</div>
@@ -227,7 +207,7 @@
           <div class="content_list">
             <div class="content_title">收货地址：</div>
             <div class="content_box">
-              <p>{{detailObj.detail}}</p>
+              <p>{{detailObj.province+' '+detailObj.city+' '+detailObj.area+' '+detailObj.detail}}</p>
             </div>
           </div>
         </div>
@@ -268,6 +248,20 @@
         <el-button type="primary" @click="remark">提 交</el-button>
       </span>
     </el-dialog>
+    <!-- 买家备注弹窗 -->
+    <el-dialog :visible.sync="buyerRemarkVisible" width="470px" custom-class="RemarksDialog">
+      <span slot="title" class="RemarksDialog_title">
+        <i class="iconfont icon-edit-square"></i>买家备注
+      </span>
+      <div class="RemarksDialog_main">
+        <div class="main_content">
+          <div class="main_content_list">
+            <div class="title">备注内容</div>
+            <el-input type="textarea" :rows="4" resize="none" v-model="buyerRemarkStr" disabled></el-input>
+          </div>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -303,7 +297,7 @@ export default {
           icon: "icon-home"
         }
       ],
-      mallReviewSelect: "汽车", // 单选框组
+      mallReviewSelect: "", // 单选框组
       mallReviewList: ["汽车", "无人机", "智能设备", "摩托车"], // 模块列表
       modifyObj: {}, // 操作对象
       startTime: "", // 开始时间
@@ -324,7 +318,9 @@ export default {
       remarkStr: "", // 备注信息
       remarkList: [], // 备注列表
       typeList: [], //板块列表
-      cityList: [] // 城市列表
+      cityList: [] ,// 城市列表
+      buyerRemarkStr:'',
+      buyerRemarkVisible:false,
     };
   },
   created() {
@@ -333,6 +329,20 @@ export default {
     this.getTypeList()
   },
   methods: {
+    //查看买家备注
+    buyerRemarks(id){
+      this.HttpClient.post("/admin/marketOrder/orderLog", {order_id:id}).then(
+        res => {
+          console.log(res);
+          if (res.data.code === 200) {
+            this.buyerRemarkVisible = true;
+            this.buyerRemarkStr = res.data.data.content;
+          }else{
+            this.$message.warning(res.data.msg);
+          }
+        }
+      );
+    },
     //获取板块列表
     getTypeList() {
       this.HttpClient.post("/admin/menu/getList", { menu_type: 1 }).then(
@@ -353,6 +363,7 @@ export default {
       this.cityList = dealWithCity(res.data.data);
     },
     async getTableList(param) {
+      console.log(this.mallReviewSelect)
       let params = {
         page: this.currentPage,
         folder: this.mallReviewSelect
@@ -425,20 +436,24 @@ export default {
     },
     // 查看物流
     async checkExpressModal(modifyObj) {
+      console.log(modifyObj)
       this.modifyObj = modifyObj;
       this.logisticsDialog = true;
       let res = await this.HttpClient.post("/admin/getLogisticsInfo", {
-        logisticcode: this.modifyObj.logistics_no
+        logisticcode: this.modifyObj.logistics_no,
+        order_id:this.modifyObj.order_id,
+        type:2
       });
       console.log(res.data)
-      if (res.data.code == 200) this.expressObj = res.data.data;
+      if (res.data.code == 200) {   
+          this.expressObj = res.data.data;
+      }else if(res.data.code == -1){
+        this.$message.warning(res.data.data.Reason);
+      }
     },
     checkProductionModal(modifyObj) {
       // 跳转商品页
-      window.open(
-        "http://frontend.kslab.com/home/productDetail?" + modifyObj.product_id,
-        "_black"
-      );
+      window.open(this.Urls.frontUrl+"home/product-detail?id="+modifyObj.product_id); 
     },
     async currentChange(page) {
       this.currentPage = page;
@@ -581,6 +596,16 @@ function dealWithCity(cityList) {
               tr {
                 background-color: #15bafe;
               }
+            }
+            tbody{
+              td{
+                  padding: 5px 0;
+                  .cell{
+                    .el-button{
+                      margin-top: 5px;
+                    }
+                  }
+                }
             }
           }
 

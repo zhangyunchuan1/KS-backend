@@ -25,6 +25,7 @@
                                     class="date_picker_1"
                                     type="date"
                                     size="mini"
+                                    value-format='yyyy-MM-dd HH:mm:ss'
                                     clearable
                                     placeholder="选择日期"
                                     @change="handleChangeStartTime($event)">
@@ -37,6 +38,7 @@
                                     class="date_picker_1"
                                     type="date"
                                     size="mini"
+                                    value-format='yyyy-MM-dd HH:mm:ss'
                                     clearable
                                     placeholder="选择日期"
                                     @change="handleChangeEndTime($event)">
@@ -64,14 +66,20 @@
                                     label="输入内容"
                                     align="center"
                                     width="200"
-                                    prop="nickname"
+                                    prop="keyword"
+                                    show-overflow-tooltip
                                     sortable>
+                                    <template slot-scope="scope">
+                                        <span v-if="scope.row.keyword">{{scope.row.keyword}}</span>
+                                        <span v-else class="sortout_color">无</span>
+                                    </template>
                             </el-table-column>
 
                             <el-table-column
                                     label="搜索时间"
                                     align="center"
-                                    width="130"
+                                    width="160"
+                                    show-overflow-tooltip
                                     prop="search_time"
                                     sortable>
                             </el-table-column>
@@ -79,8 +87,9 @@
                             <el-table-column
                                     label="浏览器"
                                     align="center"
-                                    width="120"
+                                    width="140"
                                     prop="browser_name"
+                                    show-overflow-tooltip
                                     sortable>
                             </el-table-column>
 
@@ -90,6 +99,10 @@
                                     width="150"
                                     show-overflow-tooltip
                                     prop="browser_version">
+                                    <template slot-scope="scope">
+                                        <span v-if="scope.row.browser_version">{{scope.row.browser_version}}</span>
+                                        <span v-else class="sortout_color">无</span>
+                                    </template>
                             </el-table-column>
 
                             <el-table-column
@@ -98,13 +111,22 @@
                                     width="150"
                                     show-overflow-tooltip
                                     prop="screen_size">
+                                    <template slot-scope="scope">
+                                        <span v-if="scope.row.screen_size">{{scope.row.screen_size}}</span>
+                                        <span v-else class="sortout_color">无</span>
+                                    </template>
                             </el-table-column>
 
                             <el-table-column
                                     label="设备类型"
                                     align="center"
                                     width="180"
+                                    show-overflow-tooltip
                                     prop="agent_type">
+                                    <template slot-scope="scope">
+                                        <span v-if="scope.row.agent_type">{{scope.row.agent_type}}</span>
+                                        <span v-else class="sortout_color">无</span>
+                                    </template>
                             </el-table-column>
 
                             <el-table-column
@@ -113,6 +135,10 @@
                                     width="180"
                                     show-overflow-tooltip
                                     prop="current_page">
+                                    <template slot-scope="scope">
+                                        <span v-if="scope.row.current_page">{{scope.row.current_page}}</span>
+                                        <span v-else class="sortout_color">无</span>
+                                    </template>
                             </el-table-column>
 
                             <el-table-column
@@ -120,17 +146,22 @@
                                     align="center"
                                     width="180"
                                     sortable
+                                    show-overflow-tooltip
                                     prop="current_url">
+                                    <template slot-scope="scope">
+                                        <span v-if="scope.row.current_url">{{scope.row.current_url}}</span>
+                                        <span v-else class="sortout_color">无</span>
+                                    </template>
                             </el-table-column>
 
                             <el-table-column
+                                    min-width="200"
                                     label="操作"
-                                    align="center"
-                                    class-name="mallReview_scope">
+                                    fixed="right"
+                                    align="center">
                                 <template slot-scope="scope">
                                     <div class="mallReview_btm">
-                                        <el-button >查看搜索结果</el-button>
-                                        
+                                        <el-button type="primary" plain size="mini" @click="handlePreview(scope.row.keyword)">查看搜索结果</el-button>
                                     </div>
                                 </template>
                             </el-table-column>
@@ -192,6 +223,10 @@
             this.getSearchList();
         },
         methods:{
+            //查看搜索結果
+            handlePreview(keyWord){
+                window.open(this.Urls.frontUrl+"home/searchIndex?keyword="+keyWord+"&current=0");  
+            },
             //内容搜索
             handleSearchContent(){
                 console.log(this.searchObj.content);
@@ -204,14 +239,14 @@
             },
             //开始时间搜索
             handleChangeStartTime(e){
-                console.log(this.searchObj.startTime);
+                console.log(e);
                 this.getSearchList();
             },
             //获取搜索记录列表
             getSearchList(){
                 this.HttpClient.post('/admin/behavior/searchRecord',{
-                    date_start:this.searchObj.startTime,
-                    date_end:this.searchObj.endTime,
+                    start_time:this.searchObj.startTime,
+                    end_time:this.searchObj.endTime,
                     keyword:this.searchObj.content,
                     size:25,
                     page:this.currentPage

@@ -58,7 +58,7 @@
           <el-table
             :data="tableData"
             :border="true"
-            style="width: 95%">
+            style="width: 100%">
             <el-table-column
               label="ID"
               prop="id"
@@ -143,31 +143,35 @@
               show-overflow-tooltip
               width="130">
               <template slot-scope="scope">
-                <p v-if="scope.row.status===0" class="sortout_color">删除</p>
-                <p v-else-if="scope.row.status===1" class="normal_color">正常</p>
-                <p v-else-if="scope.row.status===2" class="sortout_color">下架</p>
-                <p v-else-if="scope.row.status===3" class="audit_color">待提交</p>
-                <p v-else-if="scope.row.status===4" class="notpass_color">未通过</p>
-                <p v-else-if="scope.row.status===5">待审核</p>
+                <p v-if="scope.row.status===1" class="normal_color">正常</p>
+                <p v-else-if="scope.row.status===3" class="sortout_color">待提交</p>
+                <p v-else-if="scope.row.status===4" class="audit_color">未通过</p>
+                <p v-else-if="scope.row.status===5" class="notpass_color">待审核</p>
                 <p v-else class="sortout_color">无</p>
               </template>
             </el-table-column>
 
             <el-table-column
-              label="操作"
+              label="操作"  
+              min-width="350"
               align="center"
               fixed="right"
-              width="400px"
-              class-name="service_scope">
+              >
               <template slot-scope="scope">
-                <div class="service_btm">
-                  <div  @click="basicButton(scope.row.id)">基本信息</div>
+                
+                  <el-button type="primary" plain size="mini" @click="basicButton(scope.row.id)">基本信息</el-button>
+                  <el-button type="primary" plain size="mini" @click="rejectButton(scope.row.id)" v-if="scope.row.status===4">查看反馈</el-button>
+                  <el-button type="primary" plain size="mini" @click="previewButton(scope.row)">预览服务</el-button>
+                  <el-button type="primary" plain size="mini" v-if="scope.row.status===3 || scope.row.status===4" @click="examineButton(scope.row.service_id)">提交审核</el-button>
+                  <el-button type="primary" plain size="mini" @click="deleteButton(scope.row.service_id)" v-if="scope.row.status===4">删除</el-button>
+                  <el-button type="primary" plain size="mini" @click="remarkButton(scope.row.service_id)">添加备注</el-button>
+                  <!-- <div @click="basicButton(scope.row.id)">基本信息</div>
                   <div @click="rejectButton(scope.row.id)" v-if="scope.row.status===4">查看反馈</div>
                   <div @click="previewButton(scope.row)">预览服务</div>
                   <div v-if="scope.row.status===3 || scope.row.status===4" @click="examineButton(scope.row.service_id)">提交审核</div>
                   <div @click="deleteButton(scope.row.service_id)" v-if="scope.row.status===4">删除</div>
-                  <div @click="remarkButton(scope.row.service_id)">添加备注</div>
-                </div>
+                  <div @click="remarkButton(scope.row.service_id)">添加备注</div> -->
+
               </template>
             </el-table-column>
           </el-table>
@@ -372,15 +376,9 @@
         levelOptions:[],//二级目录筛选数组
         statusOptions:[
             {
-                value: 0,
-                label: '删除'
-            },{
                 value: 1,
                 label: '正常'
-            }, {
-                value: 2,
-                label: '下架'
-            }, {
+            },{
                 value: 3,
                 label: '待提交'
             }, {
@@ -588,6 +586,7 @@
       // 预览
       previewButton(row){
         console.log(row)
+        window.open(this.Urls.frontUrl+"home/service-detail?id="+row.service_id);  
       },
       //提交审核按钮事件
       examineButton(id){

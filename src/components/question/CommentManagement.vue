@@ -18,7 +18,7 @@
             <div class="table_box">
               <div class="table_box_list" v-for="item in Comment.list" :key="item.id">
                 <p>{{item.name}}</p>
-                <p>{{item.total_count}}</p>
+                <p>{{item.num}}</p>
               </div>
             </div>
           </div>
@@ -151,17 +151,17 @@
               </el-table-column>
 
               <el-table-column
-                label="操作"
-                align="center"
-                width="150"
-                class-name="comment_scope">
+                    label="操作"
+                    fixed="right"
+                    min-width="250"
+                    align="center">
                 <template slot-scope="scope">
-                  <div class="comment_btm">
-                    <el-button size="medium " v-if="scope.row.status == 1" type="text" @click="rejectModal(scope.row)">禁用</el-button>
-                    <el-button size="medium " type="text" @click="deleteModal(scope.row)">删除</el-button>
-                    <el-button size="medium " type="text" @click="viewModal(scope.row)">预览</el-button>
-                    <el-button size="medium " v-if="scope.row.status == 3" type="text" @click="renewModal(scope.row)">恢复</el-button>
-                  </div>
+                  
+                    <el-button type="primary" plain size="mini" v-if="scope.row.status == 1" @click="rejectModal(scope.row)">禁用</el-button>
+                    <el-button type="primary" plain size="mini" @click="deleteModal(scope.row)">删除</el-button>
+                    <el-button type="primary" plain size="mini" @click="viewModal(scope.row)">预览</el-button>
+                    <el-button type="primary" plain size="mini" v-if="scope.row.status == 3" @click="renewModal(scope.row)">恢复</el-button>
+                  
                 </template>
               </el-table-column>
             </el-table>
@@ -246,7 +246,6 @@
           </el-row>
           </div>
       </el-dialog>
-
     </div>
 </template>
 
@@ -362,7 +361,7 @@
       async rejectModal(modifyObj) {
         this.disableDialog = true;
         this.modifyObj = modifyObj;
-        let res = await this.HttpClient.post('/admin/webReview/getList', {type: 'upload'});
+        let res = await this.HttpClient.post('/admin/webReview/getList', {type: 'answers'});
         this.rejectList = res.data.data;
       },
       async currentChange(page) {
@@ -391,9 +390,10 @@
         console.log('reject:', this.rejectTypeList);
       },
       async getCommentScore() {
-        let res = await this.HttpClient.post('/admin/answers/averageScore', {type: 'video'});
-        this.Comment.list = res.data.data;
-        this.Comment.total = totalComment(this.Comment.list);
+        let res = await this.HttpClient.post('/admin/answers/getAnswerCount', {type: 'question'});
+        this.Comment.list = res.data.data.info;
+        // this.Comment.total = totalComment(this.Comment.list);
+        this.Comment.total = res.data.data.total;
       },
     }
 

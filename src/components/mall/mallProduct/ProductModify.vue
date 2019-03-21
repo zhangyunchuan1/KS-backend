@@ -340,7 +340,7 @@
                     .then(res=>{
                         if(res.data.code===200){
                             this.$message.success(res.data.msg);
-                            this.attachment.push({name:file.name,url:res.data.path});
+                            this.attachment.push({name:file.name,path:res.data.path});
                             console.log(this.attachment);
                         }else{
                             this.$message.error(res.data.msg)

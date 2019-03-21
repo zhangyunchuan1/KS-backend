@@ -44,12 +44,14 @@
               style="width: 100%">
               <el-table-column
                 prop="id"
+                align="center"
                 label="ID"
-                width="50">
+                width="100">
               </el-table-column>
               <el-table-column
                 label="活动名称"
                 width="180"
+                align="center"
                 show-overflow-tooltip>
                 <template slot-scope="scope">
                   <span class="row_activity">{{scope.row.title}}</span>
@@ -58,67 +60,60 @@
               <el-table-column
                 prop="company_name"
                 label="商家昵称"
-                width="110"
+                width="150"
+                align="center"
                 show-overflow-tooltip>
-              </el-table-column>
-              <el-table-column
-                prop="active_date_start"
-                label="开始时间"
-                width="160"
-                show-overflow-tooltip>
-              </el-table-column>
-              <el-table-column
-                prop="active_date_end"
-                label="报名截止时间"
-                width="160">
               </el-table-column>
               <el-table-column
                 prop="folder"
                 label="板块"
-                width="100"
+                width="120"
+                align="center"
                 show-overflow-tooltip>
               </el-table-column>
               <el-table-column
                 prop="menu_name"
                 label="二级"
                 width="120"
+                align="center"
                 show-overflow-tooltip>
               </el-table-column>
               <el-table-column
                 prop="city_name"
                 label="城市"
                 width="100"
+                align="center"
                 show-overflow-tooltip>
               </el-table-column>
               <el-table-column
                 label="状态"
-                width="80">
+                width="120"
+                align="center"
+                show-overflow-tooltip>
                 <template slot-scope="scope">
-                  {{scope.row.status===0?'删除':scope.row.status===1?'正常':scope.row.status===2?'待提交':
-                    scope.row.status===3?'审核未通过':scope.row.status===4?'已取消':scope.row.status===5?
-                    '已停止报名':scope.row.status===6?'已暂停':scope.row.status===7?'待审核':'已结束'}}
-                    <!-- <span class="normal_color" v-if="scope.row.status===1">正常</span>
+                    <span class="normal_color" v-if="scope.row.status===1">已通过</span>
                     <span class="audit_color" v-if="scope.row.status===2">待提交</span>
-                    <span class="notpass_color" v-if="scope.row.status===3">未通过</span>
-                    <span class="cancel_color" v-if="scope.row.status===4">已取消</span>
-                    <span class="stop_color" v-if="scope.row.status===5">已停止报名</span>
-                    <span class="paused_color" v-if="scope.row.status===6">已暂停</span>
-                    <span class="end_color" v-else>已结束</span> -->
+                    <span class="notpass_color" v-if="scope.row.status===3">被驳回</span>
+                    <span class="cancel_color" v-if="scope.row.status===7">待审核</span>
                 </template>
               </el-table-column>
               <el-table-column
                 prop="created_at"
                 label="申请时间"
+                align="center"
                 width="180">
               </el-table-column>
               <el-table-column
                 label="操作"
-                fixed="right">
+                fixed="right"
+                min-width="250"
+                align="center"
+                >
                 <template slot-scope="scope">
                   <el-button type="primary" plain size="mini" @click="basicButton(scope.row.id)">基本信息</el-button>
-                  <el-button type="primary" plain size="mini" @click="rejectButton(scope.row.id)">查看反馈</el-button>
-                  <el-button type="primary" plain size="mini">预览活动</el-button>
-                  <el-button type="primary" plain size="mini" v-if="scope.row.status!==7" @click="examineButton(scope.row.active_id)">提交审核</el-button>
+                  <el-button type="primary" plain size="mini" v-if="scope.row.status===3" @click="rejectButton(scope.row.id)">查看反馈</el-button>
+                  <el-button type="primary" plain size="mini" @click="viewModal(scope.row.active_id)">预览活动</el-button>
+                  <el-button type="primary" plain size="mini" v-if="scope.row.status===3 || scope.row.status===2" @click="examineButton(scope.row.active_id)">提交审核</el-button>
                   <el-button type="primary" plain size="mini" v-if="isShowDelete(scope.row.created_at) && scope.row.status===3" @click="deleteButton(scope.row.active_id)"> 删除</el-button>
                   <el-button type="primary" plain size="mini" @click="remarkButton(scope.row.active_id)">添加备注</el-button>
                   <el-button type="primary" plain size="mini" @click="checkMerchantButton(scope.row.company_id)">查看商家资质</el-button>
@@ -144,32 +139,33 @@
         <div class="examine_content">
           <el-upload
             class="up_safe"
-            action="http://test.kslab.com/api/admin/null"
+            action="customize"
             :file-list="protocols"
+            :auto-upload="true" 
             :on-preview="handlePreview"
-            :on-remove="handleRemove"
+            :http-request="defaultBehavior"
             :before-remove="beforeRemove"
             :before-upload="uploadProtocol"
             multiple
           >
             <div class="up_safe_header">
               <el-button size="small" class="btn_up" type="primary">点击上传</el-button>
-              <p>上传格式:doc || docx</p>
+              <p>上传格式:doc | docx | txt | xlsx | xls</p>
             </div>
 
           </el-upload>
           <div class="up_img">
-            <p class="remark">上传相关图片，格式:png,jpge,gif</p>
+            <p class="remark">上传相关图片，格式:png | jpg | jpeg | tiff | tif</p>
             <el-upload
               class="up_img_item"
-              action="http://test.kslab.com/api/admin/null"
+              action="customize"
               list-type="picture-card"
               :file-list="images"
-              :on-preview="handlePictureCardPreview"
-              :on-remove="handleRemove"
+              
+              :auto-upload="true" 
               :before-upload="uploadFile"
-              multiple
-            >
+              :http-request="defaultBehavior"
+              multiple>
               <i class="el-icon-plus icon_plus"></i>
             </el-upload>
             <el-dialog :visible.sync="dialogVisible">
@@ -262,12 +258,21 @@
             <div class="info">
                 <div>
                     <div class="info-left">
-                        <span>活动时间：</span>
+                        <span>活动开始时间：</span>
                         <div>{{basicData.active_date_start?basicData.active_date_start.split(' ')[0]:''}}</div>
                     </div>
                     <div class="info-right">
-                        <span>截止时间：</span>
+                        <span>报名截止时间：</span>
                         <div>{{basicData.registration_deadline?basicData.registration_deadline.split(' ')[0]:''}}</div>
+                    </div>
+                </div>
+                <div>
+                    <div class="info-left">
+                        <span>活动结束时间：</span>
+                        <div>{{basicData.active_date_end?basicData.active_date_end.split(' ')[0]:''}}</div>
+                    </div>
+                    <div class="info-right">
+                        
                     </div>
                 </div>
                 <div>
@@ -300,8 +305,8 @@
                         <div>{{basicData.telphone}}</div>
                     </div>
                     <div class="info-right">
-                        <span>已结束：</span>
-                        <div>{{basicData.active_date_end?basicData.active_date_end.split(' ')[0]:''}}</div>
+                        <span>实际结束时间：</span>
+                        <div>{{basicData.actual_end_time?basicData.actual_end_time.split(' ')[0]:'无'}}</div>
                     </div>
                 </div>
             </div>
@@ -318,10 +323,16 @@
                 <div>
                     <p v-if="!basicData.admin_upload_protocol">上传的安全协议</p>
                     <a v-for="item in basicData.admin_upload_protocol" :key="item.name" :href="item.path+'?attname='"><i class="el-icon-document" style="margin:0 10px 0 0;color: #bfbfbf;"></i>{{item.name}}</a>
+                    <!-- <p v-for="item in basicData.admin_upload_images" :key="item.name" @click="checkImages(item.url)"><i class="el-icon-picture-outline" style="margin:0 10px 0 0;color: #bfbfbf;"></i>{{item.name}}</p> -->
                 </div>
-                <div>
+                <div class="attachments">
                     <p v-if="!basicData.admin_upload_images">上传的附件,图片为此公司现场图片，或者计划书等</p>
-                    <p v-for="item in basicData.admin_upload_images" :key="item.name" @click="checkImages(item.url)">{{item.name}}</p>
+                    <div v-for="item in basicData.admin_upload_images" :key="item.name">
+                      <!-- <p @click="isPic(item)">{{item.name}}</p> -->
+                      <!-- <p v-if="isPic(item)" @click="checkImages(Tools.handleImg(item.path))"><i class="el-icon-picture-outline" style="margin:0 10px 0 0;color: #bfbfbf;"></i>{{item.name}}</p> -->
+                      <p v-if="isPic(item)" @click="checkImages(item.url)"><i class="el-icon-picture-outline" style="margin:0 10px 0 0;color: #bfbfbf;"></i>{{item.name}}</p>
+                      <a v-else :href="item.url+'?attname='"><i class="el-icon-document" style="margin:0 10px 0 0;color: #bfbfbf;"></i>{{item.name}}</a>
+                    </div>
                 </div>
             </div>
             <el-dialog :visible.sync="imagesVisible" append-to-body>
@@ -382,11 +393,8 @@
           levelOptions:[],//二级目录列表
           statusOptions: [
           {
-              value: 0,
-              label: '删除'
-          },{
             value: 1,
-            label: '正常'
+            label: '已通过'
           }, {
             value: 2,
             label: '待提交'
@@ -394,20 +402,8 @@
             value: 3,
             label: '未通过'
           }, {
-            value: 4,
-            label: '已取消'
-          }, {
-            value: 5,
-            label: '停止报名'
-          }, {
-              value: 6,
-              label: '已暂停'
-          }, {
-              value: 7,
-              label: '待审核'
-          }, {
-              value: 8,
-              label: '已结束'
+            value: 7,
+            label: '待审核'
           }
           ],//状态列表
           merchantData:{},//公司信息
@@ -428,10 +424,15 @@
         }
       },
       methods: {
-        //删除已上传
-        handleRemove(file, fileList) {
-          console.log(file, fileList);
+        //预览活动
+        viewModal(id){
+          window.open(this.Urls.frontUrl+"home/activity-detail?id="+id);  
         },
+        // //删除已上传
+        // handleRemove(file, fileList) {
+        //   console.log(file, fileList);
+        //   this.images = fileList;
+        // },
         handlePreview(file) {
           console.log(file);
         },
@@ -442,15 +443,16 @@
         beforeRemove(file, fileList) {
           return this.$confirm(`确定移除 ${ file.name }？`);
         },
-        handlePictureCardPreview(file) {
-          this.dialogImageUrl = file.url;
-          this.dialogVisible = true;
-        },
+        // handlePictureCardPreview(file) {
+        //   this.dialogImageUrl = file.url;
+        //   this.dialogVisible = true;
+        // },
         handleDelete: function () {
           this.deleteVisible = false;
         },
         //审核提交
         handleExamine(){
+          console.log(this.images)
           this.HttpClient.post('/admin/protocol/create',{protocols:this.protocols,images:this.images,source_id:this.id,type:'actives'})
               .then(res=>{
                   console.log(res);
@@ -468,32 +470,79 @@
         //协议上传前
         uploadProtocol(file){
             console.log(file);
-            this.HttpClient.form('/admin/uploadOneFile',{files:file})
-                .then(res=>{
-                    console.log(res);
-                    if(res.data.code===200){
-                        this.$message.success(res.data.msg);
-                        this.protocols.push({name:file.name,path:res.data.path});
-                    }else{
-                        this.$message.error(res.data.msg)
-                    }
-                    console.log(this.protocols);
-                })
+            let fileType = ['doc','docx','txt','xlsx','xls'];
+            if(this.Tools.fileLimit(fileType,file.name)){
+              let that = this;
+              //七牛云上传
+              let observable = this.$observable(file);
+              observable.subscribe({
+                next(res){
+                  console.log('next',res);    
+                },
+                error(err){
+                  that.$message.error('上传失败!');
+                },
+                complete(res) {
+                  console.log('成功结果', res);
+                  that.$message.success('上传成功!');
+                  that.protocols.push({name:file.name,path:res.key});
+                }
+              })
+              // this.HttpClient.form('/admin/uploadOneFile',{files:file})
+              //   .then(res=>{
+              //       console.log(res);
+              //       if(res.data.code===200){
+              //           this.$message.success(res.data.msg);
+              //           this.protocols.push({name:file.name,path:res.data.path});
+              //       }else{
+              //           this.$message.error(res.data.msg)
+              //       }
+              //       console.log(this.protocols);
+              //   })
+            }else{
+              this.$message.warning('请按规定格式上传！');
+            }
+            
         },
-        //附件、图片上传前
+        //图片上传
           uploadFile(file){
               console.log(file);
-              this.HttpClient.form('/admin/uploadOneImage',{images:file})
-                  .then(res=>{
-                      console.log(res);
-                      if(res.data.code===200){
-                          this.$message.success(res.data.msg);
-                          this.images.push({name:file.name,url:res.data.path});
-                      }else{
-                          this.$message.error(res.data.msg)
-                      }
-                      console.log(this.images);
-                  })
+              if(this.Tools.pictureLimit(file)){
+                let that = this;
+                //七牛云上传
+                let observable = this.$observable(file);
+                observable.subscribe({
+                  next(res){
+                    console.log('next',res);    
+                  },
+                  error(err){
+                    that.$message.error('上传失败!');
+                  },
+                  complete(res) {
+                    console.log('成功结果', res);
+                    that.$message.success('上传成功!');
+                    that.images.push({name:file.name,url:that.Urls.imageUrl+res.key});
+                  }
+                })
+            }else{
+              this.$message.warning('请上传下面格式图片：jpg/png/jpeg/tiff/tif。');
+            }  
+            //   let fileType = ['png','jpg'];
+            //   if(this.Tools.fileLimit(fileType,file.name)){
+            //     this.HttpClient.form('/admin/uploadOneImage',{images:file})
+            //         .then(res=>{
+            //             console.log(res);
+            //             if(res.data.code===200){
+            //                 this.$message.success(res.data.msg);
+            //                 this.images.push({name:file.name,url:res.data.path});
+            //             }else{
+            //                 this.$message.error(res.data.msg)
+            //             }
+            //             console.log(this.images);
+            //         })
+            // }else{
+            //   this.$message.warning('请按规定格式上传！');
+            // }
           },
 
         /**********************数据相关*************************/
@@ -651,14 +700,43 @@
         },
         //图片查看
         checkImages(url){
+          console.log(url)
           this.imageUrl=url;
           this.imagesVisible=true;
         },
+        //是否是图片
+        isPic(i){
+          console.log(i)
+          let format = ["jpg", "jpeg", "png","bmp"];
+          let invertedStr = i.url.split('').reverse().join('');  //字符串倒叙
+          let index = invertedStr.indexOf(".");
+          // console.log('.位置',index)
+          // console.log('倒叙字符',invertedStr)
+          let newStr = invertedStr.substring(0,index);
+          let identification = newStr.split('').reverse().join('');
+          console.log('最后取字符',identification)
+          if(format.indexOf(identification) > -1){
+            console.log('true')
+            return true
+          }else{
+            return false
+            console.log('false')
+          }
+        },
+        //字符串倒叙
+        // demo(str){
+        //   var str2="";
+        //   for(var i=0;i<str.length;i++){
+        //   str2+=str.charAt(str.length-i-1);
+        //   }
+        //   console.log(str2)
+        // },
         //分页
         currentChange(p){
             this.currentPage=p;
             this.getApplyList()
         },
+        defaultBehavior(param){},
       },
       created(){
           this.getApplyList();
@@ -667,7 +745,51 @@
     }
 </script>
 
-<style scoped>
+<style scoped lang="less">
+// .activity_apply{
+//   .bread{
+//     margin: 10px;
+//   }
+//   .content::-webkit-scrollbar {display:none}
+//   .content{
+//     background: white;
+//     margin-left: 10px;
+//     margin-right: 10px;
+//     height: calc(100vh - 87px);
+//     width: calc(100vw - 221px);
+//     border-radius: 2px;
+//     overflow-y: auto;
+//     .title{
+//       text-align: left;
+//       line-height: 70px;
+//       padding-left: 30px;
+//       font-size: 20px;
+//       border-bottom: 1px solid #f2f2f2;
+//     }
+//     .content_contain{
+//       padding-left: 30px;
+//       .conditions{
+//         display: flex;
+//         margin-left: 10px;
+//         margin-top: 20px;
+//         .select_normal{
+//           /* width: 100px; */
+//           margin-right: 10px;
+//         }
+//       }
+//     }
+//     .tables{
+//       margin: 20px 10px;
+//       .row_activity{
+//         width: 200px;
+//         overflow: hidden;
+//         text-overflow: ellipsis;
+//         white-space: nowrap;
+//       }
+//     }
+//   }
+// }
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////
   .bread{
     margin: 10px;
   }
@@ -742,7 +864,7 @@
     line-height: 24px;
     margin-top: 10px;
     position: relative;
-    left: -60px;
+    left: -10px;
   }
   .btn_up{
     padding: 5px 10px;
@@ -776,11 +898,12 @@
     margin-top: 10px;
     margin-right: 10px;
     flex-wrap: wrap;
+    /deep/.icon_plus{
+      position: relative;
+      bottom: 30px;
+    }
   }
-  .icon_plus{
-    position: relative;
-    bottom: 30px;
-  }
+  
   .delete_content{
 
   }
@@ -857,7 +980,9 @@
   .activity_apply .ti-le>img{margin-right: 6px;}
   .activity_apply .info>div{display: flex;justify-content: space-around;margin-top: 27px;}
   .activity_apply .info-left{display: flex;align-items: center;width: 46%;justify-content: space-between;}
+  .activity_apply .info-left>span{text-align: left;}
   .activity_apply .info-right{display: flex;align-items: center;width: 46%;justify-content: space-between}
+  .activity_apply .info-right>span{text-align: left;}
   .activity_apply .info-left>div{width: 210px;height: 35px;border: 1px solid #ededed;text-align: center;line-height: 35px}
   .activity_apply .info-right>div{width: 210px;height: 35px;border: 1px solid #ededed;text-align: center;line-height: 35px;}
   .activity_apply .p1{display: flex;align-items: center;}
@@ -887,12 +1012,31 @@
           flex-wrap:wrap;
           justify-content:space-between;
           align-items:center;
+          box-sizing: border-box;
             >p,>a{
-              width:100%;
+              width:280px;
               text-align:left;
               cursor:pointer;
+              overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
               margin-left: 10px;
             }
+        }
+        .attachments{
+              padding: 10px;
+              display: flex;
+              flex-direction: column;  
+              align-items: flex-start;
+              box-sizing: border-box;
+              >div{
+                  >p,>a{
+                    width: 280px;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                  }
+              }
         }
     }
     .el-table th>.cell{

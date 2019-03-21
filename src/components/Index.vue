@@ -14,7 +14,7 @@
           </el-tabs>
           <div class="header_right">
             <i @click="handleJumpToBoard" class="iconfont icon-xiaoxi icon_message"></i>
-            <img :src="header_img" class="header_img" />
+            <img :src="image_head" class="header_img" />
             <!--<p class="role">{{role}}</p>-->
             <el-dropdown
               trigger="click"
@@ -34,7 +34,7 @@
                 </el-dropdown-item>
                 <el-dropdown-item command="c">
                   <i class="iconfont icon-guanbi2 icon_message"></i>
-                  <span><a href="javascript:;">退出</a></span>
+                  <span>退出</span>
                 </el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
@@ -61,11 +61,32 @@
           <span>修改个人信息</span>
         </div>
         <div class="dialog_content">
-          <img :src="header_img" class="group_img"/>
+          
+            <!-- <img v-if="hasImg" :src="header_img" class="group_img"/> -->
+            <el-upload
+              class="avatar-uploader"
+              action="customize"
+              :show-file-list="false"
+              :auto-upload="true" 
+              :before-upload="beforeAvatarUpload"
+              :http-request="defaultBehavior">
+              <img v-if="imageUrl" :src="imageUrl" class="avatar">
+              <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+            </el-upload>
+          
+          
           <el-form label-width="68px" class="user_right" :model="userForm" ref="userForm" :rules="rulesUser">
             <el-form-item label="所属部门" class="form_item" prop="department">:
               <!--<p class="label">所属部门</p>:-->
-              <el-input class="input_item" v-model="userForm.department"></el-input>
+              <el-input class="input_item" v-model="userForm.department" :readonly="true"></el-input>
+              <!-- <el-select v-model="value" placeholder="请选择">
+                <el-option
+                  v-for="item in options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value">
+                </el-option>
+              </el-select> -->
             </el-form-item>
             <el-form-item  label="用户名" class="form_item" prop="accountName">:
               <!--<p class="label">用户名</p>:-->
@@ -122,7 +143,7 @@
             if(value === '') {
               callback(new Error('请输入原密码'));
             } else {
-              if(this.passwordForm.oldPass !== '1111') {
+              if(this.passwordForm.oldPass !== window.localStorage.getItem('password')) {
                 callback(new Error('原始密码错误'));
               }
               callback();
@@ -189,13 +210,36 @@
               phone: [
                 {required: true, message: '请输入电话', trigger: 'blur'}
               ]
-            }
+            },
+            hasImg:false,  //是否有头像，没有显示默认头像
+            imageUrl: '',
+            options: [{
+              value: '选项1',
+              label: '黄金糕'
+            }, {
+              value: '选项2',
+              label: '双皮奶'
+            }, {
+              value: '选项3',
+              label: '蚵仔煎'
+            }, {
+              value: '选项4',
+              label: '龙须面'
+            }, {
+              value: '选项5',
+              label: '北京烤鸭'
+            }],
+            value: '',
+            department_id:null,  //部门ID
+            info:{},  //用户详情
+            image_head:'',
           }
         },
       components: {
         PublicMenu
       },
       created () {
+        this.getUserInfo();
         /**
          * 通过vuex获取到tabs数组，传递null，数组为空，传值可以为Object或null
          */
@@ -204,6 +248,22 @@
           })
       },
       methods: {
+        getUserInfo(){
+          //获取管理员的信息
+          this.HttpClient.get('/admin/employee/edit',{
+            uid:window.localStorage.getItem('userid')
+          })
+          .then(res=>{
+            console.log(res);
+            this.info = res.data.data;
+            this.imageUrl =  this.Tools.handleImg(res.data.data.image_path);
+            this.image_head = this.Tools.handleImg(res.data.data.image_path);
+            this.userForm.department = res.data.data.department_name;
+            this.department_id = res.data.data.department_id;
+            this.userForm.accountName = res.data.data.nickname;
+            this.userForm.phone = res.data.data.phone;
+          })
+        },
         cc: function(data) {
           // 接收到的参数在data中
           this.editableTabs2 = data;
@@ -280,6 +340,7 @@
           switch (command) {
             case 'a':
               this.userInfoVisible = true;
+              this.getUserInfo();
               break;
             case 'b':
               this.passwordVisible = true;
@@ -298,7 +359,21 @@
           this.$refs[passwordForm].validate((valid) => {
             console.log(valid)
             if(valid) {
-              console.log('ok');
+              console.log('ok',this.passwordForm);
+              this.HttpClient.post('/admin/employee/updatePassword',{
+                oldPassword:this.passwordForm.oldPass,
+                password:this.passwordForm.newPass,
+                conPassword:this.passwordForm.againPass,
+              })
+              .then(res=>{
+                if(res.data.code === 200){
+                  this.$message.success('密码修改成功，下次登录请用新密码登录！');
+                  this.passwordVisible = false;
+                  window.localStorage.setItem('password',this.passwordForm.newPass);
+                }else{
+                  this.$message.error(res.data.msg);
+                }
+              })
             }else {
               console.log('no')
             }
@@ -313,6 +388,28 @@
             console.log(valid)
             if(valid) {
               console.log('ok');
+              this.HttpClient.post('/admin/employee/edit',{
+                uid:window.localStorage.getItem('userid'),
+                nickname:this.userForm.accountName,
+                department_id:this.department_id,
+                department_name:this.userForm.department,
+                position_id:this.info.position_id,
+                position_name:this.info.position_name,
+                image_path:this.imageUrl,
+                phone:this.userForm.phone,
+              })
+              .then(res=>{
+                console.log(res)
+                if(res.data.code === 200){
+                  this.$message.success(res.data.msg);
+                  this.userInfoVisible = false;
+                  setTimeout(() => {
+                    this.getUserInfo();
+                  }, 500);
+                }else{
+                  this.$message.error(res.data.msg);
+                }
+              })
             }else {
               console.log('no')
             }
@@ -338,7 +435,36 @@
                         })
                     }
                 })
-        }
+        },
+        /***
+         * 头像上传
+         * author:ZhangYunChuan
+         */
+        beforeAvatarUpload(file) {
+            console.log(file);
+            if(this.Tools.pictureLimit(file)){
+              let that = this;
+              //七牛云上传
+              let observable = this.$observable(file);
+              observable.subscribe({
+                next(res){
+                  console.log('next',res);    
+                },
+                error(err){
+                  that.$message.error('上传失败!');
+                },
+                complete(res) {
+                  console.log('成功结果', res);
+                  that.$message.success('上传成功!');
+                  that.imageUrl = that.Urls.imageUrl+res.key;
+                }
+              })
+            }else{
+              this.$message.warning('请上传下面格式图片：jpg/png/jpeg/tiff/tif。');
+            }  
+        },
+        defaultBehavior(param){},
+
       },
       computed: {
         /**
@@ -477,12 +603,40 @@
     }
     .dialog_content{
       display: flex;
-      .group_img{
-        width: 116px;
-        height: 116px;
-        border-radius: 58px;
-        margin-top: 5px;
+      // .group_img{
+      //   width: 116px;
+      //   height: 116px;
+      //   border-radius: 58px;
+      //   margin-top: 5px;
+      // }
+      
+        .avatar-uploader{
+          /deep/.el-upload {
+            border: 1px dashed #000;
+            border-radius: 58px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+          }
+          .el-upload:hover {
+            border-color: #409EFF;
+          }
+          .avatar-uploader-icon {
+            font-size: 28px;
+            color: #8c939d;
+            width: 114px;
+            height: 114px;
+            line-height: 116px;
+            text-align: center;
+          }
+          .avatar {
+            width: 114px;
+            height: 114px;
+            display: block;
+            border-radius: 58px;
+          }
       }
+      
       .user_right{
         margin-left: 20px;
         .user_right_item{
@@ -547,6 +701,9 @@
     .el-form-item__content{
       margin: 0 !important;
       display: flex;
+      .el-select{
+        width: 194px;
+      }
     }
     .el-form-item__label{
       text-align-last: justify;

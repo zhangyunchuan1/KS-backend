@@ -62,13 +62,29 @@
             </el-input>
             <!-- <el-input class="select_normal" v-model="type" placeholder="类别选择" size="mini"> </el-input>
             <el-input class="select_normal" v-model="forbiddenType" placeholder="禁用类别" size="mini"> </el-input> -->
-            <el-date-picker
+            <!-- <el-date-picker
                 class="date_normal"
                 v-model="serchTime"
                 type="daterange"
                 start-placeholder="开始日期"
                 end-placeholder="结束日期"
                 @change="handleSelectTime">
+            </el-date-picker> -->
+            <el-date-picker
+              class="date_normal"
+              size="mini"
+              v-model="startTime"
+              type="datetime"
+              placeholder="选择开始时间"
+              @change="handleSelectTime">
+            </el-date-picker>
+            <el-date-picker
+              size="mini"
+              v-model="endTime"
+              class="date_normal"
+              type="datetime"
+              placeholder="选择结束时间"
+              @change="handleSelectTime">
             </el-date-picker>
             <el-input class="select_normal" v-model="activityName" clearable placeholder="活动名称" size="mini" @change="handleActivityNameSearch">
               <el-button slot="append" @click="handleActivityNameSearch" icon="el-icon-search"></el-button>
@@ -256,7 +272,7 @@
                     </el-form-item>
                     <el-form-item label="图片">
                         <div v-for="(pic,index) in imgList" :key="index" class="pic">
-                            <img class="pic" :src="'http://cdn.kushualab.com/'+pic"/>
+                            <img class="pic" :src="Urls.imageUrl+pic.path"/>
                         </div>
                     </el-form-item>
                 </el-form>
@@ -308,6 +324,8 @@
             useaName:null,  //用户名搜索
             activityName:null,  //活动名称搜索
             serchTime:[null,null],  //搜索时间
+            startTime:'',
+            endTime:'',
             currentPage:1,//当前页
             pageSize:25,//每页显示数量
             tableData:[],
@@ -398,7 +416,7 @@
         viewModal(i){
             console.log(i)
             this.commentContent = i.content;
-            this.imgList = JSON.parse(i.attachment)
+            this.imgList = i.attachment;
             this.viewVisible = true;
         }, 
         // 确定恢复
@@ -443,8 +461,8 @@
             let params = {
                 type: 4,
                 page: this.currentPage,
-                start_time:this.serchTime[0],
-                end_time:this.serchTime[1],
+                start_time:this.startTime,
+                end_time:this.endTime,
                 user_name:this.nickName,
                 actual_name:this.useaName,
                 source_title:this.activityName
@@ -533,19 +551,19 @@
     }
   }
   .date_normal{
-    height: 28px;
-    width: 230px;
+    // height: 28px;
+    // width: 230px;
     margin-right: 10px;
-    line-height: unset;
-    /deep/.el-input__icon {
-      text-align: center;
-      line-height: unset;
-    }
-    /deep/.el-range-separator{
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+    // line-height: unset;
+    // /deep/.el-input__icon {
+    //   text-align: center;
+    //   line-height: unset;
+    // }
+    // /deep/.el-range-separator{
+    //   display: flex;
+    //   justify-content: center;
+    //   align-items: center;
+    // }
   }
   .mark {
       margin-left: 10px;

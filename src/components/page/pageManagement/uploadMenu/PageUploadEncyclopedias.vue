@@ -24,7 +24,7 @@
           <div class="content_box" v-if="plateBox">
             <div class="addBtm">
               <p>新增板块：</p>
-              <el-button type="primary" @click="addPlateDialog = true">添加新板块</el-button>
+              <el-button type="primary" @click="handleAddNewPlate">添加新板块</el-button>
             </div>
 
             <div class="content_box_list">
@@ -32,8 +32,8 @@
               <div class="plate_list" v-for="(item,index) in childData" :key="index">
                 <div class="plate_name" @click="modifyInfo(item)">{{item.name}}</div>
                 <div class="plate_status" @click="plateStatusBtm(item)">
-                  <el-button type="success" v-if="item.status == 1">恢复</el-button>
-                  <el-button type="danger" v-if="item.status == 0">禁用</el-button>
+                  <el-button type="success" v-if="item.status == 0">恢复</el-button>
+                  <el-button type="danger" v-if="item.status == 1">禁用</el-button>
                 </div>
               </div>
             </div>
@@ -43,18 +43,57 @@
     </div>
 
     <!--添加版块弹窗-->
-    <el-dialog width="300px" custom-class="plateDialog" :visible.sync="addPlateDialog">
+    <el-dialog width="500px" custom-class="plateDialog" :visible.sync="addPlateDialog" :close-on-click-modal="false">
       <span slot="title" class="plateDialog_title">
         <i class="iconfont icon-edit-square"></i>添加版块
       </span>
       <div class="plateDialog_box">
-        <div class="box_list">
+        <div class="box_list plate_name">
           <p>版块名称：</p>
           <el-input placeholder="输入版块名称" v-model="addName"></el-input>
         </div>
-        <div class="box_list">
-          <p>版块解释：</p>
-          <el-input type="textarea" resize="none" :rows="3" placeholder="输入版块解释" v-model="adddesinfo"></el-input>
+        <div class="box_list_center">
+            <div class="box_list">
+              <p>分类页图片</p>
+              <el-upload
+                class="plateImg-uploader"
+                action="customize"
+                :show-file-list="false"
+                :auto-upload="true" 
+                :on-success="handleAvatarSuccess"
+                :before-upload="beforeAddAvatarUpload"
+                :http-request="defaultBehavior"
+              >
+                <img v-if="addImgUrl" :src="addImgUrl" class="plateImg">
+                <i v-else class="el-icon-plus plateImg-uploader-icon"></i>
+              </el-upload>
+            </div>
+            <div class="box_list">
+              <p>主页解释：</p>
+              <el-input
+                type="textarea"
+                resize="none"
+                :rows="8"
+                placeholder="输入主页解释"
+                v-model="addhomepageValueDes"
+              ></el-input>
+            </div>
+        </div>
+        <div class="box_list_bot">
+            <div class="box_list">
+              <p>分类页解释：</p>
+              <el-input
+                type="textarea"
+                resize="none"
+                :rows="4"
+                placeholder="输入分类页解释"
+                v-model="addcategorypagesValueDes"
+              ></el-input>
+            </div>
+            <div class="box_list">
+              <p>版块解释：</p>
+              <el-input type="textarea" resize="none" :rows="4" placeholder="输入版块解释" v-model="adddesinfo"></el-input>
+            </div>
         </div>
       </div>
       <span slot="footer" class="dialog-footer">
@@ -64,25 +103,65 @@
     </el-dialog>
 
     <!--修改版块弹窗-->
-    <el-dialog width="300px" custom-class="plateDialog" :visible.sync="modifyPlateDialog">
+    <el-dialog width="500px" custom-class="plateDialog" :visible.sync="modifyPlateDialog" :close-on-click-modal="false">
       <span slot="title" class="plateDialog_title">
         <i class="iconfont icon-edit-square"></i>修改版块
       </span>
       <div class="plateDialog_box">
-        <div class="box_list">
+        <div class="box_list plate_name">
           <p>版块名称：</p>
-          <el-input placeholder="输入版块名称" v-model="itemValueName"></el-input>
+          <el-input placeholder="输入版块名称" v-model="modifyData.name"></el-input>
         </div>
-        <div class="box_list">
-          <p>版块解释：</p>
-          <el-input
-            type="textarea"
-            resize="none"
-            :rows="3"
-            placeholder="输入版块解释"
-            v-model="itemValueDes"
-          ></el-input>
+        <div class="box_list_center">
+          <div class="box_list">
+            <p>分类页图片：</p>
+            <el-upload
+              class="plateImg-uploader"
+              action="customize"
+              :show-file-list="false"
+              :auto-upload="true" 
+              :on-success="handleAvatarSuccess"
+              :before-upload="beforeAvatarUpload"
+              :http-request="defaultBehavior"
+            >
+              <img v-if="plateImg" :src="Tools.handleImg(plateImg)" class="plateImg">
+              <i v-else class="el-icon-plus plateImg-uploader-icon"></i>
+            </el-upload>
+          </div>
+          <div class="box_list">
+            <p>主页解释：</p>
+            <el-input
+              type="textarea"
+              resize="none"
+              :rows="8"
+              placeholder="输入主页解释"
+              v-model="modifyData.description"
+            ></el-input>
+          </div>
         </div>
+        <div class="box_list_bot">
+          <div class="box_list">
+            <p>分类页解释：</p>
+            <el-input
+              type="textarea"
+              resize="none"
+              :rows="4"
+              placeholder="输入分类页解释"
+              v-model="modifyData.long_desc"
+            ></el-input>
+          </div>
+          <div class="box_list">
+            <p>上传解释：</p>
+            <el-input
+              type="textarea"
+              resize="none"
+              :rows="4"
+              placeholder="输入版块解释"
+              v-model="modifyData.upload_tips"
+            ></el-input>
+          </div>
+        </div>
+        
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="modifyPlateDialog = false">关 闭</el-button>
@@ -133,18 +212,31 @@ export default {
       plateData: [], //板块数据
       childData: [], //板块下放的内容
       itemValue: {}, //被选中的板块内容
-      itemValueName: "", //被选中的板块内容
-      itemValueDes: "", //被选中的板块内容
+      // itemValueName: "", //被选中的板块内容
+      // itemValueDes: "", //被选中的板块内容
       addName:'',//添加名字
       adddesinfo:'',//添加描述
       childpid:null,//添加新版块的父级ID
 
       plateBox: false, // 版块盒子
 
-      plateName: "基础理论、设计、 模拟", // 版块名称
-      plateDescription: "123465791234657981654641", // 版块解释
+      // plateName: "基础理论、设计、 模拟", // 版块名称
+      // plateDescription: "123465791234657981654641", // 版块解释
 
       // plateStatus: false, // 版块状态
+
+      // 修改百科
+      plateImg:'',//分类页图片
+      // homepageValueDes:'',//主页解释
+      categorypagesValueDes:'',//分类页解释
+      modifyImg:[],
+      modifyData:{},//修改百科数据
+
+      // 添加百科
+      addplateImg:[],
+      addImgUrl:'',
+      addhomepageValueDes:'',//主页解释
+      addcategorypagesValueDes:'',//分类页解释
 
       addPlateDialog: false, // 添加版块
 
@@ -154,13 +246,33 @@ export default {
   mounted() {
     this.getTypedata();
   },
+  watch:{
+    addPlateDialog(){
+      if(this.addPlateDialog == false){
+        this.addName = '';
+        this.adddesinfo = '';
+        this.addhomepageValueDes = '';
+        this.addcategorypagesValueDes = '';
+        this.addplateImg = [];
+      }
+    }
+  },
   methods: {
+    handleAddNewPlate(){
+      this.addPlateDialog = true;
+      this.addName = '';
+      this.adddesinfo = '';
+      this.addhomepageValueDes = '';
+      this.addcategorypagesValueDes = '';
+      this.addplateImg = [];
+      this.addImgUrl = '';
+    },
     getTypedata() {
       let params = {
         menu_type: 2,
         type: 1
       };
-      this.HttpClient.post("/admin/menu/getList", params).then(res => {
+      this.HttpClient.post("/admin/menu/getListWithDel", params).then(res => {
         console.log(res.data.data);
         if (res.data.code == 200) {
           this.plateData = res.data.data;
@@ -181,17 +293,23 @@ export default {
       let params = {
         menu_type:2,
         name:this.addName,
-        description:this.adddesinfo,
+        description:this.addhomepageValueDes,//主页解释
+        long_desc:this.addcategorypagesValueDes,//分类页解释
+        upload_tips:this.adddesinfo,//上传解释
+        back_images:this.addplateImg,//分类页图片
         pid:this.childpid,
-        type:1
+        type:1,
       }
       this.HttpClient.post('/admin/menu/create',params).then(res => {
         console.log(res.data)
         if(res.data.code == 200){
           this.$message.success(res.data.msg)
           this.addPlateDialog = false
-           this.addName = '';
-          this.adddesinfo = ''
+          this.addName = '';
+          this.adddesinfo = '';
+          this.addhomepageValueDes = '';
+          this.addcategorypagesValueDes = '';
+          this.addplateImg = '';
           setTimeout(() => {
             this.getTypedata()
           }, 500);
@@ -219,10 +337,22 @@ export default {
     // 修改板块
     modifyInfo(item) {
       console.log(item);
-      this.itemValue = item;
-      this.itemValueDes = item.description;
-      this.itemValueName = item.name;
-      this.modifyPlateDialog = true;
+      let params = {
+        menu_id:item.menu_id,
+        type:1
+      }
+      this.HttpClient.get('/admin/menu/getMenuProfile',params).then(res => {
+        if(res.data.code === 200){
+          console.log(res.data.data)
+          this.modifyData = res.data.data;
+          this.plateImg = this.modifyData.back_images;
+          this.modifyPlateDialog = true;
+        }
+      })
+      // this.itemValue = item;
+      // this.itemValueDes = item.description;
+      // this.itemValueName = item.name;
+      // this.modifyPlateDialog = true;
     },
     // 获取板块下内容
     plateRadioBtm() {
@@ -233,13 +363,16 @@ export default {
     },
     // 保存修改的内容
     savemodifyInfo() {
-      console.log(this.itemValue);
+      console.log(this.modifyData);
       let params = {
-        id: this.itemValue.id,
+        id: this.modifyData.id,
         menu_type: 2,
-        name: this.itemValueName,
-        description: this.itemValueDes,
-        pid: this.itemValue.pid,
+        name: this.modifyData.name,
+        description: this.modifyData.description,//主页解释
+        upload_tips:this.modifyData.upload_tips,//上传解释
+        pid: this.modifyData.pid,
+        long_desc:this.modifyData.long_desc,//分类页解释
+        back_images:this.modifyImg,
         type: 1
       };
       this.HttpClient.post("/admin/menu/edit", params).then(res => {
@@ -247,14 +380,100 @@ export default {
         if (res.data.code == 200) {
           this.$message.success(res.data.msg);
           this.modifyPlateDialog = false;
-          this.itemValueName = '';
-          this.itemValueDes = '';
+          this.modifyData = {};
+          // this.itemValueName = '';
+          // this.itemValueDes = '';
           setTimeout(() => {
             this.getTypedata();
           }, 500);
         }
       });
-    }
+    },
+    handleAvatarSuccess(res, file) {
+      this.imageUrl = URL.createObjectURL(file.raw);
+    },
+    // 修改上传图片
+    beforeAvatarUpload(file) {
+      console.log(file);
+      // this.HttpClient.form("/admin/uploadOneImage", { images: file }).then(
+      //   res => {
+      //     if (res.data.code === 200) {
+      //       this.$message.success(res.data.msg);
+      //       var obj = {};
+      //       obj.name = file.name;
+      //       obj.path = res.data.path;
+      //       this.modifyImg.push(obj)
+      //       this.plateImg = res.data.path.replace("http://cdn.kushualab.com/","");
+      //       // this.plateImg = res.data.path;            
+      //     }
+      //   }
+      // );
+      if(this.Tools.pictureLimit(file)){
+              let that = this;
+              //七牛云上传
+              let observable = this.$observable(file);
+              observable.subscribe({
+                next(res){
+                  console.log('next',res);    
+                },
+                error(err){
+                  that.$message.error('上传失败!');
+                },
+                complete(res) {
+                  console.log('成功结果', res);
+                  that.$message.success('上传成功!');
+                  var obj = {};
+                  obj.name = file.name;
+                  obj.path = that.Urls.imageUrl+res.key;
+                  that.modifyImg.push(obj)
+                  that.plateImg = (that.Urls.imageUrl+res.key).replace("http://cdn.kushualab.com/","");
+                }
+              })
+            }else{
+              this.$message.warning('请上传下面格式图片：jpg/png/jpeg/tiff/tif。');
+            }  
+    },
+    // 添加上传图片
+    beforeAddAvatarUpload(file){
+      // this.HttpClient.form("/admin/uploadOneImage", { images: file }).then(
+      //   res => {
+      //     if (res.data.code === 200) {
+      //       this.$message.success(res.data.msg);
+      //       var obj = {};
+      //       obj.name = file.name;
+      //       obj.path = res.data.path;
+      //       this.addplateImg.push(obj)
+      //       this.addImgUrl = res.data.path;
+      //       // this.plateImg = res.data.path;            
+      //     }
+      //   }
+      // );
+      if(this.Tools.pictureLimit(file)){
+              let that = this;
+              //七牛云上传
+              let observable = this.$observable(file);
+              observable.subscribe({
+                next(res){
+                  console.log('next',res);    
+                },
+                error(err){
+                  that.$message.error('上传失败!');
+                },
+                complete(res) {
+                  console.log('成功结果', res);
+                  that.$message.success('上传成功!');
+                  var obj = {};
+                  obj.name = file.name;
+                  obj.path = that.Urls.imageUrl+res.key;
+                  that.addplateImg.push(obj)
+                  that.addImgUrl = that.Urls.imageUrl+res.key;
+                }
+              })
+            }else{
+              this.$message.warning('请上传下面格式图片：jpg/png/jpeg/tiff/tif。');
+            }  
+    },
+    defaultBehavior(param){},
   }
 };
 </script>
@@ -386,13 +605,47 @@ export default {
       }
     }
     .plateDialog_box {
+      .plate_name{
+        padding:0 20px;
+      }
       .box_list {
-        p {
+        p{
           margin-bottom: 5px;
+        }
+        .plateImg-uploader{
+          text-align: center;
+          .plateImg{
+            width: 178px;
+            // height: 178px;
+            display: block;
+          }
+          .el-upload{
+            border: 1px dashed #d9d9d9;
+            border-radius: 6px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            .plateImg-uploader-icon{
+                  font-size: 28px;
+                  color: #8c939d;
+                  width: 178px;
+                  height: 178px;
+                  line-height: 178px;
+                  text-align: center;
+            }
+          }
         }
       }
       .box_list:not(:last-child) {
         margin-bottom: 20px;
+      }
+      .box_list_center{
+        display: flex;
+        justify-content: space-around;
+      }
+      .box_list_bot{
+        display: flex;
+        justify-content: space-around;
       }
     }
   }

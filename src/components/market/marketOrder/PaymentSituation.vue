@@ -84,10 +84,11 @@
                         :border="true"
                         style="width: 100%">
                     <el-table-column
-                            label="订单ID"
+                            label="订单编号"
                             align="center"
-                            width="100"
-                            prop="id"
+                            width="180"
+                            prop="order_no"
+                            show-overflow-tooltip
                             sortable>
                     </el-table-column>
 
@@ -95,6 +96,7 @@
                             label="商品名称"
                             align="center"
                             width="200"
+                            show-overflow-tooltip
                             prop="title">
                     </el-table-column>
 
@@ -102,6 +104,7 @@
                             label="卖家昵称"
                             align="center"
                             width="200"
+                            show-overflow-tooltip
                             prop="sale_nickname">
                     </el-table-column>
 
@@ -110,12 +113,14 @@
                             align="center"
                             width="200"
                             sortable
+                            show-overflow-tooltip
                             prop="created_at">
                     </el-table-column>
 
                     <el-table-column
                             label="买家昵称"
                             align="center"
+                            show-overflow-tooltip
                             width="120"
                             prop="nickname">
                     </el-table-column>
@@ -123,6 +128,7 @@
                     <el-table-column
                             label="支付方式"
                             align="center"
+                            show-overflow-tooltip
                             :render-header="renderPayment"
                             width="120"
                             prop="payment">
@@ -136,15 +142,15 @@
                     <el-table-column
                             label="订单状态"
                             align="center"
-                            :filters="[{text: '未付款', value: 1}, {text: '已付款未发货', value: 2}, {text: '已发货未收货', value: 3}, {text: '已收货', value: 4}, {text: '已打款', value: 5}, {text: '失效', value: 6}]"
+                            show-overflow-tooltip
+                            :filters="[{text: '已退款用户', value: 1}, {text: '已打款商家', value: 2}, {text: '未打款', value: 3}]"
                             :filter-method="filterSecondary"
                             width="120"
-                            prop="status">
+                            prop="admin_status">
                         <template slot-scope="scope">
-                            <span :style="scope.row.status===1?'color:#FF7F00;':scope.row.status===2?'color:#16EDDE;':scope.row.status===3?'color:#BB16ED;':scope.row.status===4?'color:#1E90FF;':scope.row.status===5?'color:#5EED16;':scope.row.status===6?'color:#FF4500;':''">{{
-                            scope.row.status===1?'未付款':scope.row.status===2?'已付款未发货':scope.row.status===3?'已发货未收货':scope.row.status===4?'已收货':scope.row.status===5?'已打款':scope.row.status===6?'失效':'错误状态'
+                            <span :style="scope.row.admin_status===1?'color:#FF7F00;':scope.row.admin_status===2?'color:#16EDDE;':scope.row.admin_status===3?'color:#BB16ED;':''">{{
+                            scope.row.admin_status===1?'已退款用户':scope.row.admin_status===2?'已打款商家':scope.row.admin_status===3?'未打款':'错误状态'
                             }}</span>
-                            
                         </template>
                     </el-table-column>
 
@@ -152,6 +158,7 @@
                             label="单价"
                             align="center"
                             width="120"
+                            show-overflow-tooltip
                             prop="price">
                     </el-table-column>
 
@@ -159,6 +166,7 @@
                             label="数量"
                             align="center"
                             width="120"
+                            show-overflow-tooltip
                             prop="quantity">
                     </el-table-column>
 
@@ -166,6 +174,7 @@
                             label="总计"
                             align="center"
                             width="120"
+                            show-overflow-tooltip
                             prop="total_price">
                     </el-table-column>
 
@@ -240,7 +249,7 @@
                 breadData: [
                     {
                         id: 1,
-                        name: '商城',
+                        name: '淘货',
                         urls: '',
                         icon: 'icon-home'
                     }, {
@@ -581,7 +590,7 @@
                         display: inherit;
 
                         .el-date-editor--daterange.el-input, .el-date-editor--daterange.el-input__inner, .el-date-editor--timerange.el-input, .el-date-editor--timerange.el-input__inner {
-                            width: 200px;
+                            width: 260px !important;
                         }
                     }
                 }

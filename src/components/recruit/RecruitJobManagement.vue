@@ -67,10 +67,10 @@
         <el-input v-model="jobName" class="input"></el-input>
         <p>薪资待遇</p>
         <el-input v-model="salary" class="input"></el-input>
-        <p>职位描述</p>
-        <el-input type="textarea" v-model="jobDescription" placeholder="100字内介绍" class="textarea"></el-input>
         <p>岗位需求</p>
-        <el-input type="textarea" v-model="jobDemand" placeholder="100字内介绍" class="textarea"></el-input>
+        <el-input type="textarea" v-model="jobDemand" placeholder="300字内介绍" class="textarea"></el-input>
+        <p>工作内容</p>
+        <el-input type="textarea" v-model="jobDescription" placeholder="300字内介绍" class="textarea"></el-input>
         <div class="bott">
           <div class="bot-left">
             <div>
@@ -314,66 +314,17 @@ export default {
     //禁用或启用
     handleOpen(row) {
       console.log(row)
-      //   var id = this.list[index].id; //存储的职位ID
-      if (row.status == 1) {
-        this.HttpClient.post("/web/position/changeStatus", {
-          // token: this.token,
-          id: row.id
-        })
-          .then(res => {
-            console.log(res);
-            if (res.data.code == 200) {
-              this.$message.success(res.data.msg);
-              setTimeout(() => {
+      this.HttpClient.post("/web/position/changeStatus", {
+          id: row.id,
+        }).then(res=>{
+          console.log(res);
+          if(res.data.code === 200){
+            this.$message.success(res.data.msg);
+            setTimeout(() => {
                 this.getJobList();
-              }, 500);
-            }
-            // this.HttpClient
-            //   .post("/admin/position/getList", {
-            //     // token: this.token
-            //   })
-            //   .then(res => {
-            //     console.log(res.data.data);
-            //     this.list = res.data.data;
-            //     this.setSlist(this.list);
-            //   })
-            //   .catch(e => {
-            //     console.log("请求失败" + e);
-            //   });
-          })
-          .catch(e => {
-            console.log("请求失败");
-          });
-      } else {
-        this.HttpClient.post("/admin/position/changeStatus", {
-          // token: this.token,
-          id: row.id
+            }, 500);
+          }
         })
-          .then(res => {
-            console.log(res);
-            if (res.data.code == 200) {
-              this.$message.success(res.data.msg);
-              setTimeout(() => {
-                this.getJobList();
-              }, 500);
-            }
-            // this.HttpClient
-            //   .post("/admin/position/getList", {
-            //     // token: this.token
-            //   })
-            //   .then(res => {
-            //     console.log(res.data.data);
-            //     this.list = res.data.data;
-            //     this.setSlist(this.list);
-            //   })
-            //   .catch(e => {
-            //     console.log("请求失败" + e);
-            //   });
-          })
-          .catch(e => {
-            console.log("请求失败");
-          });
-      }
     },
     //编辑修改职位
     handleModify(i) {

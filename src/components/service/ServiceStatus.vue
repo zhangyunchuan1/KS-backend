@@ -38,12 +38,12 @@
         </div>
       </div>
 
-      <div class="service_content" style="width: 79%">
+      <div class="service_content">
         <el-table :data="tableData" :border="true" style="width: 100%">
           <el-table-column sortable label="服务ID" align="center" width="100" prop="id"></el-table-column>
-          <el-table-column label="服务名称" show-overflow-tooltip align="center" prop="title" width="120"></el-table-column>
+          <el-table-column label="服务名称" show-overflow-tooltip align="center" prop="title" width="180"></el-table-column>
           <el-table-column label="城市" align="center" show-overflow-tooltip prop="city_name" width="120"></el-table-column>
-          <el-table-column label="公司对外名称" align="center" prop="company_name" width="160" show-overflow-tooltip>
+          <el-table-column label="公司对外名称" align="center" prop="company_name" width="180" show-overflow-tooltip>
             <template slot-scope="scope">
               <span v-if="scope.row.company_name">{{scope.row.company_name}}</span>
               <span v-else class="sortout_color">暂无</span>
@@ -60,37 +60,39 @@
             label="状态"
             align="center"
             prop="status"
-            :filters="[{text: '已删除', value:0 },{text: '正常', value:1 }, {text: '下架', value: 2}, {text: '待提交 ', value:3 },{text: '未通过', value: 4},{text: '待审核', value: 5},{text:'已暂停',value:6}]"
+            :filters="[{text: '正常', value:1 },{text: '已下架', value:2 }, {text: '已暂停', value: 6}]"
             :filter-method="filterSecondary"
-            width="100"
-          >
+            width="100">
             <template slot-scope="scope">
-              <span v-if="scope.row.status === 0" class="delete_color">已删除</span>
               <span v-if="scope.row.status === 1" class="normal_color">正常</span>
               <span v-if="scope.row.status === 2" class="sortout_color">已下架</span>
-              <span v-if="scope.row.status === 3">待提交</span>
-              <span v-if="scope.row.status === 4" class="notpass_color">未通过</span>
-              <span v-if="scope.row.status === 5" class="audit_color">待审核</span>
               <span v-if="scope.row.status === 6" class="paused_color">已暂停</span>
             </template>
           </el-table-column>
 
-          <el-table-column label="操作" align="center" fixed="right" width="380px" class-name="service_scope">
+          <el-table-column 
+            label="操作"  
+            min-width="350"
+            align="center"
+            fixed="right" >
             <template slot-scope="scope">
-              <div class="service_btm">
-                <div @click="handlePreview(scope.row.id)">预览服务</div>
+              
+                <el-button type="primary" plain size="mini" @click="handlePreview(scope.row.service_id)">预览服务</el-button>
+                <el-button type="primary" plain size="mini" @click="handleOpenInfo(scope.row.id)">基本信息</el-button>
+                <el-button type="primary" plain size="mini" @click="handleOpenRemark(scope.row.id)">添加备注</el-button>
+                <el-button type="primary" plain size="mini" v-if="scope.row.status !== 2" @click="handleLowerShelf(scope.row.service_id)">下架</el-button>
+                <el-button type="primary" plain size="mini" v-if="scope.row.status === 6" @click="handleRecovery(scope.row.service_id)">恢复</el-button>
+                <el-button type="primary" plain size="mini" v-if="scope.row.status === 1" @click="handleStop(scope.row.service_id)">暂停</el-button>
+                <el-button type="primary" plain size="mini" @click="handleViewinfo(scope.row)">查看评价</el-button>
+                <!-- <div @click="handlePreview(scope.row.id)">预览服务</div>
                 <div @click="handleOpenInfo(scope.row.id)">基本信息</div>
                 <div @click="handleOpenRemark(scope.row.id)">添加备注</div>
-                <div
-                  style="color: red"
-                  v-if="scope.row.status !== 2"
-                  @click="handleLowerShelf(scope.row.service_id)"
-                >下架</div>
+                <div style="color: red" v-if="scope.row.status !== 2" @click="handleLowerShelf(scope.row.service_id)">下架</div> -->
                 <!-- <div @click="handleEndService(scope.row.service_id)">结束服务</div> -->
-                <div v-if="scope.row.status === 6" @click="handleRecovery(scope.row.service_id)" class="normal_color">恢复</div>
+                <!-- <div v-if="scope.row.status === 6" @click="handleRecovery(scope.row.service_id)" class="normal_color">恢复</div>
                 <div v-if="scope.row.status === 1" @click="handleStop(scope.row.service_id)"  class="paused_color">暂停</div>
-                <div @click="handleViewinfo(scope.row)">查看评价</div>
-              </div>
+                <div @click="handleViewinfo(scope.row)">查看评价</div> -->
+              
             </template>
           </el-table-column>
         </el-table>
@@ -372,10 +374,6 @@ export default {
           label: "全部"
         },
         {
-          value: "0",
-          label: "已删除"
-        },
-        {
           value: "1",
           label: "正常"
         },
@@ -384,16 +382,8 @@ export default {
           label: "下架"
         },
         {
-          value: "3",
-          label: "待提交"
-        },
-        {
-          value: "4",
-          label: "未通过"
-        },
-        {
-          value: "5",
-          label: "待审核"
+          value: "6",
+          label: "已暂停"
         }
       ],
       value: "",
@@ -494,9 +484,9 @@ export default {
     getContentData() {
       let params = {
         source_id: this.serviceContentID,
-        page: this.currentcontentPage,
-        size: this.pagecontentSize,
-        order: ""
+        // page: this.currentcontentPage,
+        // size: this.pagecontentSize,
+        // order: ""
       };
       this.HttpClient.post("/admin/answers/info", params).then(res => {
         if (res.data.code === 200) {
@@ -614,9 +604,7 @@ export default {
     },
     //打开预览弹窗
     handlePreview(id) {
-      // console.log(id)
-      // this.getServiceInfo(id);
-      // this.previewDialog = true;
+      window.open(this.Urls.frontUrl+"home/service-detail?id="+id);  
     },
     //图片放大
     handleOpenPic(path) {
@@ -640,7 +628,7 @@ export default {
         console.log(res);
         this.serviceInfo = res.data.data;
         for (let i = 0; i < this.serviceInfo.admin_upload_images.length; i++) {
-          let m = JSON.parse(this.serviceInfo.admin_upload_images[i]);
+          let m = this.serviceInfo.admin_upload_images[i];
           this.serviceInfo.admin_upload_images[i] = m;
         }
         for (
@@ -648,7 +636,7 @@ export default {
           i < this.serviceInfo.admin_upload_protocol.length;
           i++
         ) {
-          let n = JSON.parse(this.serviceInfo.admin_upload_protocol[i]);
+          let n = this.serviceInfo.admin_upload_protocol[i];
           this.serviceInfo.admin_upload_protocol[i] = n;
         }
       });
@@ -800,6 +788,13 @@ export default {
           th,
           tr {
             background-color: #15bafe;
+          }
+        }
+        tbody{
+          .cell{
+            .el-button{
+              margin-top: 5px;
+            }
           }
         }
       }

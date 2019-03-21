@@ -6,12 +6,13 @@
         <div class="question_title">
           <div class="title">目录分配情况</div>
         </div>
-
+         
+         <!-- <div></div> -->
         <div class="question_box">
           <div class="question_header">
             <el-radio-group v-model="sectorSelection">
               <el-radio @change="changeModel('menu', menu)"
-              v-for="menu in menuList" :key="menu.id" :label="menu.id"
+              v-for="menu in menuList" :key="menu.id" :label="menu.menu_id"
               >{{menu.name}}</el-radio>
             </el-radio-group>
           </div>
@@ -24,7 +25,7 @@
                   <el-radio-group v-model="firstLevel">
                     <el-radio @change="changeModel('firstMenu', firstMenu)"
                     v-for="firstMenu in firstMenuList" :key="firstMenu.id"
-                    :label="firstMenu.id">{{firstMenu.name}}</el-radio>
+                    :label="firstMenu.menu_id">{{firstMenu.name}}</el-radio>
                   </el-radio-group>
                 </div>
               </div>
@@ -37,7 +38,7 @@
                   <el-radio-group v-model="secondary">
                     <el-radio @change="changeModel('secondMenu', secondMenu)"
                     v-for="secondMenu in secondMenuList" :key="secondMenu.id"
-                    :label="secondMenu.id">{{secondMenu.name}}</el-radio>
+                    :label="secondMenu.menu_id">{{secondMenu.name}}</el-radio>
                   </el-radio-group>
                 </div>
               </div>
@@ -50,7 +51,7 @@
                   <el-radio-group v-model="thirdLevel">
                     <el-radio @change="changeModel('secondMenu', threeMenu)"
                     v-for="threeMenu in threeMenuList" :key="threeMenu.id"
-                     :label="threeMenu.id">{{threeMenu.name}}</el-radio>
+                     :label="threeMenu.menu_id">{{threeMenu.name}}</el-radio>
                   </el-radio-group>
                 </div>
               </div>
@@ -197,7 +198,7 @@
                 <template slot-scope="scope">
                   <div class="question_btm">
                     <el-button size="medium " type="text" @click="removeModal(scope.row)">删除</el-button>
-                    <el-button size="medium " type="text">预览</el-button>
+                    <el-button size="medium " type="text" @click="handlePreview(scope.row.question_id)">预览</el-button>
                   </div>
                 </template>
               </el-table-column>
@@ -314,6 +315,10 @@
       this.getModelList();
     },
     methods:{
+      //预览
+      handlePreview(id){
+        window.open(this.Urls.frontUrl+"home/problemDetails?id="+id);  
+      },
       cloneContents(){
           this.viewFirstLevel = false;
           this.viewSecondary = false;
@@ -339,6 +344,7 @@
       removeModal(modifyObj) {
         this.removeVisible = true;
         this.modifyObj = modifyObj;
+        console.log(modifyObj);
         console.log('modifyObj:', this.modifyObj);
       },
       search() {
@@ -346,10 +352,13 @@
         console.log('searchObj:', this.searchObj);
       },
       async remove() {
-        let res = await this.HttpClient.post('/admin/menu/destroy', {question_id: this.modifyObj.question_id, status: 0});
+        let res = await this.HttpClient.post('/admin/menuRelationship/destroy', {relation_id: this.modifyObj.question_id, menu_id: this.modifyObj.menu_id});
+        console.log(res)
         tools.getApiMessage(res);
-        this.removeVisible = false;
-        this.search();
+        setTimeout(() => {
+          this.removeVisible = false;
+          this.search();
+        }, 500);
       },
       async currentChange(page) {
         this.currentPage = page;
@@ -403,7 +412,8 @@
       },
       // 获取一级目录
       async getFirstMenuList() {
-        let res = await this.HttpClient.post('/admin/menu/getOneChild', {menu_id: this.sectorSelection.menu_id, menu_type: 3});
+        console.log(this.sectorSelection)
+        let res = await this.HttpClient.post('/admin/menu/getOneChild', {menu_id: this.sectorSelection, menu_type: 3});
         console.log(res)
         this.firstMenuList = res.data.data.child;
         // 二三级目录设为空
@@ -416,7 +426,7 @@
       },
       // // 获取二级目录
       async getSecondMenuList() {
-          let res = await this.HttpClient.post('/admin/menu/getOneChild', {menu_id: this.firstLevel.menu_id, menu_type: 3});
+          let res = await this.HttpClient.post('/admin/menu/getOneChild', {menu_id: this.firstLevel, menu_type: 3});
           console.log(res)
           this.secondMenuList = res.data.data.child;
           // 三级目录设为空
@@ -427,7 +437,7 @@
       },
       // // 获取三级目录
       async getThreeMenuList() {
-          let res = await this.HttpClient.post('/admin/menu/getOneChild', {menu_id: this.secondary.menu_id, menu_type: 3});
+          let res = await this.HttpClient.post('/admin/menu/getOneChild', {menu_id: this.secondary, menu_type: 3});
           console.log(res)
           this.threeMenuList = res.data.data.child;
       }

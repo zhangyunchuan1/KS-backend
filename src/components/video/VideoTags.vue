@@ -10,11 +10,21 @@
         </div>
 
         <div class="videoTags_content">
+          
           <div class="videoTags_header">
             <div class="videoTags_search">
+              <el-radio-group v-model="sectorSelection" @change="getVideoList">
+                 <el-radio label="" border>全部</el-radio>
+                <el-radio 
+                border
+                v-for="menu in menuList" :key="menu.id" :label="menu.menu_id"
+                >{{menu.name}}</el-radio>
+              </el-radio-group>
+            </div>
+            <div class="videoTags_search">
               <div>
-                <el-input placeholder="视频标题搜索" v-model="topicSearch" class="input-with-select">
-                  <el-button slot="append" icon="el-icon-search" ></el-button>
+                <el-input placeholder="视频标题搜索" v-model="topicSearch" clearable class="input-with-select" @change="getVideoList">
+                  <el-button slot="append" icon="el-icon-search" @click="getVideoList"></el-button>
                 </el-input>
               </div>
             </div>
@@ -45,8 +55,6 @@
                 label="所属板块"
                 align="center"
                 show-overflow-tooltip
-                :filters="[{text: '汽车', value: '汽车'}, {text: '摩托', value: '摩托'}, {text: '模型', value: '模型'}, {text: '智能设备', value: '智能设备'}]"
-                :filter-method="filterSecondary"
                 width="130"
                 prop="category">
               </el-table-column>
@@ -109,7 +117,7 @@
                 <template slot-scope="scope">
                   <div class="videoTags_btm">
                     <div @click="handleOpenDistributionTags(scope.row)">分配</div>
-                    <div>看视频</div>
+                    <div @click="lookVideoFn(scope.row)">看视频</div>
                   </div>
                 </template>
               </el-table-column>
@@ -170,22 +178,12 @@
 
         topicSearch:null, // 题目搜索
 
+        // 板块选择
+        menuList:[],
+        sectorSelection:'',
+
         // 表格
-        tableData: [{
-          id: '1',
-          videoTitle: '今天加班半价',
-          plate: '汽车',
-          userStatus:'商家',
-          distribution: '已分配',
-          time: '2018.12.2',
-        }, {
-          id: '2',
-          videoTitle: '今天加班半价',
-          plate: '汽车',
-          userStatus:'商家',
-          distribution: '已分配',
-          time: '2018.12.2',
-        }],
+        tableData: [],
         currentPage:1,  //当前页
         total:null,
 
@@ -198,9 +196,21 @@
       }
     },
     mounted(){
-        this.getVideoList();    
+        this.getVideoList();  
+        this.getMenuList();  
     },
     methods:{
+      // 获取板块列表
+      getMenuList(){
+        this.HttpClient.post('/admin/menu/getList',{menu_type: 2,type:7}).then(res => {
+          this.menuList = res.data.data;
+        })
+      },
+      // 看视频
+      lookVideoFn(row){
+        // console.log(row)
+        window.open(this.Urls.frontUrl+"home/videoDetail?video="+row.video_id);
+      },
       //确定添加小标题
       handleAddTags(){
         console.log(this.checkboxTags)
@@ -286,7 +296,8 @@
           this.HttpClient.post('/admin/videos/getListWithTitle',{
               size:25,
               page:this.currentPage,
-              title:this.topicSearch
+              title:this.topicSearch,
+              category_id:this.sectorSelection
           })
           .then(res=>{
               console.log(res);
@@ -367,6 +378,9 @@
             align-items: center;
             >div{
               margin-right: 30px;
+            }
+            .el-radio__input{
+              display: none;
             }
           }
         }

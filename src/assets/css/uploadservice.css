@@ -1,0 +1,1558 @@
+/*.mod_uploading .mod_uploading_main .main_type_list{*/
+    /*margin-bottom:0!important;*/
+/*}*/
+/*.mod_uploading .main_type_list .list_item{*/
+    /*width:114px!important;*/
+    /*height:114px!important;*/
+    /*background:#fff;*/
+/*}*/
+.mod_uploading .uploading_main_img .main_img_view{
+    width:50%;
+    height:141px;
+    border:1px solid #f4f4f4;
+    background:#fff;
+}
+/*.mod_uploading .uploading_main_img{*/
+    /*margin-bottom: 0!important;*/
+/*}*/
+.mod_uploading .main_city_detail{
+    margin-top:11px;
+}
+.mod_uploading .main_city_detail .main_city_map{
+    width:800px;
+    height:361px;
+}
+.mod_uploading .main_city_detail .main_city_address{
+    margin-top:16px;
+    margin-bottom:13px;
+}
+.mod_uploading .main_city_detail .main_city_txt{
+    color:#939393;
+    font-size:16px;
+}
+.mod_uploading .main_city_detail .main_city_input{
+    width:30%;
+    padding:6px 13px;
+    font-size:16px;
+    outline:none;
+    border-radius:5px;
+    border:1px solid #eee;
+}
+.mod_uploading .main_city_detail .main_city_input:focus{
+    border-color:#15bafe;
+}
+.mod_uploading .main_city_detail .main_city_address_txt,
+.mod_uploading .main_city_detail .main_city_tel_txt{
+    font-size:14px;
+}
+.mod_uploading .main_city_tel .main_city_input{
+    width:15%;
+}
+.mod_uploading .uploading_main_price,
+.mod_uploading .uploading_main_people{
+    display:inline-block;
+}
+.mod_uploading .uploading_main_people{
+    margin-left:42px;
+}
+.mod_uploading .uploading_main_people .main_price_num{
+    padding-left:10px;
+}
+.mod_uploading .main_price_detail{
+    margin-top:22px;
+}
+.mod_uploading select{
+    padding:8px 26px 8px 13px;
+    font-size:14px;
+    outline:none;
+    margin-right:15px;
+    border:1px solid #eee;
+}
+select {
+    border:none;
+    appearance:none;
+    -moz-appearance:none;
+    -webkit-appearance:none;
+    background: url("/static/img/icon/bottom_video.png") no-repeat scroll 90% center #fff;
+    padding-right: 14px;
+}
+select::-ms-expand { display: none; }
+option:hover{
+    background:#15bafe!important;
+    border:none;
+    outline:none;
+}
+.mod_uploading .main_price_detail .main_price_input{
+    position:relative;
+}
+.mod_uploading .main_price_num{
+    width:100px;
+    /*margin-left:15px;*/
+    padding:8px 0 8px 29px;
+    box-sizing:border-box;
+    border:none;
+    outline:none;
+    border:1px solid #eee;
+}
+.mod_uploading .main_price_detail .icon_price{
+    position:absolute;
+    top:-7px;
+    right:60px;
+}
+.mod_uploading .mod_uploading_confirm{
+    position:initial!important;
+    width:821px;
+    text-align:right;
+}
+.mod_uploading .mod_uploading_confirm a:first-child{
+    margin-right:10px;
+}
+.uploading_img_box .el-upload-list--picture-card .el-upload-list__item,
+.main_file_upload .el-upload-list--picture-card .el-upload-list__item{
+    width:80px;
+    height:80px;
+}
+.uploading_img_box .el-upload--picture-card,
+.main_file_upload .el-upload--picture-card{
+    width:80px;
+    height:80px;
+    line-height:90px;
+}
+.uploading_img_box .el-progress-circle,
+.main_file_upload .el-progress-circle{
+    position:relative;
+    width:80px!important;
+    height:80px!important;
+    left:5px;
+}
+.uploading_img_box .el-progress__text,
+.main_file_upload .el-progress__text{
+    left:-15px;
+}
+
+/********************************上传活动******************************/
+.mod_uploading .time_date_activity{
+    margin-left:7px;
+    width:30%;
+    padding-bottom:10px;
+    border-bottom:1px solid #d1d1d1;
+}
+.mod_uploading .time_date_activity .time_date_activity_txt{
+    font-size:16px;
+    margin-left:13px;
+    margin-right:13px;
+}
+.mod_uploading .time_date_activity input{
+    width:14.9%;
+    border:none;
+    background:transparent;
+    font-size:18px;
+    color:#15bafe;
+    text-align:center;
+}
+.mod_uploading.mod_uploading_activity .mod_uploading_main .uploading_item_product_video,
+.mod_uploading.mod_uploading_service .mod_uploading_main .uploading_item_product_video{
+    width:280px;
+    height:226px;
+    border: 1px dotted #cccccc;
+}
+.mod_uploading.mod_uploading_activity .mod_uploading_main .uploading_item_product_video:hover{
+    border:1px dotted #15bafe!important;
+}
+.mod_uploading.mod_uploading_activity .mod_uploading_main .mod_uploading_describe .main_title_input,
+.mod_uploading.mod_uploading_service .mod_uploading_main .mod_uploading_describe .main_title_input{
+    width:504px;
+}
+.mod_uploading_activity .mod_uploading_item .el-upload-dragger,
+.mod_uploading_service .mod_uploading_item .el-upload-dragger{
+    width:280px;
+    height:226px;
+}
+.mod_uploading .time_date_activity input::-webkit-input-placeholder { /* WebKit browsers */
+    color:#15bafe;
+    font-size:16px;
+}
+
+.mod_uploading .time_date_activity input:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+    color:#999;
+    font-size:16px;
+}
+
+.mod_uploading .time_date_activity input::-moz-placeholder { /* Mozilla Firefox 19+ */
+    color:#999;
+    font-size:16px;
+}
+
+.mod_uploading .time_date_activity input:-ms-input-placeholder { /* Internet Explorer 10+ */
+    color:#999;
+    font-size:16px;
+}
+.mod_uploading .uploading_main_synopsis{
+    width:504px;
+}
+.mod_uploading .uploading_main_synopsis textarea{
+    resize:none;
+    height:107px;
+}
+
+
+/********************************************上传商品**************************************************/
+.mod_uploading .mod_uploading_main .mod_uploading_item{
+    display:inline-block;
+    margin-bottom:31px;
+}
+.mod_uploading .mod_uploading_main .uploading_item_product_img{
+    width:320px;
+    height:320px;
+    margin-bottom:15px;
+    /*padding-left:7px;*/
+    /*padding-top:10px;*/
+    background:#fff;
+    /*border:2px dashed #c6c6c6;*/
+}
+.mod_uploading .mod_uploading_main .uploading_item_product_img.activeBorder{
+    position:relative;
+    border:2px dashed #ccc;
+    overflow:hidden;
+}
+.mod_uploading .mod_uploading_main .uploading_item_product_img.activeBorder .main_product_img{
+    padding-top:256px;
+    padding-left:10px;
+}
+.mod_uploading .mod_uploading_main .uploading_item_product_img.activeBorder .product_img_preview{
+    display:flex;
+    align-items:center;
+    position:absolute;
+    top:9px;
+    left:10px;
+    width:300px;
+    height:240px;
+    overflow:hidden;
+}
+.mod_uploading .mod_uploading_main .uploading_item_product_img.activeBorder .product_img_preview img{
+    /*height:100%;*/
+}
+.mod_uploading .mod_uploading_main .uploading_item_product_img.activeBorder .el-upload--picture-card{
+    width:56px !important;
+    height:56px !important;
+    border:1px solid #ccc;
+}
+.mod_uploading .mod_uploading_main .uploading_item_product_img.activeBorder .el-upload--picture-card:hover{
+    border-color:#aaa;
+}
+.mod_uploading .mod_uploading_main .uploading_item_product_img.activeBorder .el-icon-plus{
+    margin:13px auto 0;
+    color:#ccc;
+}
+.mod_uploading .mod_uploading_main .uploading_item_product_img.activeBorder .el-upload--picture-card:hover .el-icon-plus{
+    color:#aaa;
+}
+.mod_uploading .mod_uploading_main .uploading_item_product_img.activeBorder .el-upload-list--picture-card{
+    position:initial;
+}
+.mod_uploading .mod_uploading_main .uploading_item_product_img.activeBorder .el-upload-list--picture-card .el-upload-list__item{
+    width:56px !important;
+    height:56px !important;
+    margin-right:5px;
+}
+.mod_uploading .mod_uploading_main .uploading_item_product_img.activeBorder .el-upload-list--picture-card .el-upload-list__item-actions:hover span{
+    display:inline-block;
+}
+.mod_uploading .mod_uploading_main .uploading_item_product_img.activeBorder .el-upload-list--picture-card .el-upload-list__item-actions span+span{
+    margin-left:6px;
+}
+.mod_uploading .mod_uploading_main .uploading_item_product_img .el-upload--picture-card{
+    border:none;
+}
+.mod_uploading .mod_uploading_main .uploading_item_product_img .main_product_img{
+    position:relative;
+    width:320px;
+    height:320px;
+    display:flex;
+}
+.mod_uploading .mod_uploading_main .uploading_item_product_img .el-upload-list--picture-card{
+    position: absolute;
+    bottom: 16px;
+    left: 10px;
+    z-index: 1;
+    display:flex;
+}
+.mod_uploading .mod_uploading_main .uploading_item_product_img .el-upload-list--picture-card .el-upload-list__item{
+    width:50px;
+    height:50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.mod_uploading .mod_uploading_main .uploading_item_product_img .el-upload-list--picture-card .el-upload-list__item img{
+  width: 100%;
+  height: auto;
+}
+.mod_uploading .mod_uploading_main .uploading_item_product_img .el-upload-dragger{
+    position:relative;
+    width:320px;
+    height:320px;
+}
+.mod_uploading .mod_uploading_main .uploading_item_product_img .el-icon-circle-plus{
+    color:#ccc;
+    font-size:67px;
+    margin-top:79px;
+}
+.mod_uploading .mod_uploading_main .uploading_item_product_img .upload_tips_suggest{
+    position: absolute;
+    font-size: 12px;
+    color: #8c8c8c;
+    bottom:115px;
+    right:21px;
+}
+/*.mod_uploading .mod_uploading_main .uploading_item_product_img:hover{*/
+    /*border-color:#15bafe;*/
+/*}*/
+.mod_uploading .mod_uploading_main .uploading_item_product_video{
+    /*position:relative;*/
+    display:flex;
+    align-items:center;
+    width:320px;
+    height:260px;
+    border:none;
+}
+.mod_uploading .mod_uploading_main .uploading_item_product_video.background{
+    background:#000;
+}
+.mod_uploading .uploading_item_product_video .uploading_video_view{
+    /*position:absolute;*/
+    /*left:0;*/
+    /*top:0;*/
+    width:320px;
+    max-height:260px;
+}
+.mod_uploading .uploading_item_product_video .uploading_video_delete{
+    position: relative;
+    font-size: 14px;
+    right: 15px;
+    top: -119px;
+    color: #fff;
+    z-index: 10;
+    cursor:pointer;
+}
+.mod_uploading .uploading_item_product_video .uploading_video_delete:hover{
+    color:#15bafe;
+}
+.mod_uploading .mod_uploading_main .mod_uploading_describe{
+    display:inline-block;
+    width:543px;
+    margin-left:19px;
+    vertical-align:top;
+}
+.mod_uploading .mod_uploading_describe .uploading_item_file{
+    width:100%;
+    height:121px;
+    padding:12px 0 0 10px;
+    border:1px solid #dcdcdc;
+    background:#fff;
+}
+.mod_uploading .mod_uploading_main .mod_uploading_describe .uploading_main_item{
+    margin-bottom:24px
+}
+.mod_uploading .mod_uploading_main .main_txt{
+    font-size:16px;
+    vertical-align:middle;
+}
+.mod_uploading .mod_uploading_main .icon{
+    width:20px;
+    vertical-align:middle;
+}
+.mod_uploading .mod_uploading_main .mod_uploading_describe .icon_price{
+    margin-right:0;
+}
+/*.mod_uploading .mod_uploading_main .uploading_main_repertory,*/
+/*.mod_uploading .mod_uploading_main .uploading_main_uprice{*/
+    /*display:inline-block;*/
+/*}*/
+/*.mod_uploading .mod_uploading_main .uploading_main_uprice{*/
+    /*margin-left:24px;*/
+/*}*/
+.mod_uploading .mod_uploading_main .mod_uploading_describe .main_title_input{
+    width:460px;
+}
+/*.mod_uploading .mod_uploading_main .uploading_main_repertory .main_repertory_input{*/
+    /*width:193px;*/
+/*}*/
+.mod_uploading .mod_uploading_main .uploading_main_uprice .main_uprice_input{
+    width:438px;
+}
+.mod_uploading_product .main_tag_add_box{
+    width:460px;
+}
+.mod_uploading_product .uploading_main_file .main_file_upload{
+    width:458px
+}
+.mod_uploading_product .uploading_main_file .main_file_upload .el-upload-list--picture-card{
+    top:28px;
+    left:13px;
+}
+.mod_uploading .mod_uploading_main .uploading_main_tag .main_tag_input{
+    width:208.37px;
+}
+.mod_uploading .mod_uploading_describe .main_item_tips{
+    /*left:68%!important;*/
+}
+.mod_uploading .uploading_main_pDetail .main_pDetail_editor{
+    width:800px;
+}
+.mod_uploading_product .uploading_main_file .main_file_upload .el-upload-dragger{
+    height:135px!important;
+}
+.mod_uploading_product .uploading_main_file .main_file_upload .uploading_tips .el-icon-plus{
+    margin-top:35px;
+}
+
+/********************************************************类别手风琴********************************************/
+.mod_uploading .mod_uploading_main .main_type_select{
+    position:relative;
+    width:880px;
+    display:flex;
+    justify-content:flex-start;
+}
+.mod_uploading .mod_uploading_main .el-steps--vertical{
+    position:relative;
+    top:30px;
+}
+.mod_uploading .mod_uploading_main .el-step.is-vertical .el-step__head{
+    width:44px!important;
+    transition:height .3s ease-in;
+}
+.mod_uploading .mod_uploading_main .el-step__head.is-wait{
+    height:0;
+    overflow:hidden;
+}
+.mod_uploading .mod_uploading_main .el-step__head.is-wait,
+.mod_uploading .mod_uploading_main .el-step__head.is-process{
+    color:#ccc!important;
+    border-color:#ccc!important;
+}
+.mod_uploading .main_type_select .el-step__head.is-finish{
+    color:#15bafe!important;
+    border-color:#15bafe!important;
+}
+.mod_uploading .mod_uploading_main .el-step__head .el-step__line{
+    transition:height .3s ease-in;
+}
+.mod_uploading .mod_uploading_main .el-step__head.is-process .el-step__line{
+    height:0;
+    overflow:hidden;
+}
+.mod_uploading .mod_uploading_main .el-step__head.is-finish .el-step__line{
+    height:100%;
+}
+.mod_uploading .mod_uploading_main .el-step__head.is-wait .el-step__icon,
+.mod_uploading .mod_uploading_main .el-step__head.is-process .el-step__icon{
+    background:#ccc!important;
+}
+.mod_uploading .main_type_select .el-step__head.is-finish .el-step__icon{
+    /*background:#15bafe!important;*/
+}
+.mod_uploading .mod_uploading_main .el-step__head.is-wait .el-step__icon{
+    height:0!important;
+}
+.mod_uploading .main_type_select .el-step.is-vertical .el-step__line{
+    top:5px!important;
+    bottom:-4px!important;
+    left:4.5px!important;
+    width:0;
+    border:1px dashed transparent;
+    border-left-color:#ccc;
+    background:none;
+}
+.mod_uploading .main_type_select .el-step__line-inner{
+    border-style:dashed;
+    border-left-color:#1A97FF;
+    position:absolute;
+    left:-1px;
+}
+.mod_uploading .main_type_select .el-step__icon{
+    width:8px!important;
+    height:8px!important;
+    left:2px;
+    transition:height 0s ease-in .3s;
+    overflow:hidden;
+    border:none;
+}
+.mod_uploading .main_type_select .el-step.is-vertical .el-step__main{
+    display:none!important;
+}
+/****分类选项****/
+.mod_uploading .main_type_select .step_type{
+    display:flex;
+    justify-content:flex-start;
+}
+.mod_uploading .main_type_select .step_type_item{
+    width:100px;
+    height:100px;
+    line-height:50px;
+    text-align:center;
+    cursor:pointer;
+    margin-right:10px;
+}
+.mod_uploading .main_type_select .step_type_item:last-child{
+    margin-right:0;
+}
+.mod_uploading .main_type_select .step_type_item:hover,
+.mod_uploading .main_type_select .step_type_item.active
+{
+    box-shadow:1px 1px 5px 1px #dfdfdf;
+}
+.mod_uploading .main_type_select .step_type_img .icon{
+    color:#ccc;
+    font-size:28px;
+}
+.mod_uploading .main_type_select .step_type_img .icon.icon-motuoche{
+    font-size:50px;
+}
+.mod_uploading .main_type_select .step_type_img .icon.icon-wurenji--,
+.mod_uploading .main_type_select .step_type_img .icon.icon-zhinengshebei{
+    font-size:32px;
+}
+.mod_uploading .main_type_select .step_type_item:hover .step_type_img .icon,
+.mod_uploading .main_type_select .step_type_item.active .step_type_img .icon{
+    color:#15bafe;
+}
+/****一级目录****/
+.mod_uploading .main_type_select .step_first_catalog,
+.mod_uploading .main_type_select .step_second_catalog,
+.mod_uploading .main_type_select .step_third_catalog,
+.mod_uploading .main_type_select .step_fourth_catalog{
+    display:flex;
+    justify-content:flex-start;
+    padding-bottom:5px;
+    border-bottom:1px dashed #E1E3E6;
+    min-width:618px;
+    max-width:756px;
+    margin-top:35px;
+    align-items: baseline;
+}
+.uploading_main_file .main_file_upload .el-upload--picture-card
+.mod_uploading .main_type_select .step_catalog{
+    width:100px;
+    height:32px;
+    color:#fff;
+    font-size:14px;
+    line-height:32px;
+    text-align:center;
+    background:#15bafe;
+}
+.mod_uploading .main_type_select .step_catalog_list {
+    display: flex;
+    flex-wrap: wrap;
+    /*justify-content: space-between;*/
+    min-width: 498px;
+    max-width:626px;
+
+}
+.mod_uploading .main_type_select .step_catalog_item{
+    position:relative;
+    min-width:120px;
+    height:28px;
+    line-height:28px;
+    text-align:center;
+    color:#646566;
+    font-size:12px;
+    cursor:pointer;
+    margin: 0 10px 10px 0;
+    border:1px solid #ccc;
+    padding: 0 10px;
+
+}
+.mod_uploading .main_type_select .step_catalog_item .step_catalog_item_selected{
+    position:absolute;
+    bottom:0;
+    right:0;
+}
+.mod_uploading .main_type_select .step_catalog_item.active{
+    /*border-color:#15bafe;*/
+    border-image:linear-gradient(135deg, rgba(0,240,254,1), rgba(26,151,255,1)) 1 1;
+}
+.mod_uploading .main_type_select .step_catalog_item .icon{
+    position:absolute;
+    bottom:0;
+    right:-15px;
+    color:#15bafe;
+}
+/*商品属性*/
+.mod_uploading .main_type_select .step_property{
+    margin-top:35px;
+}
+.mod_uploading .main_type_select .step_property_head{
+    width:100px;
+    height:32px;
+    line-height:32px;
+    text-align:center;
+    color:#fff;
+    font-size:14px;
+    background:#15bafe;
+}
+.mod_uploading .main_type_select .step_property_list{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:space-between;
+    width:100%;
+    margin-top:15px;
+}
+.mod_uploading .main_type_select .step_property_item{
+    width:100%;
+    margin-top:20px;
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:flex-start;
+}
+.mod_uploading .main_type_select .step_property_title{
+    width:100%;
+    padding-bottom:10px;
+    border-bottom:1px dashed #d9d9d9;
+}
+.mod_uploading .main_type_select .step_property_dot{
+    /*display:inline-block;*/
+    /*width:6px;*/
+    /*height:6px;*/
+    color:#FF4D4F;
+    font-size:14px;
+    margin-right:4px;
+    /*border-radius:50%;*/
+    /*background:#000;*/
+    vertical-align:middle;
+}
+.mod_uploading .main_type_select .step_property_txt{
+    color:#323333;
+    font-size:14px;
+}
+.mod_uploading .main_type_select .step_property_selective{
+    color:#969899;
+    font-size:12px;
+    letter-spacing:2px;
+}
+.mod_uploading .main_type_select .step_property_child{
+    display:flex;
+    flex-wrap:wrap;
+    margin-top:10px;
+}
+.mod_uploading .main_type_select .step_child_item{
+    position:relative;
+    width:80px;
+    height:28px;
+    color:#646566;
+    text-align:center;
+    line-height:28px;
+    /*padding:0 8px;*/
+    margin:0 10px 10px 0;
+    overflow:hidden;
+    white-space:nowrap;
+    cursor:pointer;
+    user-select:none;
+    border:1px solid rgba(225,227,230,1);
+    box-sizing:border-box;
+    /*border-radius:5px;*/
+    /*box-shadow:1px 1px 1px 1px #dfdfdf;*/
+}
+.mod_uploading .main_type_select .step_child_item:nth-child(4n){
+    margin-right: 0
+}
+.mod_uploading .main_type_select .step_child_item.active{
+    color:#323333;
+    /*background:#15bafe;*/
+    border:1px solid;
+    border-image:linear-gradient(135deg, rgba(0,240,254,1), rgba(26,151,255,1)) 1 1;
+}
+.mod_uploading .main_type_select .step_child_item .step_property_item_selected{
+    position:absolute;
+    right:0;
+    bottom:0;
+}
+.mod_uploading .main_type_select .step_property_import,
+.mod_uploading .main_type_select .step_property_input_box{
+    display:inline-block;
+}
+.mod_uploading .main_type_select .step_property_input_box{
+    flex:1;
+    position:relative;
+    margin-left:10px;
+    display: flex;
+}
+.mod_uploading .main_type_select .step_property_input{
+    width:100%;
+    height:32px;
+    line-height:32px;
+    border:1px solid rgba(225,227,230,1);;
+    /*border-bottom:1px solid #ccc;*/
+    /*padding-bottom:3px;*/
+    padding-left:10px;
+    box-sizing:border-box;
+}
+.mod_uploading .main_type_select .step_property_input:focus{
+    border-color:#1A97FF;
+}
+.mod_uploading .main_type_select .step_property_input::-webkit-input-placeholder { /* WebKit, Blink, Edge */
+    color:#C8CACC;
+    font-size:12px;
+}
+.mod_uploading .main_type_select .step_property_input:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+    color:#C8CACC;
+    font-size:12px;
+}
+.mod_uploading .main_type_select .step_property_input::-moz-placeholder { /* Mozilla Firefox 19+ */
+    color:#C8CACC;
+    font-size:12px;
+}
+.mod_uploading .main_type_select .step_property_input:-ms-input-placeholder { /* Internet Explorer 10-11 */
+    color:#C8CACC;
+    font-size:12px;
+}
+.mod_uploading .main_type_select .step_property_unit{
+    position:absolute;
+    top:1px;
+    right:1px;
+    width:40px;
+    height:30px;
+    color:#969899;
+    font-size:12px;
+    line-height:30px;
+    text-align:center;
+    background:rgba(240,243,245,1);
+}
+.mod_uploading .main_type_select .step_property_line{
+    position:absolute;
+    bottom:-0.5px;
+    right:0;
+    display:block;
+    width:100%;
+}
+.mod_uploading .main_type_select .step_property_line_inner{
+    display:block;
+    width:0;
+    height:1px;
+    background:#000;
+    margin:0 auto;
+}
+.mod_uploading .main_type_select .step_property_input:focus+.step_property_line .step_property_line_inner{
+    animation:borderShow .8s ease-out forwards;
+}
+/*2个及以上输入框*/
+.mod_uploading .main_type_select .step_property_input_box.step_property_input_two{
+    width:86%;
+}
+.mod_uploading .main_type_select .step_property_input_two .step_property_input,
+.mod_uploading .main_type_select .step_property_input_two .step_property_line{
+    display:inline-block;
+    width:47%;
+}
+.mod_uploading .main_type_select .step_property_input_two .step_property_line{
+    left:0;
+}
+.mod_uploading .main_type_select .step_property_input_two .step_property_line~.step_property_line{
+    left:52%;
+}
+/*3个及以上输入框*/
+.mod_uploading .main_type_select .step_property_type{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:flex-start;
+    margin-top:20px;
+    width:350px;
+    margin-right:26px;
+}
+.mod_uploading .main_type_select .step_property_type:nth-child(2n){
+    margin-right:0;
+}
+.mod_uploading .main_type_select .step_property_type.step_property_input_item{
+    justify-content:space-between;
+}
+.mod_uploading .main_type_select .step_property_input_other{
+    display:flex;
+    justify-content:space-between;
+    width:86%;
+}
+.mod_uploading .main_type_select .step_input_others{
+    position:relative;
+    width:29%;
+}
+.mod_uploading .main_type_select .step_input_others .step_property_input,
+.mod_uploading .main_type_select .step_input_others .step_property_line{
+    width:100%;
+}
+.mod_uploading .main_type_select .step_input_others .step_property_line{
+    bottom:0;
+}
+/*border动画*/
+@keyframes borderShow{
+    0%{
+        width:0;
+    }
+    100%{
+        width:100%;
+    }
+}
+/*******************************************类别导航************************************************/
+.el-menu-vertical-demo{
+    /*position:relative;*/
+    position:initial;
+    color:#fff;
+    background:#292233;
+    border-right:none;
+}
+.el-menu-vertical-demo span{
+    color:#fff;
+}
+.el-menu--inline{
+    position:absolute;
+    top:0;
+    left:120px;
+}
+.el-menu-vertical-demo .el-menu--inline .el-submenu__title{
+    padding:0!important;
+    text-align:center;
+}
+.el-menu-vertical-demo .el-menu--inline .el-menu--inline{
+    left:171px;
+}
+.el-menu-vertical-demo .el-menu--inline .el-menu--inline .el-menu-item{
+    padding:0!important;
+    margin:0 auto;
+    min-width:0;
+}
+.el-menu-vertical-demo .el-menu--inline .el-menu--inline .el-menu-item.is-active{
+    background:#15bafe;
+}
+.el-menu-vertical-demo .el-menu--inline .el-menu--inline .el-menu-item div{
+    width:140px;
+    margin:0 auto;
+    border-bottom:1px solid #eaeaea;
+}
+.el-menu-vertical-demo .el-menu--inline .el-menu--inline .el-menu-item:last-child div{
+    border-bottom:none;
+}
+.is-opened{
+    color:#15bafe;
+    background:#362e43;
+}
+.is-opened span{
+    color:#15bafe;
+}
+.el-submenu__title:hover{
+    background:#362e43!important;
+}
+.el-menu-vertical-demo .el-menu--inline{
+    background:#fff!important;
+    width:170px;
+    color:#000;
+}
+.is-opened .el-menu--inline .is-opened{
+    color:#fff;
+    background:#15bafe!important;
+}
+.is-opened .el-menu--inline .is-opened .el-submenu__title{
+    color:#fff;
+}
+.is-opened .el-menu--inline .el-submenu__title:hover{
+    background:#ecf5ff!important;
+}
+.el-icon-arrow-down{
+    display:none;
+}
+/*********************************************图片上传***********************************/
+.uploading_img_box .el-upload-dragger{
+    width:800px;
+    height:112px;
+    border-width:1px;
+}
+.uploading_img_box .el-upload-dragger.is-dragover{
+    background-color:#f2f2f2;
+}
+.uploading_img_box .el-upload--picture-card{
+    border:none;
+}
+.uploading_img_box .el-upload-dragger .uploading_tips{
+    width:100%;
+    height:100%;
+    line-height:initial;
+}
+.uploading_img_box .el-upload-list--picture-card{
+    position:absolute;
+    top:16px;
+    left:10px;
+    z-index:1;
+}
+.uploading_img_box .el-upload-dragger .el-icon-plus{
+    margin-top:29px;
+}
+.uploading_img_box .el-upload-dragger .el-upload__txt{
+    margin-top:39px;
+    font-size:16px;
+}
+.el-upload-list--picture-card .el-upload-list__item{
+    width:95px;
+    height:95px;
+    margin-bottom:0;
+}
+.el-upload--picture-card{
+    width:95px;
+    height:95px;
+    line-height:initial;
+}
+.el-upload-list--picture-card .el-progress{
+    margin-left:17px;
+}
+.uploading_item_product_img .el-progress__text,
+.uploading_item_file .el-progress__text{
+    left:-15px;
+}
+
+/*******************************************文件上传********************************/
+.uploading_main_file .main_file_upload{
+    width:60.32%;
+    background:#fff;
+}
+.main_file_upload .el-progress__text{
+    left:-15px;
+}
+.main_file_upload .el-upload-list--picture-card .el-upload-list__item{
+    margin-bottom:0;
+}
+
+/********************************************视频上传*********************************/
+.upload-demo .el-upload-dragger{
+    width:320px!important;
+    height:266px!important;
+    border:2px dashed #c6c6c6!important;
+}
+.upload-demo .el-upload-dragger.is-dragover{
+    background-color:#f2f2f2!important;
+}
+.upload-demo .el-upload-dragger:hover{
+    border-color:#15bafe!important;
+}
+.upload-demo .el-upload-dragger .el-icon-upload{
+    margin-top:36px!important;
+}
+.el-progress-circle{
+    width:93px!important;
+    height:93px!important;
+}
+
+/***********************************文本编辑器**********************************/
+.mod_uploading .ql-container{
+    height:302px;
+    background:#fff;
+}
+
+
+
+/***************************************视频上传**********************************/
+.mod_uploading .mod_uploading_video{
+    position:relative;
+    width:800px;
+    height:160px;
+    margin-bottom:22px;
+}
+.mod_uploading .mod_uploading_video .upload_video{
+    display:inline-block;
+    width:517px;
+    height:160px;
+    vertical-align:middle;
+}
+.mod_uploading .mod_uploading_video .encyclopedia_cover_box{
+    display:inline-block;
+    width:271px;
+    height:160px;
+    margin-left:6px;
+    vertical-align:middle;
+}
+.mod_uploading .mod_uploading_video .encyclopedia_cover_box .el-upload{
+    display:block;
+}
+.mod_uploading .mod_uploading_video .encyclopedia_cover_box .el-upload-dragger{
+    width:271px!important;
+    height:160px!important;
+}
+.mod_uploading .mod_uploading_video .encyclopedia_cover_box .el-upload-dragger:hover{
+    border-color:#15bafe!important;
+}
+.mod_uploading .mod_uploading_video .encyclopedia_cover_box .el-upload--picture-card, .el-upload:focus{
+    border:none;
+}
+.mod_uploading .mod_uploading_video .encyclopedia_cover_box .el-upload--picture-card{
+    width:100%;
+    height:100%;
+}
+.mod_uploading .mod_uploading_video .encyclopedia_cover_box .el-upload-list--picture-card .el-upload-list__item{
+    width:100%;
+    height:100%;
+}
+.mod_uploading .mod_uploading_video .encyclopedia_cover_box .el-upload-dragger .uploading_tips{
+    width:100%;
+    height:100%;
+}
+.mod_uploading .mod_uploading_video .encyclopedia_cover_box .el-upload-dragger .uploading_tips i{
+    margin-top:42px;
+}
+.mod_uploading .mod_uploading_video .encyclopedia_cover_box .el-upload-dragger .uploading_tips .el-upload__txt{
+    margin-top:62px;
+    color: #aaaaaa;
+    font-size: 18px;
+}
+.mod_uploading .mod_uploading_video .encyclopedia_cover_box .el-upload-dragger .el-icon-circle-plus{
+    font-size:67px;
+    color:#ccc;
+}
+.mod_uploading .mod_uploading_video .el-upload-dragger{
+    width:517px;
+    height:160px;
+    border-width:1px;
+}
+.mod_uploading .mod_uploading_video .upload_video_status{
+    margin-top:22px;
+}
+.mod_uploading .mod_uploading_video .upload_video_status .video_error_txt,
+.mod_uploading .mod_uploading_video .upload_video_status .video_success_msg{
+    color:#000;
+    font-size:22px;
+    font-weight:800;
+}
+.mod_uploading .mod_uploading_video .upload_video_status .video_error_msg{
+    color:#adadad;
+}
+.mod_uploading .uploading_video_title .icon{
+    vertical-align:bottom;
+}
+.mod_uploading .uploading_video_title .main_title_input{
+    width:800px;
+    height:32px;
+    box-sizing:border-box;
+}
+.mod_uploading .uploading_main_part .part_info{
+    display:inline-block;
+    width:765px;
+    margin-left:11px;
+    padding-bottom:3px;
+    border-bottom:1px solid #ccc;
+}
+.mod_uploading .uploading_main_part .part_info:hover{
+    border-color:#aaa;
+}
+.mod_uploading .uploading_main_part .part_info.active{
+    border-color:#aaa;
+}
+.mod_uploading .uploading_main_part .figure_list{
+    margin-top:17px;
+}
+.mod_uploading .uploading_main_part .list_item{
+    width:800px;
+    margin-bottom:10px;
+}
+.mod_uploading .uploading_main_part .figure_list .el-icon-delete{
+    color:#999999;
+    font-size:20px;
+    cursor:pointer;
+    vertical-align:middle;
+}
+.mod_uploading .uploading_main_part .figure_list .el-icon-delete:hover{
+    color:#15bafe;
+}
+.mod_uploading .uploading_main_part .part_info_name{
+    height:24px;
+    padding:5px 8px;
+    line-height:24px;
+    color: #999999;
+    font-size:16px;
+    background:#fff;
+    border:1px solid #dcdcdc;
+}
+.mod_uploading .uploading_main_part .part_info .el-input__inner{
+    border:none;
+}
+.mod_uploading .main_part_detail .el-input--suffix{
+    width:800px;
+}
+.mod_uploading .el-input--suffix .el-input__inner{
+    height:32px;
+    padding-right:75px;
+}
+.main_part_detail .el-icon-circle-plus{
+    color:#d2d2d2;
+    font-size:24px;
+    border-right:none;
+    cursor:pointer;
+}
+.main_part_detail .el-input .el-input__clear{
+    position:relative;
+    left:-41px;
+}
+.mod_uploading_video_box .quill-editor{
+    width:800px!important;
+}
+.mod_uploading_video_box .uploading_main_tag .input-new-tag{
+    width:100%;
+}
+.mod_uploading_video_box .mod_uploading_confirm{
+    width:800px;
+}
+.mod_uploading .uploading_main_radio .main_radio_txt{
+    display:inline-block;
+    color:#999;
+    font-size:14px;
+    padding:3px 8px;
+    border:1px solid #ccc;
+    border-radius:5px;
+    cursor:pointer;
+    user-select:none;
+}
+.mod_uploading .uploading_main_radio .el-icon-success{
+    margin-left:5px;
+}
+.mod_uploading .uploading_main_radio .main_radio_txt.active{
+    color:#fff;
+    background:#15bafe;
+    border-color:#15bafe;
+}
+.mod_uploading_video_box .uploading_main_part .el-icon-circle-plus{
+    top:4px!important;
+}
+
+/****************************************上传百科***************************************************/
+.uploading_encyclopedia_nav .el-tabs--border-card{
+    background:#f2f2f2;
+    box-shadow:none;
+    border:0;
+}
+.uploading_encyclopedia_nav .el-tabs--border-card>.el-tabs__header .el-tabs__item{
+    position:relative;
+    margin-right:20px;
+    background:#fff;
+    transition:all -1s;
+}
+.uploading_encyclopedia_nav .el-tabs--border-card>.el-tabs__header .el-tabs__item:after{
+    content:'';
+    position:absolute;
+    top:-4px;
+    right:-21.4px;
+    width:0;
+    height:0;
+    border-right:11px solid transparent;
+    border-top:23px solid transparent;
+    border-bottom:23px solid transparent;
+    border-left:11px solid #fff;
+}
+.uploading_encyclopedia_nav .el-tabs--border-card>.el-tabs__header .el-tabs__item:not(:nth-child(1)):before{
+    content:'';
+    position:absolute;
+    top:-3px;
+    right:75.6px;
+    width:0;
+    height:0;
+    border-right:11px solid transparent;
+    border-top:23px solid transparent;
+    border-bottom:23px solid transparent;
+    border-left:11px solid #f4f4f4;
+}
+.uploading_encyclopedia_nav .el-tabs--border-card>.el-tabs__header .el-tabs__item.is-active{
+    background:#15bafe;
+    color:#fff;
+}
+.uploading_encyclopedia_nav .el-tabs--border-card>.el-tabs__header .el-tabs__item.is-active:after{
+    border-left-color:#15bafe;
+}
+
+.uploading_encyclopedia_nav .el-tabs--border-card>.el-tabs__header{
+    margin-bottom:17px;
+    background-color:#f2f2f2;
+    border-bottom:none;
+}
+.uploading_encyclopedia_nav .el-tabs--border-card>.el-tabs__content{
+    background:#fff;
+    box-shadow:0 2px 4px 0 rgba(0,0,0,.12), 0 0 6px 0 rgba(0,0,0,.04);
+}
+.uploading_encyclopedia_step{
+    color:#c9c9c9;
+    font-size:20px;
+    margin-bottom:37px;
+}
+.uploading_encyclopedia_step:before{
+    content:'';
+    position:relative;
+    left:-15px;
+    width:0;
+    height:0;
+    border-right-width:3.5px;
+    border-top-width:0;
+    border-bottom-width:0;
+    border-left-width:3.5px;
+    border-color:#15bafe;
+    border-style:solid;
+}
+.uploading_encyclopedia_info{
+    margin-left:38px;
+}
+.encyclopedia_info_cover,
+.encyclopedia_info_details{
+    display:inline-block;
+}
+.encyclopedia_info_details{
+    margin-left:28px!important;
+    margin-top:0!important;
+    vertical-align:top;
+}
+.encyclopedia_cover_box{
+    overflow:hidden;
+    width:320px;
+    height:320px;
+    background:#f4f4f4;
+    /*border:1px dashed #cbcbcb;*/
+    text-align:center;
+}
+.encyclopedia_cover_box .el-upload--picture-card{
+    width:320px!important;
+    height:320px!important;
+    line-height:initial!important;
+    border:none;
+    background:#f4f4f4;
+}
+.encyclopedia_cover_box .el-upload--picture-card .el-upload-dragger{
+    width:320px!important;
+    height:320px!important;
+    border:1px dashed #ccc!important;
+}
+.encyclopedia_cover_box .el-upload--picture-card .el-upload-dragger:hover{
+    border-color:#15bafe!important;
+}
+.encyclopedia_cover_box .el-upload--picture-card i{
+    margin-top:100px;
+}
+.encyclopedia_cover_box .el-upload--picture-card .encyclopedia_cover_describe{
+    color:#aaaaaa;
+    font-size:18px;
+}
+.encyclopedia_cover_box .el-upload--picture-card .encyclopedia_cover_suggest{
+    color:#aaaaaa;
+}
+.encyclopedia_cover_box .el-upload-list--picture-card .el-upload-list__item{
+    width:320px;
+    height:320px;
+}
+.encyclopedia_cover_box .el-progress__text{
+    left:-15px;
+}
+.mod_uploading .uploading_encyclopedia_info .uploading_tips{
+    height:320px;
+}
+.mod_uploading .uploading_encyclopedia_info .uploading_tips .el-upload__txt{
+    margin-top:150px;
+    font-size:16px;
+}
+.mod_uploading .uploading_encyclopedia_info .encyclopedia_info_details .main_txt{
+    vertical-align:middle;
+}
+.mod_uploading .uploading_encyclopedia_info .encyclopedia_info_details .main_title_input{
+    width:779px;
+    /*border:none;*/
+    border-radius:0;
+    /*border-bottom:1px solid #dcdcdc;*/
+}
+.mod_uploading .uploading_encyclopedia_info .encyclopedia_info_details .main_tag_add_box{
+    width:779px;
+    border-bottom:1px solid #dcdcdc;
+}
+.mod_uploading .uploading_encyclopedia_info .encyclopedia_info_details .main_tag_add_box.active{
+    padding-right:20px;
+    display: flex;
+}
+.mod_uploading .uploading_encyclopedia_info .encyclopedia_info_details .el-input{
+  /*width:50%;*/
+  flex: 1;
+}
+.mod_uploading .uploading_encyclopedia_info .encyclopedia_info_details .el-input__inner{
+    border:none;
+}
+.mod_uploading .uploading_encyclopedia_info .encyclopedia_info_details .el-icon-circle-plus{
+    float:left;
+    color:#d2d2d2;
+    font-size:20px;
+    padding:0 10px;
+    /*margin-right:10px;*/
+    /*border-right:1px solid #dcdcdc;*/
+    vertical-align:middle;
+}
+.mod_uploading .uploading_encyclopedia_info .encyclopedia_info_details .el-icon-circle-plus.active{
+    margin-right:10px;
+    border-right:1px solid #dcdcdc;
+}
+.mod_uploading .uploading_encyclopedia_info .encyclopedia_info_details .el-tag{
+    float:right;
+}
+.mod_uploading .uploading_encyclopedia_info .encyclopedia_info_details .uploading_main_item{
+    width:779px;
+}
+.mod_uploading .uploading_encyclopedia_info .encyclopedia_info_details .quill-editor{
+    width:100%;
+}
+.mod_uploading .uploading_encyclopedia_info .encyclopedia_info_details .main_type_list_describe{
+    width:179px;
+    right:30px;
+}
+.mod_uploading .uploading_encyclopedia_info .encyclopedia_info_details .main_type_list{
+    width:100%;
+}
+/*.mod_uploading .uploading_encyclopedia_info .encyclopedia_info_details .list_item{*/
+    /*width:137.53px;*/
+/*}*/
+/*.mod_uploading .uploading_encyclopedia_info .encyclopedia_info_details .type_list_nav{*/
+    /*border-color:#fff;*/
+/*}*/
+.mod_uploading .uploading_encyclopedia_info .encyclopedia_info_details .type_list_nav:first-child:before{
+    left:6%;
+}
+.mod_uploading .uploading_encyclopedia_info .encyclopedia_info_details .type_list_nav:nth-child(2):before{
+    left:23%;
+}
+.mod_uploading .uploading_encyclopedia_info .encyclopedia_info_details .type_list_nav:nth-child(3):before{
+     left:40%;
+}
+.mod_uploading .uploading_encyclopedia_info .encyclopedia_info_details .type_list_nav:last-child:before{
+    left:56.5%;
+}
+.uploading_submit{
+    position:absolute;
+    bottom:20px;
+    left:44%;
+    width:213px;
+    margin:26px auto 0;
+}
+.uploading_submit .submit_btn{
+    color:#fff;
+    padding:10px 50px;
+    font-size:20px;
+    border-radius:5px;
+    background:#15bafe;
+}
+.uploading_submit .submit_btn.active{
+    background:#ccc;
+    cursor:not-allowed;
+}
+.uploading_submit .submit_btn .icon{
+    width:20px;
+    height:20px;
+    vertical-align:middle;
+    background:url(/static/img/icon/release_1.png) 0 0 no-repeat;
+}
+.mod_uploading .uploading_create_catalogue{
+    margin-bottom:51px;
+}
+.mod_uploading .catalogue_list,
+.mod_uploading .catalogue_compile,
+.mod_uploading .compile_encyclopedia_detail{
+    display:inline-block;
+    min-height:400px;
+    vertical-align:top;
+}
+.mod_uploading .catalogue_list{
+    min-width:200px;
+    margin-left:68px;
+    padding-right:80px;
+    border-right:1px solid #b4b4b4;
+}
+.mod_uploading .catalogue_list li{
+    cursor:pointer;
+}
+.mod_uploading .catalogue_list .list_item{
+    margin-top:10px;
+}
+.mod_uploading .uploading_create_catalogue .catalogue_compile{
+    width:700px;
+    margin-left:87px;
+    vertical-align:top;
+}
+.mod_uploading .uploading_create_catalogue .catalogue_compile .icon{
+    width:20px;
+    height:20px;
+    vertical-align:middle;
+}
+.mod_uploading .uploading_create_catalogue .catalogue_compile .main_txt{
+    font-size:18px;
+    font-weight:800;
+}
+.mod_uploading .uploading_create_catalogue .first_level_input .main_txt_describe{
+    color:#15bafe;
+}
+.mod_uploading .uploading_create_catalogue .catalogue_compile input{
+    width:100%;
+    margin:10px 0 15px;
+    border:none;
+    border-bottom:1px solid #dcdcdc;
+}
+.mod_uploading .first_level{
+    list-style:disc;
+}
+.mod_uploading .second_level{
+    list-style:square inside url('/static/img/icon/score.png');
+ }
+.mod_uploading .uploading_create_catalogue .first_level_input,
+.mod_uploading .uploading_create_catalogue .second_level_input{
+    position:relative;
+}
+.mod_uploading .catalogue_list .first_level_txt{
+    font-size:16px;
+    font-weight:800;
+}
+.mod_uploading .catalogue_list .first_level_txt.active{
+    color:#15bafe;
+}
+.mod_uploading .catalogue_list .second_level_txt.active{
+    color:#15bafe;
+}
+
+.mod_uploading .uploading_create_catalogue .catalogue_compile .el-icon-circle-plus{
+    position:absolute;
+    cursor:pointer;
+    color:#e2e2e2;
+    font-size:20px;
+    bottom:20px;
+    right:10px;
+}
+
+.mod_uploading .compile_encyclopedia_detail{
+    margin-left:87px;
+}
+.mod_uploading .compile_encyclopedia_detail .icon_rectangle{
+    display:inline-block;
+    width:5px;
+    height:20px;
+    background:#15bafe;
+    vertical-align:bottom;
+}
+.mod_uploading .compile_encyclopedia_detail .main_txt{
+    font-size:16px;
+    font-weight:800;
+    vertical-align:bottom
+}
+.mod_uploading .compile_encyclopedia_detail .encyclopedia_editor{
+    width:700px;
+    height:305px;
+    margin-top:14px;
+}
+.mod_uploading .compile_encyclopedia_detail .encyclopedia_editor .ql-container{
+    height:210px;
+}
+.mod_uploading .compile_encyclopedia_detail .uploading_main_file .main_file_upload{
+    width:700px;
+    height:141px;
+    /*border:1px solid #dcdcdc;*/
+    margin-top:10px;
+    /*padding-left:10px;*/
+    /*padding-top:30px;*/
+}
+.mod_uploading .compile_encyclopedia_detail .uploading_main_file .icon{
+    width:20px;
+    height:20px;
+    vertical-align:middle;
+}
+.mod_uploading .compile_encyclopedia_detail .main_file_upload .el-upload--picture-card{
+    width:700px;
+}
+
+.mod_uploading .compile_encyclopedia_detail .main_file_upload .el-upload-dragger{
+    width:700px;
+}
+.mod_uploading .compile_encyclopedia_detail .uploading_main_part{
+    margin-bottom:70px;
+}
+.mod_uploading .compile_encyclopedia_detail .main_part_detail .el-input--suffix{
+    width:698px;
+}
+.mod_uploading .compile_encyclopedia_detail .uploading_main_part .main_head{
+    margin-bottom:14px;
+}
+.mod_uploading .compile_encyclopedia_detail .el-input--suffix .el-input__inner{
+    width:100%;
+}
+.mod_uploading .compile_encyclopedia_detail .uploading_main_part .list_item{
+    width:100%;
+}
+.mod_uploading .compile_encyclopedia_detail .uploading_main_part .part_info{
+    width:664px;
+}
+.compile_encyclopedia_detail .uploading_main_part .el-icon-circle-plus{
+    position: relative;
+    top: 4px;
+    left: -32px;
+}
+
+
+
+/*****************************************上传文章****************************************************/
+.mod_uploading_article .mod_uploading_main{
+    margin-left:0;
+    margin-bottom:80px;
+}
+.mod_uploading_article .el-input{
+    width:800px;
+    margin-bottom:8px;
+}
+.mod_uploading_article .quill-editor{
+    width:800px;
+    margin-bottom:31px;
+}
+.mod_uploading_article .uploading_main_file .main_file_upload{
+    width:800px;
+}
+.uploading_main_file .main_file_upload{
+    position:relative;
+    width:800px;
+    /*padding:15px 0 15px 10px;*/
+    /*border:1px solid #dcdcdc;*/
+}
+.mod_uploading_article .mod_uploading_main .main_type_list_describe{
+    width:207px;
+}
+.mod_uploading_article .main_type_list .type_list_nav{
+    border-color:#fff;
+}
+.mod_uploading_article .mod_uploading_confirm{
+    position:relative!important;
+    top:-60px;
+    right:0;
+    width:800px;
+}
+.mod_uploading_article .uploading_item_video{
+    border:none;
+}
+
+.uploading_main_file .main_file_upload .el-upload-dragger{
+    width:100%!important;
+    height:112px!important;
+    border-width:1px!important;
+}
+.uploading_main_file .main_file_upload .el-upload-dragger.is-dragover{
+    background-color:#f2f2f2;
+}
+.uploading_main_file .main_file_upload .el-upload--picture-card{
+    width:100%!important;
+    height:112px!important;
+    border:none!important;
+    line-height:initial!important;
+}
+.uploading_main_file .main_file_upload .el-upload-list--picture-card{
+    position:absolute;
+    top:16px;
+    left:10px;
+    z-index:1;
+}
+.uploading_main_file .main_file_upload .uploading_tips{
+    width:100%;
+    height:100%;
+}
+.uploading_main_file .main_file_upload .uploading_tips .el-icon-plus{
+    margin-top:29px;
+}
+.uploading_main_file .main_file_upload .uploading_tips .el-upload__txt{
+    margin-top:39px;
+    font-size:16px;
+}

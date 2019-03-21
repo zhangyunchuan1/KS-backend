@@ -44,31 +44,40 @@
               placeholder="订单ID搜索"
               v-model="searchObj.merchantSearch"
               class="input-with-select"
+              @keyup.enter.native="search"
             >
               <el-button @click="search" slot="append" icon="el-icon-search"></el-button>
             </el-input>
           </div>
           <div>
-            <el-input placeholder="订单状态选择" v-model="searchObj.status" class="input-with-select">
+            <!-- <el-input placeholder="订单状态选择" v-model="searchObj.status" class="input-with-select">
+              <el-button @click="search" slot="append" icon="el-icon-search"></el-button>
+            </el-input> -->
+            <el-select v-model="orderValue" clearable placeholder="订单状态选择" @change="getTableList(null)">
+              <el-option
+                v-for="item in orderStatus"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+              </el-option>
+            </el-select>
+          </div>
+          <div>
+            <el-input placeholder="商品名称搜索" v-model="searchObj.name" class="input-with-select" @keyup.enter.native="search">
               <el-button @click="search" slot="append" icon="el-icon-search"></el-button>
             </el-input>
           </div>
           <div>
-            <el-input placeholder="商品名称搜索" v-model="searchObj.name" class="input-with-select">
-              <el-button @click="search" slot="append" icon="el-icon-search"></el-button>
-            </el-input>
-          </div>
-          <div>
-            <el-input placeholder="公司名称搜索" v-model="searchObj.company" class="input-with-select">
+            <el-input placeholder="公司名称搜索" v-model="searchObj.company" class="input-with-select" @keyup.enter.native="search">
               <el-button @click="search" slot="append" icon="el-icon-search"></el-button>
             </el-input>
           </div>
         </div>
       </div>
 
-      <div class="mallReview_content_box" style="width: 93%">
+      <div class="mallReview_content_box">
         <el-table :data="tableData" :border="true" style="width: 100%">
-          <el-table-column label="订单ID" align="center" width="100" prop="id" show-overflow-tooltip sortable></el-table-column>
+          <el-table-column label="订单ID" align="center" width="150" prop="order_no" show-overflow-tooltip sortable></el-table-column>
 
           <el-table-column label="商品名称" align="center" width="160" prop="title" show-overflow-tooltip>
             <template slot-scope="scope">
@@ -92,44 +101,41 @@
             label="订单状态"
             align="center"
             show-overflow-tooltip
-            :filters="[{text: '未付款', value: 1}, {text: '已付款未发货', value: 2},{text: '已发货未收货', value: 3},{text: '已收货', value: 4},{text: '已打款', value: 5},{text: '失效', value: 7}]"
+            :filters="[{text: '未发货', value: 1}, {text: '已发货', value: 2}]"
             :filter-method="filterSecondary"
             width="120"
-            prop="status"
+            prop="admin_status"
           >
           <template slot-scope="scope">
-            <span v-if="scope.row.status == 1" class="audit_color">未付款</span>
-            <span v-if="scope.row.status == 2">已付款未发货</span>
-            <span v-if="scope.row.status == 3">已发货未收货</span>
-            <span v-if="scope.row.status == 4">已收货</span>
-            <span v-if="scope.row.status == 5">已打款</span>
-            <span v-if="scope.row.status == 7">失效</span>
-            <!-- <span>{{scope.row.status == 1?'未付款':scope.row.status == 2?'已付款未发货':scope.row.status == 3?'已发货未收货':scope.row.status == 4?'已收货':scope.row.status == 5?'已打款':scope.row.status==7?'失效':''}}</span> -->
+            <span class="wait_color" v-if="scope.row.admin_status == 1">未发货</span>
+            <span class="end_color" v-if="scope.row.admin_status == 2">已发货</span>
           </template>
           </el-table-column>
 
-          <el-table-column label="操作" align="center" fixed="right" class-name="mallReview_scope">
+          <el-table-column label="操作"
+                align="center"
+                min-width="350"
+                fixed="right" >
             <template slot-scope="scope">
-              <div class="mallReview_btm">
-                <el-button size="medium " type="text" @click="checkProductionModal(scope.row)">查看商品</el-button>
-                <el-button size="medium " type="text" @click="refundModal(scope.row)">退款</el-button>
+              
+                <el-button type="primary" plain size="mini" @click="checkProductionModal(scope.row)">查看商品</el-button>
+                <el-button type="primary" plain size="mini" @click="refundModal(scope.row)">退款</el-button>
                 <el-button
-                  size="medium "
-                  type="text"
+                  type="primary" plain size="mini"
                   @click="checkExpressModal(scope.row)"
                   v-if="scope.row.status == 4"
                 >查看物流</el-button>
                 <el-button
-                  size="medium "
-                  type="text"
+                  type="primary" plain size="mini"
                   @click="addExpressModal(scope.row)"
                   v-if="scope.row.status == 2"
                 >添加物流</el-button>
-                <el-button size="medium " type="text" @click="businessInfoModal(scope.row)">商家信息</el-button>
-                <el-button size="medium " type="text" @click="userInfoModal(scope.row)">用户信息</el-button>
-                <el-button size="medium " type="text" @click="remarkModal(scope.row)">备注</el-button>
-                <el-button size="medium " type="text" @click="orderDetailModal(scope.row)">订单详情</el-button>
-              </div>
+                <el-button type="primary" plain size="mini" @click="businessInfoModal(scope.row)">商家信息</el-button>
+                <el-button type="primary" plain size="mini" @click="userInfoModal(scope.row)">用户信息</el-button>
+                <el-button type="primary" plain size="mini" @click="remarkModal(scope.row)">备注</el-button>
+                <el-button type="primary" plain size="mini" @click="buyerRemarks(scope.row.order_id)">买家备注</el-button>
+                <el-button type="primary" plain size="mini" @click="orderDetailModal(scope.row)">订单详情</el-button>
+              
             </template>
           </el-table-column>
         </el-table>
@@ -225,7 +231,7 @@
       <div class="disable_dialog_box">
         <div class="disable_dialog_left">商品ID：</div>
         <div class="disable_dialog_right">
-          <el-input v-model="detailObj.product_id" type="textarea" resize="none" readonly :rows="1"></el-input>
+          <el-input v-model="detailObj.id" type="textarea" resize="none" readonly :rows="1"></el-input>
         </div>
       </div>
       <div class="disable_dialog_box">
@@ -244,6 +250,18 @@
         </div>
       </div>
       <div class="disable_dialog_box">
+        <div class="disable_dialog_left">用户昵称：</div>
+        <div class="disable_dialog_right">
+          <el-input v-model="detailObj.nickname" type="textarea" resize="none" readonly :rows="1"></el-input>
+        </div>
+      </div>
+      <div class="disable_dialog_box">
+        <div class="disable_dialog_left">用户ID：</div>
+        <div class="disable_dialog_right">
+          <el-input v-model="detailObj.user_id" type="textarea" resize="none" readonly :rows="1"></el-input>
+        </div>
+      </div>
+      <div class="disable_dialog_box">
         <div class="disable_dialog_left">电话：</div>
         <div class="disable_dialog_right">
           <el-input v-model="detailObj.telphone" readonly type="textarea" resize="none" :rows="1"></el-input>
@@ -252,7 +270,7 @@
       <div class="disable_dialog_box">
         <div class="disable_dialog_left">收货地址：</div>
         <div class="disable_dialog_right">
-          <el-input v-model="detailObj.detail" readonly type="textarea" resize="none" :rows="1"></el-input>
+          <el-input v-model="detailObj.province+' '+detailObj.city+' '+detailObj.area+' '+detailObj.detail" readonly type="textarea" resize="none" :rows="1"></el-input>
         </div>
       </div>
       <span slot="footer" class="dialog-footer">
@@ -352,7 +370,7 @@
         <i class="iconfont icon-edit-square"></i>备注
       </span>
       <div class="RemarksDialog_main">
-        <div class="main_content">
+        <div class="main_content" style="width:100%">
           <div class="main_content_list">
             <div class="title">添加备注</div>
             <el-input type="textarea" :rows="4" resize="none" v-model="remarkStr"></el-input>
@@ -361,7 +379,7 @@
           <div class="main_content_history">
             <div class="title">历史</div>
             <div class="history_box">
-              <div class="history_list" v-for="item in remarkList" :key="item">
+              <div class="history_list" v-for="(item,index) in remarkList" :key="index">
                 <p class="userName">
                   {{item.create_name}}
                   <span>{{item.created_at}}</span>
@@ -376,6 +394,20 @@
         <el-button @click="remarkVisible = false">关 闭</el-button>
         <el-button type="primary" @click="remark">提 交</el-button>
       </span>
+    </el-dialog>
+    <!-- 买家备注弹窗 -->
+    <el-dialog :visible.sync="buyerRemarkVisible" width="470px" custom-class="RemarksDialog">
+      <span slot="title" class="RemarksDialog_title">
+        <i class="iconfont icon-edit-square"></i>买家备注
+      </span>
+      <div class="RemarksDialog_main">
+        <div class="main_content">
+          <div class="main_content_list">
+            <div class="title">备注内容</div>
+            <el-input type="textarea" :rows="4" resize="none" v-model="buyerRemarkStr" disabled></el-input>
+          </div>
+        </div>
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -415,6 +447,15 @@ export default {
         }
       ],
 
+      // 订单状态选择
+      orderStatus: [{
+        value: '1',
+        label: '未发货'
+      }, {
+        value: '2',
+        label: '已发货'
+      }],
+      orderValue: '',
       mallReviewSelect: "", // 单选框组
       mallReviewList: [], // 模块列表
       searchObj: {}, // 搜索对象
@@ -444,6 +485,8 @@ export default {
       refunReason: "", //退款原因
       companyValue:'',//物流公司
       addExpressCompany:[],//添加物流公司
+      buyerRemarkVisible:false,  //买家备注弹窗
+      buyerRemarkStr:''
     };
   },
   created() {
@@ -452,6 +495,20 @@ export default {
     this.getTypeList();
   },
   methods: {
+    //查看买家备注
+    buyerRemarks(id){
+      this.HttpClient.post("/admin/marketOrder/orderLog", {order_id:id}).then(
+        res => {
+          console.log(res);
+          if (res.data.code === 200) {
+            this.buyerRemarkVisible = true;
+            this.buyerRemarkStr = res.data.data.content;
+          }else{
+            this.$message.warning(res.data.msg);
+          }
+        }
+      );
+    },
     //获取板块列表
     getTypeList() {
       this.HttpClient.post("/admin/menu/getList", { menu_type: 1 }).then(
@@ -471,6 +528,7 @@ export default {
       let params = {
         page: this.currentPage,
         folder: this.mallReviewSelect,
+        admin_status:this.orderValue
       };
       if (param) {
         params["order_id"] = param.merchantSearch;
@@ -635,10 +693,8 @@ export default {
     // 商品查看弹窗
     checkProductionModal(modifyObj) {
       // 跳转到商城页面查看商品
-      window.open(
-        "http://frontend.kslab.com/home/productDetail?" + modifyObj.product_id,
-        "_black"
-      );
+      console.log(modifyObj)
+      window.open(this.Urls.frontUrl+"home/product-detail?id="+modifyObj.product_id);
     },
     filterSecondary(value, row, column) {
       const property = column["property"];
@@ -840,6 +896,11 @@ function dealWithCity(cityList) {
           th,
           tr {
             background-color: #15bafe;
+          }
+        }
+        tbody{
+          .el-button{
+            margin-top: 2px;
           }
         }
       }

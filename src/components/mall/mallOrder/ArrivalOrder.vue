@@ -52,7 +52,8 @@
                   placeholder="订单ID"
                   clearable
                   v-model="searchObj.orderSearch"
-                  class="input-with-select">
+                  class="input-with-select"
+                  @keyup.enter.native="search">
                   <el-button slot="append" icon="el-icon-search" @click="search"></el-button>
                 </el-input>
               </div>
@@ -62,7 +63,8 @@
                   placeholder="商家名称"
                   clearable
                   v-model="searchObj.merchantNameSearch"
-                  class="input-with-select">
+                  class="input-with-select"
+                  @keyup.enter.native="search">
                   <el-button slot="append" icon="el-icon-search" @click="search"></el-button>
                 </el-input>
               </div>
@@ -72,7 +74,8 @@
                   placeholder="商品名称"
                   clearable
                   v-model="searchObj.commodityNameSearch"
-                  class="input-with-select">
+                  class="input-with-select"
+                  @keyup.enter.native="search">
                   <el-button slot="append" icon="el-icon-search" @click="search"></el-button>
                 </el-input>
               </div>
@@ -81,15 +84,15 @@
           <!--主体内容-->
           <div class="content_main">
 
-            <div class="content_table" style="width:80%">
+            <div class="content_table" style="width:100%">
               <el-table
                 :data="tableData"
                 :border="true">
                 <el-table-column
                   label="订单ID"
                   align="center"
-                  width="90"
-                  prop="id"
+                  width="150"
+                  prop="order_no"
                   show-overflow-tooltip
                   sortable>
                 </el-table-column>
@@ -97,14 +100,15 @@
                 <el-table-column
                   label="商品名称"
                   align="center"
-                  width="120"
+                  width="150"
                   show-overflow-tooltip
                   prop="title">
                 </el-table-column>
 
                 <el-table-column
-                  label="公司名称"
+                  label="商家名称"
                   align="center"
+                  width="150"
                   show-overflow-tooltip
                   prop="company_name">
                 </el-table-column>
@@ -162,26 +166,29 @@
 
                 <el-table-column
                   label="操作"
+                  min-width="200"
                   align="center"
                   fixed="right"
                   class-name="mallReview_scope">
                   <template slot-scope="scope">
-                    <div class="mallReview_btm">
-                      <el-button size="medium " type="text" @click="refundModal(scope.row)">退款</el-button>
-                      <el-button size="medium " type="text" @click="checkExpressModal(scope.row)">查看物流</el-button>
-                      <el-button size="medium " type="text" @click="orderDetailModal(scope.row)">订单详情</el-button>
-                      <el-button size="medium " type="text" @click="remarkModal(scope.row)">备注</el-button>
-                    </div>
+                    
+                      <el-button type="primary" plain size="mini" @click="refundModal(scope.row)">退款</el-button>
+                      <el-button type="primary" plain size="mini" @click="checkExpressModal(scope.row)">查看物流</el-button>
+                      <el-button type="primary" plain size="mini" @click="orderDetailModal(scope.row)">订单详情</el-button>
+                      <el-button type="primary" plain size="mini" @click="remarkModal(scope.row)">备注</el-button>
+                      <el-button type="primary" plain size="mini" @click="buyerRemarks(scope.row.order_id)">买家备注</el-button>
                   </template>
                 </el-table-column>
               </el-table>
-              <el-pagination
+              <div class="fenye">
+                <el-pagination
                       v-if="total"
                       layout="prev, pager, next"
                       :total="total"
                       :page-size="pageSize"
                       @current-change="currentChange"
               ></el-pagination>
+              </div>
             </div>
           </div>
         </div>
@@ -197,18 +204,19 @@
         <div class="main_content">
           <div class="content_list">
             <div class="title">订单状态：</div>
-            <div class="list_box">已打款</div>
+            <div class="list_box">{{order_status === 4?'已到货':'无'}}</div>
           </div>
 
           <div class="content_list">
             <div class="title">卖家余额：</div>
-            <div class="list_box">1251.35</div>
+            <div class="list_box">{{balance}}</div>
           </div>
 
           <div class="content_list">
             <div class="title">退款理由：</div>
             <el-input
               type="textarea"
+              placeholder="请输入退款理由..."
               :rows="4"
               resize="none"
               v-model="refundTextarea">
@@ -234,7 +242,7 @@
         </div>
           <span slot="footer" class="dialog-footer">
             <el-button @click="innerVisible = false">取 消</el-button>
-            <el-button type="primary">确 定</el-button>
+            <el-button type="primary" @click="handleSurerefuse">确 定</el-button>
           </span>
       </el-dialog>
 
@@ -276,7 +284,7 @@
             <div class="content_list">
               <div class="content_title">商品ID：</div>
               <div class="content_box">
-                <p>{{detailObj.product_id}}</p>
+                <p>{{detailObj.id}}</p>
                 <div class="content_table">
                   <div class="table_list">
                     <p>数量</p>
@@ -300,6 +308,18 @@
                 <p>{{detailObj.conducts}}</p>
               </div>
             </div>
+            <div class="content_list">
+              <div class="content_title">用户昵称：</div>
+              <div class="content_box">
+                <p>{{detailObj.nickname}}</p>
+              </div>
+            </div>
+            <div class="content_list">
+              <div class="content_title">用户ID：</div>
+              <div class="content_box">
+                <p>{{detailObj.user_id}}</p>
+              </div>
+            </div>
 
             <div class="content_list">
               <div class="content_title">电话：</div>
@@ -311,7 +331,7 @@
             <div class="content_list">
               <div class="content_title">收货地址：</div>
               <div class="content_box">
-                <p>{{detailObj.detail}}</p>
+                <p>{{detailObj.province+' '+detailObj.city+' '+detailObj.area+' '+detailObj.detail}}</p>
               </div>
             </div>
           </div>
@@ -355,7 +375,20 @@
         <el-button type="primary" @click="remark">提 交</el-button>
       </span>
     </el-dialog>
-
+    <!-- 买家备注弹窗 -->
+    <el-dialog :visible.sync="buyerRemarkVisible" width="470px" custom-class="RemarksDialog">
+      <span slot="title" class="RemarksDialog_title">
+        <i class="el-icon-tickets"></i>买家备注
+      </span>
+      <div class="RemarksDialog_main">
+        <div class="main_content">
+          <div class="main_content_list">
+            <div class="title">备注内容</div>
+            <el-input type="textarea" :rows="4" resize="none" v-model="buyerRemarkStr" disabled></el-input>
+          </div>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -394,6 +427,9 @@
         currentPage: 1, // 当前页
         tableData:[],
         refundReasonDialog: false,  // 退款弹窗
+        order_ID:null,  //退款订单全局ID
+        balance:0, //余额
+        order_status:null,  //活动状态
         refundTextarea: '',
         refundMoney: '',
         innerVisible: false,
@@ -408,6 +444,8 @@
         detailObj: {}, // 订单详情
         expressObj: {}, // 物流信息对象
         cityList: [], // 城市列表
+        buyerRemarkVisible:false,
+        buyerRemarkStr:'',
       }
     },
     created() {
@@ -415,6 +453,20 @@
       this.getCityList();
     },
     methods: {
+      //查看买家备注
+      buyerRemarks(id){
+        this.HttpClient.post("/admin/marketOrder/orderLog", {order_id:id}).then(
+          res => {
+            console.log(res);
+            if (res.data.code === 200) {
+              this.buyerRemarkVisible = true;
+              this.buyerRemarkStr = res.data.data.content;
+            }else{
+              this.$message.warning(res.data.msg);
+            }
+          }
+        );
+      },
       async getCityList() {
         let res = await this.HttpClient.get('/city/getAllCities');
         this.cityList = dealWithCity(res.data.data);
@@ -475,7 +527,33 @@
       // 退款弹窗
       refundModal(modifyObj) {
         this.refundReasonDialog = true;
-        // 等接口
+        this.balance = modifyObj.sale_balance;
+        this.order_status = modifyObj.status;
+        this.order_ID = modifyObj.order_id
+      },
+      //最终确认退款
+      handleSurerefuse(){
+        this.HttpClient.post('/refund/admin',{
+            order_id:this.order_ID,
+            price:this.refundMoney,
+            reason:this.refundTextarea,
+            type:1
+        })
+        .then(res=>{
+          console.log(res)
+          if(res.data.code === 200){
+            this.$message.success(res.data.msg);
+            setTimeout(() => {
+              this.getTableList(this.searchObj);
+              this.refundReasonDialog = false;
+              this.innerVisible = false;
+              this.refundMoney = 0;
+              this.refundTextarea = '';
+            }, 1000);
+          }else{
+            this.$message.warning(res.data.msg);
+          }
+        })
       },
       search() {
         this.getTableList(this.searchObj);
@@ -608,6 +686,9 @@ function dealWithCity(cityList) {
                 }
               }
             }
+          }
+          .fenye{
+            text-align: center;
           }
         }
       }

@@ -286,7 +286,11 @@
                 console.log(res);
                 if(res.data.code === 200){
                     this.$message.success(res.data.msg);
-
+                     this.carCategory = '';
+                     this.brandValue = '';
+                     this.seriesValue = '';
+                     this.configValue = '';  
+                     this.checkList = [];
                 }
             })
         },

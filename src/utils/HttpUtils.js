@@ -1,7 +1,8 @@
 import * as axios from "axios";
 import cfg from '../../config/app';
 import qs from 'qs';
-
+import ElementUI from 'element-ui'
+console.log(ElementUI)
 export class HttpClient {
 
     static get(url, param, hearders){
@@ -45,7 +46,21 @@ export class HttpClient {
             })
         });
     }
-
+    static async ajax(url, param) {
+        return await new Promise((resolve, reject) =>{
+          const instance=axios.create({
+            withCredentials: false,
+            baseURL: url,
+          });
+          instance.get(url, param).then(res =>{
+            if(res.status === 200) {
+              resolve(res);
+            }else {
+              reject(res);
+            }
+          })
+        });
+    }
     /**
      * HttpClient工具类
      * @param type 请求方法 string
@@ -62,23 +77,37 @@ export class HttpClient {
         let token = window.localStorage.getItem('token');
         // console.log(token);
         headers['Authorization'] = token? 'Bearer '+token : '';
+        // /*
+        // *请求拦截器
+        // */
+        // axios.interceptors.request.use(config=>{
+        //     console.log(config)
+        //     return config;
+        // },error => {
+        //     return Promise.reject(error);
+        // });
+   
         //响应拦截
         axios.interceptors.response.use(function (response) {
             //登录超时或者未登录
             if (response.data.code === 1345){
-                // storejs.remove('userInfo');
-                // location.reload(true);
-                window.location.href='/login';
-                // this.HttpClient.post('/refreshtoken')
-                //     .then(res=>{
-                //         console.log(res);
-                //         if(res.data.code===200){
-                //             window.localStorage.setItem('token',res.data.token)
-                //         }
-                //     })
-            }else if(response.data.code === -1){
-                console.log('暂无权限');
-                // alert('暂无权限')
+                window.location.href='/login'; 
+            }else if(response.data.code === 1352){  //没有权限
+                ElementUI.Message({
+                    type: '',
+                    duration:2000,
+                    center: true,
+                    dangerouslyUseHTMLString: true,
+                    message: '<div style="text-align:center"><i class="el-icon-warning" style="font-size:40px;text-align:center"></i></div><p style="margin:10px;color:#e6a23c">您暂无权限，请联系管理员。</p>'
+                })
+            }else if(response.data.code === '300'){  //没有分配角色
+                ElementUI.Message({
+                    type: '',
+                    duration:2000,
+                    center: true,
+                    dangerouslyUseHTMLString: true,
+                    message: '<div style="text-align:center"><i class="el-icon-warning" style="font-size:40px;text-align:center"></i></div><p style="margin:10px;color:#e6a23c">您还未分配角色，请联系管理员。</p>'
+                })
             }
             return response;
         }, function (error) {
@@ -89,8 +118,8 @@ export class HttpClient {
         return axios({
             method: type,
             url: url,
+            params: type === 'GET' ? param:type ==='DELETE'?param:'',
             data: qs.stringify(param),
-            params: type === 'GET' ? param:'',
             headers:headers,
             async:true,
         });

@@ -10,7 +10,7 @@
           <el-button type="primary" @click="addAttributeNameFn">添加</el-button>
         </div>
         <!-- 表格列表 -->
-        <div class="product_header" style="width: 80%">
+        <div class="product_header" style="width: 100%">
           <el-table :data="tableData" border>
             <el-table-column prop="name" align="center" label="属性"></el-table-column>
             <el-table-column prop="unit" align="center" label="单位"></el-table-column>
@@ -20,12 +20,13 @@
                 <span>{{scope.row.status == 1?'启用':'禁用'}}</span>
               </template>
             </el-table-column>
-            <el-table-column label="操作" align="center" width="100">
+            <el-table-column label="操作" align="center" width="300">
               <template slot-scope="scope">
                 <el-button
                   @click="handleClick(scope.row)"
-                  type="text"
+                   type="primary" plain size="mini" 
                 >{{scope.row.status == 1?'禁用':'启用'}}</el-button>
+                <el-button type="primary" plain size="mini" @click="amendClick(scope.row)">修改</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -58,6 +59,25 @@
             <span slot="footer" class="dialog-footer">
               <el-button @click="centerDialogVisible = false;uniten = '';unitcn = '';value=''">取 消</el-button>
               <el-button type="primary" @click="saveAttributeNameFn">确 定</el-button>
+            </span>
+          </el-dialog>
+        </div>
+        <!-- 修改 -->
+        <div class="product_header">
+          <el-dialog title="修改" :visible.sync="modifyDialogVisible" width="30%" center>
+            <p>属性名称：</p>
+            <el-input
+              placeholder="请输入内容"
+              v-model="amendInfo.name"
+              :disabled="true">
+            </el-input>
+            <p>单位：只能为英文字母</p>
+            <el-input placeholder="请输入内容" v-model="amendInfo.unit" clearable></el-input>
+            <p>中文</p>
+            <el-input placeholder="请输入内容" v-model="amendInfo.unit_cn" clearable></el-input>
+            <span slot="footer" class="dialog-footer">
+              <el-button @click="modifyDialogVisible = false;amendInfo.unit = '';amendInfo.unit_cn = '';amendInfo.name=''">取 消</el-button>
+              <el-button type="primary" @click="sureAttributeNameFn">确 定</el-button>
             </span>
           </el-dialog>
         </div>
@@ -106,6 +126,10 @@ export default {
       value: "", //选中的属性名称
       uniten: "", //英文单位
       unitcn: "", //中文单位
+
+      // 修改弹框
+      modifyDialogVisible:false,
+      amendInfo:{},//当前修改的内容
 
       // 分页
       currentPage: 1, // 当前页
@@ -198,6 +222,29 @@ export default {
         }
       });
     },
+    // 确定修改数字区间属性
+    sureAttributeNameFn(){
+      let params = {
+        id:this.amendInfo.id,
+        unit:this.amendInfo.unit,
+        unit_cn:this.amendInfo.unit_cn
+      }
+      this.HttpClient.post('/admin/numInterval/edit',params).then(res => {
+        if(res.data.code === 200){
+          this.$message.success(res.data.msg);
+          this.modifyDialogVisible = false;
+          setTimeout(() => {
+            this.getNumAttributes();
+          }, 500);
+        }
+      })
+    },
+    // 修改
+    amendClick(row){
+      this.modifyDialogVisible = true;
+      this.amendInfo = row;
+      console.log(this.amendInfo)
+    },
     // 分页
     currentChange(p) {
       this.currentPage = p;
@@ -244,7 +291,6 @@ export default {
             th,
             td {
               padding: 10px;
-              text-align: left;
               .el-tag {
                 margin: 0 10px 0 0;
               }

@@ -12,7 +12,7 @@
       <div class="content">
         <div class="content_header">
           <div class="content_header_search">
-            <el-input placeholder="昵称搜索" v-model="nickNameSearch" class="input-with-select">
+            <el-input placeholder="昵称搜索" v-model="nickNameSearch" clearable @change="nickNameSearchFn" class="input-with-select">
               <el-button slot="append" icon="el-icon-search" @click="nickNameSearchFn"></el-button>
             </el-input>
           </div>
@@ -97,8 +97,10 @@
             <el-table-column label="操作" align="center" class-name="mallReview_scope">
               <template slot-scope="scope">
                 <div class="scope_btm">
-                  <el-button size="medium" type="text" @click="viewFansFn(scope.row)">查看关注者</el-button>
-                  <el-button size="medium" type="text">商家页面</el-button>
+                  <el-button type="primary" plain size="mini" @click="viewFansFn(scope.row)">查看关注者</el-button>
+                  <el-button type="primary" plain size="mini" @click="viewShopFn(scope.row)">商家页面</el-button>
+                  <!-- <el-button size="medium" type="text" @click="viewFansFn(scope.row)">查看关注者</el-button>
+                  <el-button size="medium" type="text">商家页面</el-button> -->
                 </div>
               </template>
             </el-table-column>
@@ -121,7 +123,7 @@
         查看关注者 - {{nickname}}
       </span>
       <div class="viewFans_dialog_box">
-        <p v-for="(item,index) in fansData" :key="index">{{item.nickname}}</p>
+        <p v-for="(item,index) in fansData" :key="index" @click="handleFans(item)">{{item.nickname}}</p>
       </div>
       <el-pagination
         v-if="totaldialog"
@@ -233,6 +235,16 @@ export default {
     // 昵称搜索
     nickNameSearchFn() {
       this.getlist();
+    },
+    // 查看关注者
+    handleFans(item){
+      // console.log(item)
+      window.open(this.Urls.frontUrl+"home/others-users?uid="+item.uid);  
+    },
+    // 跳转商家页面
+    viewShopFn(row){
+      // console.log(row)
+      window.open(this.Urls.frontUrl+"home/others-users?uid="+row.uid)
     },
     // 分页
     currentChange(p) {
@@ -372,6 +384,7 @@ export default {
       margin: 10px;
       padding: 5px 15px;
       border: 1px solid #dedede;
+      cursor: pointer;
     }
   }
 }

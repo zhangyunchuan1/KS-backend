@@ -19,12 +19,14 @@
                 prop="id"
                 label="用户ID"
                 align="center"
-                width="100">
+                width="100"
+                show-overflow-tooltip>
               </el-table-column>
               <el-table-column
                 label="联系人"
                 min-width="100"
                 align="center"
+                show-overflow-tooltip
                 prop="pollinfo.conducts">
                  <template slot-scope="scope">
                   <span v-if="scope.row.pollinfo.conducts === null">无</span>
@@ -35,6 +37,7 @@
                 prop="pollinfo.telphone"
                 label="联系电话"
                 align="center"
+                show-overflow-tooltip
                 width="120">
                 <template slot-scope="scope">
                   <span v-if="scope.row.pollinfo.telphone === null">无</span>
@@ -45,6 +48,7 @@
                 prop="pollinfo.quantity"
                 label="购买票数"
                 align="center"
+                show-overflow-tooltip
                 width="150">
                 <template slot-scope="scope">
                   <span v-if="scope.row.pollinfo.quantity === null">无</span>
@@ -55,6 +59,7 @@
                 prop="pollinfo.use_num"
                 label="已使用票数"
                 align="center"
+                show-overflow-tooltip
                 width="100">
                 <template slot-scope="scope">
                   <span v-if="scope.row.pollinfo.use_num === null">无</span>
@@ -65,6 +70,7 @@
                 prop="pollinfo.refund_num"
                 label="退票数"
                 align="center"
+                show-overflow-tooltip
                 width="120">
                 <template slot-scope="scope">
                   <span v-if="scope.row.pollinfo.refund_num === null">无</span>
@@ -75,28 +81,32 @@
                 prop="content"
                 label="评价内容"
                 align="center"
+                show-overflow-tooltip
                 width="250">
               </el-table-column>
               <el-table-column
                 prop="attachment"
                 label="图片"
                 align="center"
+                show-overflow-tooltip
                 width="120">
                 <template slot-scope="scope">
-                  <img style="width:100px;" :src="scope.row.attachment" alt="">
+                  <img style="width:100px;" v-for="(item,index) in  scope.row.attachment" :src="Tools.handleImg(item.path)" alt="" :key="index">
                 </template>
               </el-table-column>
               <el-table-column
                 label="打分"
                 align="center"
                 width="120"
+                show-overflow-tooltip
                 prop="score">
               </el-table-column>
               <el-table-column
                 prop="created_at"
                 label="评论时间"
                 align="center"
-                width="120">
+                show-overflow-tooltip
+                width="160">
               </el-table-column>
               <el-table-column
                 label="操作"
@@ -243,7 +253,7 @@
                 this.title = res.data.data.data[0].source_title;
                 this.city_name = res.data.data.data[0].city_name;
                 for(let i=0;i<this.tableData.length;i++){
-                    this.tableData[i].attachment  = JSON.parse(res.data.data.data[i].attachment)
+                    this.tableData[i].attachment  = res.data.data.data[i].attachment;
                 }
                 console.log(this.tableData)
                 console.log(this.title,this.city_name)
@@ -261,8 +271,9 @@
                     this.$message.success(res.data.msg);
                     setTimeout(() => {
                         this.getApplicantList();
+                        this.deleteDialog = false;
                     }, 500);
-                    this.deleteVisible = false;
+                    
                 }
             })
         },

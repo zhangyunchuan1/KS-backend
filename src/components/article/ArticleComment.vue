@@ -19,15 +19,6 @@
               </div>
             </div>
           </div>
-          <!-- <el-table :data="statisticsData" class="statisticsTable">
-            <el-table-column row-class-name="tableHeader" prop="totalnum" align="center" label="评论总数">
-              
-              <el-table-column prop="automobile" align="center" label="汽车"></el-table-column>
-              <el-table-column prop="motorcycle" align="center" label="摩托车"></el-table-column>
-              <el-table-column prop="drone" align="center" label="无人机"></el-table-column>
-              <el-table-column prop="smartDevice" align="center" label="智能设备"></el-table-column>
-            </el-table-column>
-          </el-table> -->
         </div>
 
         <!--列表-->
@@ -66,7 +57,7 @@
               </div>
             </div>
 
-            <div class="content_table" style="width:80%">
+            <div class="content_table" style="width:100%">
               <el-table :data="contentData" border style="width: 100%">
                 <el-table-column prop="id" sortable width="80px" align="center" label="ID"></el-table-column>
                 <el-table-column
@@ -104,7 +95,7 @@
                   show-overflow-tooltip
                   label="文章名称"
                 ></el-table-column>
-                <el-table-column width="200" align="center" show-overflow-tooltip label="评论内容">
+                <el-table-column width="350" align="center" show-overflow-tooltip label="评论内容">
                   <template slot-scope="scope">
                     <div class="commentContent" v-html="scope.row.content"></div>
                   </template>
@@ -132,28 +123,25 @@
                   label="评价时间"
                 ></el-table-column>
                 <el-table-column
-                  sortable
                   width="120px"
                   show-overflow-tooltip
                   align="center"
                   label="通过状态"
                 >
                   <template slot-scope="scope">
-                    <div>{{scope.row.status===1?'已通过':scope.row.status===2?'未审核':scope.row.status===3?'未通过':scope.row.status===4?'下架':'删除'}}</div>
+                    <span :class="scope.row.status===1?'normal_color':scope.row.status===2?'audit_color':scope.row.status===3?'notpass_color':scope.row.status===4?'cancel_color':'stop_color'">{{scope.row.status===1?'已通过':scope.row.status===2?'未审核':scope.row.status===3?'未通过':scope.row.status===4?'下架':'删除'}}</span>
                   </template>
                 </el-table-column>
                 <el-table-column
-                  prop="operating"
-                  align="center"
-                  fixed="right"
-                  class-name="contentOperating"
                   label="操作"
-                >
+                  fixed="right"
+                  min-width="150"
+                  align="center">
                   <template slot-scope="scope">
-                    <div class="notpass_color" @click="rejectButton(scope.row.answer_id)" v-if="scope.row.status!==3">禁用</div>
-                    <div class="delete_color" @click="deleteButton(scope.row.answer_id)" v-if="scope.row.status!==1">删除</div>
-                    <div @click="previewButton(scope.row.id)">预览</div>
-                    <div class="normal_color" @click="recoverButton(scope.row.answer_id)" v-if="scope.row.status!==1">恢复</div>
+                    <el-button type="primary" plain size="mini" class="notpass_color" @click="rejectButton(scope.row.answer_id)" v-if="scope.row.status!==3">禁用</el-button>
+                    <el-button type="primary" plain size="mini" class="delete_color" @click="deleteButton(scope.row.answer_id)" v-if="scope.row.status!==1">删除</el-button>
+                    <el-button type="primary" plain size="mini" @click="previewButton(scope.row.id)">预览</el-button>
+                    <el-button type="primary" plain size="mini" class="normal_color" @click="recoverButton(scope.row.answer_id)" v-if="scope.row.status!==1">恢复</el-button>
                   </template>
                 </el-table-column>
               </el-table>
@@ -222,12 +210,23 @@
       </span>
       <div class="previewDialog_box">
         <div class="previewDialog_box_title">评论内容：</div>
-        <div class="previewDialog_content" v-html="previewContent"></div>
+        <div class="previewDialog_content" v-html="previewContent.content"></div>
+        <p>评论附件：</p>
+        <div class="previewDialog_attachment">
+          <p v-if="!previewContent.attachment">无</p>
+          <div v-for="item in previewContent.attachment" :key="item.name">
+            <p v-if="isPic(item)" @click="checkImages(Tools.handleImg(item.path))"><i class="el-icon-picture-outline" style="margin:0 10px 0 0;color: #bfbfbf;"></i>{{item.name}}</p>
+            <a v-else :href="Urls.imageUrl+item.path+'?attname='"><i class="el-icon-document" style="margin:0 10px 0 0;color: #bfbfbf;"></i>{{item.name}}</a>
+          </div>
+        </div>
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="previewDialog = false">取 消</el-button>
         <el-button type="primary" @click="previewDialog = false">确 定</el-button>
       </span>
+      <el-dialog :visible.sync="imagesVisible" append-to-body>
+        <img width="100%" :src="imageUrl" alt="">
+      </el-dialog>
     </el-dialog>
     <delete-modal ref="delete" @doDelete="confirmDelete"></delete-modal>
   </div>
@@ -279,6 +278,8 @@ export default {
 
       //恢复弹框
       recoverDialog: false,
+      imagesVisible:false, //查看图片弹窗
+      imageUrl:'',
 
       // 预览弹窗
       previewDialog: false,
@@ -289,7 +290,7 @@ export default {
       pageSize: 25, //每页显示数量
       total: 0, //总记录数
       answerId: "", //评论id
-      previewContent: "" //预览评论内容
+      previewContent: {} //预览评论内容
     };
   },
   methods: {
@@ -404,9 +405,10 @@ export default {
     },
     //禁用按钮事件
     rejectButton(id, status) {
+      this.disableDialogRadio = null,
       this.disableDialog = true;
       this.answerId = id;
-      this.getforbidList(); /** liushuya 2019-01-04 */
+      this.getforbidList();
     },
     //删除按钮事件
     deleteButton(id) {
@@ -424,7 +426,7 @@ export default {
       this.HttpClient.post("/admin/answers/preview", { id: id }).then(res => {
         console.log(res);
         if (res.data.code === 200) {
-          this.previewContent = res.data.data.content;
+          this.previewContent = res.data.data;
         }
       });
     },
@@ -451,7 +453,26 @@ export default {
     currentChange(p) {
       this.currentPage = p;
       this.getCommentList();
-    }
+    },
+    //判断是否是图片
+    isPic(i){
+      let format = ["jpg", "jpeg", "png","tiff","tif"];
+      let index = i.path.indexOf(".");
+      let str =  i.path.substring(index+1);
+      if(format.indexOf(str) > -1){
+        console.log('true')
+        return true
+      }else{
+        return false
+        console.log('false')
+      }
+    },
+    //查看图片
+    checkImages(url){
+      console.log(url);
+      this.imageUrl = url;
+      this.imagesVisible = true;  
+    },
   },
   created() {
     this.getCommentList();
@@ -690,6 +711,10 @@ export default {
       padding: 10px 40px;
     }
     .previewDialog_box {
+      >p{
+        text-align: left;
+        margin-top: 10px;
+      }
       .previewDialog_box_title {
         font-size: 14px;
         color: #000;
@@ -698,12 +723,33 @@ export default {
       }
       .previewDialog_content {
         width: 100%;
-        height: 350px;
+        // height: 350px;
         overflow: auto;
         border: 1px solid #e8e8e8;
         margin-top: 10px;
         text-align: justify;
+        padding: 10px 10px 30px 10px;
+      }
+      .previewDialog_attachment{
+        margin-top: 10px;
         padding: 10px;
+        width: 342px;
+        display: flex;
+        flex-direction: column;  
+        align-items: flex-start;
+        box-sizing: border-box;
+        border:1px solid #bfbfbf;
+        >div{
+          width: 100%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          text-align:left;
+          margin-bottom: 10px;
+          >p,>a{
+            text-align:left;
+          }
+        }
       }
     }
   }

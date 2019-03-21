@@ -19,13 +19,23 @@
           <!--头部-->
           <div class="content_header">
             <div class="content_select">
+              <el-select v-model="timeValue" clearable placeholder="请选择">
+                <el-option
+                  v-for="item in timeOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value">
+                </el-option>
+              </el-select>
+            </div>
+            <div class="content_select">
               <div class="date_item">
                 <p class="date_label">开始</p>
                 <el-date-picker
                   v-model="searchObj.startTime"
                   class="date_picker_1"
                   type="date"
-                  size="mini"
+                  value-format='yyyy-MM-dd HH:mm：ss'
                   clearable
                   placeholder="选择日期"
                   @change="handleStartTime($event)">
@@ -37,7 +47,7 @@
                   v-model="searchObj.endTime"
                   class="date_picker_1"
                   type="date"
-                  size="mini"
+                  value-format='yyyy-MM-dd HH:mm：ss'
                   clearable
                   placeholder="选择日期"
                   @change="handleEndTime($event)">
@@ -160,7 +170,7 @@
                   align="center"
                   show-overflow-tooltip
                   width="220"
-                  prop="delivery_time"
+                  prop="take_delivery_time"
                   sortable>
                   <template slot-scope="scope">
                     <span v-if="scope.row.delivery_time">{{scope.row.delivery_time}}</span>
@@ -173,7 +183,7 @@
                   align="center"
                   show-overflow-tooltip
                   width="220"
-                  prop="take_delivery_time"
+                  prop="logistics_end_time"
                   sortable>
                   <template slot-scope="scope">
                     <span v-if="scope.row.take_delivery_time">{{scope.row.take_delivery_time}}</span>
@@ -183,14 +193,17 @@
 
                 <el-table-column
                   label="操作"
+                  width="440"
+                  fixed="right"
                   align="center"
                   class-name="mallReview_scope">
                   <template slot-scope="scope">
                     <div class="mallReview_btm">
-                      <el-button size="medium " type="text" @click="refundModal(scope.row)">退款</el-button>
-                      <el-button size="medium " type="text" v-if="scope.row.logistics_no !== null" @click="checkExpressModal(scope.row)">查看物流</el-button>
-                      <el-button size="medium " type="text" @click="orderDetailModal(scope.row)">订单详情</el-button>
-                      <el-button size="medium " type="text" @click="remarkModal(scope.row)">备注</el-button>
+                      <el-button type="primary" size="mini" plain @click="refundModal(scope.row)">退款</el-button>
+                      <el-button type="primary" size="mini" plain v-if="scope.row.logistics_no !== null" @click="checkExpressModal(scope.row)">查看物流</el-button>
+                      <el-button type="primary" size="mini" plain @click="orderDetailModal(scope.row)">订单详情</el-button>
+                      <el-button type="primary" size="mini" plain @click="remarkModal(scope.row)">备注</el-button>
+                      <el-button type="primary" size="mini" plain @click="handleBuyerRemark(scope.row)">买家备注</el-button>
                     </div>
                   </template>
                 </el-table-column>
@@ -256,7 +269,7 @@
         </div>
           <span slot="footer" class="dialog-footer">
             <el-button @click="innerVisible = false">取 消</el-button>
-            <el-button type="primary">确 定</el-button>
+            <el-button type="primary" @click="handleSureRefuse">确 定</el-button>
           </span>
       </el-dialog>
 
@@ -298,7 +311,7 @@
             <div class="content_list">
               <div class="content_title">商品ID：</div>
               <div class="content_box">
-                <p>{{detailObj.product_id}}</p>
+                <p>{{detailObj.id}}</p>
                 <div class="content_table">
                   <div class="table_list">
                     <p>数量</p>
@@ -322,6 +335,18 @@
                 <p>{{detailObj.conducts}}</p>
               </div>
             </div>
+            <div class="content_list">
+              <div class="content_title">用户昵称：</div>
+              <div class="content_box">
+                <p>{{detailObj.nickname}}</p>
+              </div>
+            </div>
+            <div class="content_list">
+              <div class="content_title">用户ID：</div>
+              <div class="content_box">
+                <p>{{detailObj.user_id}}</p>
+              </div>
+            </div>
 
             <div class="content_list">
               <div class="content_title">电话：</div>
@@ -333,7 +358,7 @@
             <div class="content_list">
               <div class="content_title">收货地址：</div>
               <div class="content_box">
-                <p>{{detailObj.detail}}</p>
+                <p>{{detailObj.province+' '+detailObj.city+' '+detailObj.area+' '+detailObj.detail}}</p>
               </div>
             </div>
           </div>
@@ -378,6 +403,25 @@
       </span>
     </el-dialog>
 
+    <!-- 买家备注 -->
+    <el-dialog
+      :visible.sync="buyerVisible"
+      width="470px"
+      custom-class="RemarksDialog">
+      <span slot="title" class="RemarksDialog_title"><i class="iconfont icon-edit-square"></i>买家备注</span>
+      <div class="RemarksDialog_main">
+        <div class="main_content">
+          <div class="main_content_list">
+            <el-input
+              type="textarea"
+              :rows="4"
+              resize="none"
+              v-model="buyerRemark.content">
+            </el-input>
+          </div>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -395,12 +439,12 @@
       return{
         breadData: [{
           id: 1,
-          name: '商城',
+          name: '淘货',
           urls: '/index/mall/mall/Mall',
           icon: 'icon-home'
         }, {
           id: 2,
-          name: '商城订单',
+          name: '淘货订单',
           urls: '/index/mallOrder/MallOrder',
           icon: 'icon-home'
         }, {
@@ -435,6 +479,21 @@
         expressObj: {}, // 物流信息对象
         cityList: [], // 城市列表
         operationId:null,  //备注操作ID
+        // 买家备注
+        buyerVisible:false,
+        buyerRemark:{},
+        modifyObjInfo:{},
+        currtObj:{}, //当条数据
+
+        // 选择时间类型
+        timeOptions: [{
+          value: '1',
+          label: '确认到货时间'
+        }, {
+          value: '2',
+          label: '订单时间'
+        }],
+        timeValue: ''
       }
     },
     created() {
@@ -442,6 +501,19 @@
       this.getTableList();
     },
     methods: {
+      // 买家备注
+        handleBuyerRemark(row){
+          console.log(row)
+          this.HttpClient.post('/admin/marketOrder/orderLog',{order_id:row.order_id}).then(res => {
+            if(res.data.code == 200){
+              this.buyerRemark = res.data.data;
+              this.buyerVisible = true;
+              console.log(this.buyerRemark)
+            }else{
+              this.$message.warning(res.data.msg)
+            }
+          })
+        },
         // 订单id搜索
         handleSearchId(){
             console.log(this.searchObj.orderSearch);
@@ -492,15 +564,24 @@
             })
         },
       getTableList() {
-          this.HttpClient.post('/admin/marketOrder/receiveOrderGoods',{
-                start_time:this.searchObj.startTime,
-                end_time:this.searchObj.endTime,
-                nickname:this.searchObj.merchantNameSearch,
-                order_id:this.searchObj.orderSearch,
-                title:this.searchObj.commodityNameSearch,
-                city_id:this.searchObj.cityId,
-                folder:this.searchObj.folderId
-          })
+        console.log(this.timeValue)
+        let params = {
+          // start_time:this.searchObj.startTime,
+          // end_time:this.searchObj.endTime,
+          nickname:this.searchObj.merchantNameSearch,
+          order_id:this.searchObj.orderSearch,
+          title:this.searchObj.commodityNameSearch,
+          city_id:this.searchObj.cityId,
+          folder:this.searchObj.folderId
+        }
+        if(this.timeValue == 1){
+          params.take_delivery_start_time = this.searchObj.startTime;
+          params.take_delivery_end_time = this.searchObj.endTime;
+        }else if(this.timeValue == 2){
+          params.start_time = this.searchObj.startTime;
+          params.end_time = this.searchObj.endTime;
+        }
+          this.HttpClient.post('/admin/marketOrder/receiveOrderGoods',params)
           .then(res=>{
               console.log(res);
               this.tableData = res.data.data.data;
@@ -580,13 +661,14 @@
             })
             .then(res=>{
                 console.log(res);
-                this.detailObj.product_id = res.data.data.product_id;
-                this.detailObj.quantity = res.data.data.quantity;
-                this.detailObj.price = res.data.data.price;
-                this.detailObj.total_price = res.data.data.total_price;
-                this.detailObj.conducts = res.data.data.conducts;
-                this.detailObj.telphone = res.data.data.telphone;
-                this.detailObj.detail = res.data.data.detail;
+                this.detailObj = res.data.data;
+                // this.detailObj.id = res.data.data.id;
+                // this.detailObj.quantity = res.data.data.quantity;
+                // this.detailObj.price = res.data.data.price;
+                // this.detailObj.total_price = res.data.data.total_price;
+                // this.detailObj.conducts = res.data.data.conducts;
+                // this.detailObj.telphone = res.data.data.telphone;
+                // this.detailObj.detail = res.data.data.detail;
                 this.orderDetailsDialog = true;
             })
             
@@ -595,7 +677,9 @@
       checkExpressModal(i) {
           console.log(i);
           this.HttpClient.post('/admin/getLogisticsInfo',{
-                logisticcode:i.logistics_no
+                logisticcode:i.logistics_no,
+                order_id:i.order_id,
+                type:1
             })
             .then(res=>{
                 console.log(res);
@@ -606,10 +690,38 @@
                 this.logisticsDialog = true;
             })
       },
+      handleSureRefuse(){
+        console.log(this.detailObj)
+        this.HttpClient.post('/refund/admin',{
+                price:this.refundMoney,
+                reason:this.refundTextarea,
+                order_id:this.modifyObjInfo.order_id,
+                type:2
+            })
+            .then(res=>{
+              console.log(res)
+              if(res.data.code === 200){
+                this.$message.success(res.data.msg);
+                this.innerVisible = false;
+                this.refundReasonDialog = false;
+              }else{
+                this.$message.warning(res.data.msg);
+              }
+            })
+      },
       // 退款弹窗
       refundModal(modifyObj) {
         this.refundReasonDialog = true;
-        // 等接口
+        console.log(modifyObj)
+        this.modifyObjInfo = modifyObj;
+        this.HttpClient.post('/admin/marketOrder/detailGoods',{
+                id:modifyObj.id
+            })
+            .then(res=>{
+                console.log(res);
+                
+            })
+
       },
       async currentChange(page) {
         this.currentPage = page;
@@ -697,8 +809,8 @@
               .date_label{
                 color: #808080;
                 font-size: 12px;
-                height: 28px;
-                line-height: 28px;
+                height: 38px;
+                line-height: 38px;
                 margin-left: 10px;
               }
               .date_picker_1{
@@ -749,10 +861,6 @@
                 .mallReview_btm {
                   display: flex;
                   align-items: center;
-                  .el-button{
-                    border: none;
-                    background: transparent;
-                  }
                 }
               }
             }

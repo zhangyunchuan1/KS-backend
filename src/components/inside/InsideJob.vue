@@ -68,7 +68,7 @@
     <el-dialog :visible.sync="editVisible" width="400px" @close="closeDialog">
       <div slot="title" class="dialog_head_title">
         <i class="iconfont icon-edit-square examine_icon"></i>
-        <span>创建职位</span>
+        <span></span>
       </div>
       <div class="jurisdiction_content">
         <div class="jurisdiction_content_item">

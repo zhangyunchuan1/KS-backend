@@ -312,7 +312,7 @@
           </div>
           <div>
             <el-tag type="info">单位：</el-tag>
-            <el-select v-model="unitValue" placeholder="请选择">
+            <el-select v-model="unitValue" placeholder="请选择" @change="getunitID">
               <el-option
                 v-for="item in unitOptions"
                 :key="item.id"
@@ -440,6 +440,7 @@ export default {
       // 单位
       unitOptions: [],
       unitValue: "",
+      numpropertyID:'',
 
       //   数字区间新增
       isshowNumtype: false,
@@ -486,6 +487,15 @@ export default {
     this.getlistData();
   },
   methods: {
+    // 获取新增数字区间选中的全局ID
+    getunitID(){
+      this.unitOptions.forEach(item =>{
+        if(item.unit == this.unitValue){
+          console.log(item)
+          this.numpropertyID = item.property_id;
+        }
+      })
+    },
     // 获取选择框列表
     getNumname() {
       this.HttpClient.get("/admin/selectBox").then(res => {
@@ -605,6 +615,10 @@ export default {
       console.log('12345676')
       this.isshowNumtype = true;
       this.selectNumnewTypeotitle = val;
+      this.selectNumTypeotitle = '';
+      this.typeNumListModel = '';
+      this.selectisNumtitle = '';
+      this.selectnumsearch = '';
     },
     // 新增内容
     changenewTitlenewFn(item) {
@@ -834,6 +848,8 @@ export default {
     // 确定保存数字区间
     sureSaveNumFn() {
       // console.log(this.amenddata)
+      console.log(this.selectNumTypeotitle)
+      console.log(this.selectNumnewTypeotitle)
       if(this.selectNumTypeotitle !== ''){
         this.amenddata.property.forEach((item,index) => {
           console.log(item)
@@ -848,16 +864,45 @@ export default {
         })
       }else if(this.selectNumnewTypeotitle !== ''){
         var obj = {};
-        obj.property_id = this.inputTitleID;
-        obj.name = this.selectnewTypeotitle;
-        obj.rule = this.typeListModel;
-        obj.selective = this.selectisnotitle;
-        obj.search = this.selectissearch;
-        // obj.values = this.tags;
+        obj.property_id = this.numpropertyID;
+        obj.property_name = this.selectNumnewTypeotitle;
+        obj.rule = this.typeNumListModel;
+        obj.selective = this.selectisNumtitle;
+        obj.search = this.selectnumsearch;
+        // obj.values = null;
         // obj.quantity = this.tags.length;
         obj.type = 1;
+        console.log(obj)
         this.amenddata.property.push(obj);
       }
+      console.log(this.amenddata.property)
+      this.amenddata.property.forEach(item => {
+        console.log(item)
+        // var valuearr = [];
+        // delete item.category_id;
+        // delete item.category_name;
+        // delete item.created_at;
+        // delete item.id;
+        // delete item.unit;
+        // delete item.unit_cn;
+        // delete item.updated_at;
+        // delete item.status;
+        // if(item.values !== null){
+        //   item.values.forEach(e => {
+        //     // console.log(e)
+        //     if(e.value){
+        //       valuearr.push(e.value)
+        //     }else{
+        //       valuearr.push(e)
+        //     }
+        //   })
+        //   item.values = valuearr;
+        // }
+        if(item.values === undefined){
+          console.log('这个属性没有值',item);
+          item.values = null;
+        }
+      })
       setTimeout(() => {
         this.$message.success('操作成功！')
       }, 200);
@@ -888,14 +933,10 @@ export default {
         obj.quantity = this.tags.length;
         obj.type = 0;
         this.amenddata.property.push(obj);
+        
       }
-      setTimeout(() => {
-        this.$message.success('操作成功！')
-      }, 200);
-    },
-    // 保存修改
-    sureModifyProductFn(){
       this.amenddata.property.forEach(item => {
+        console.log(item)
         var valuearr = [];
         delete item.category_id;
         delete item.category_name;
@@ -917,6 +958,28 @@ export default {
           item.values = valuearr;
         }
       })
+      setTimeout(() => {
+        this.$message.success('操作成功！')
+      }, 200);
+    },
+    // 保存修改
+    sureModifyProductFn(){
+      console.log(this.amenddata.property)
+      this.amenddata.property.forEach(item => {
+        if(item.values !== null){
+          console.log(item.values);
+          let arr = [];
+          item.values.forEach(element => {
+            // console.log(element.value.value)
+            arr.push(element.value.value)
+          });
+          item.values = arr
+        }else{
+          let arr2 = [];
+          arr2.push('0');
+          item.values = arr2;
+        }
+      });
       let params = {
         id:this.amenddata.id,
         name:this.amendname,

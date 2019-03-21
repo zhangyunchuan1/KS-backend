@@ -25,7 +25,7 @@
             <el-table-column label="头像" align="center" width="220" show-overflow-tooltip>
               <template slot-scope="scope">
                 <div class="avatar_img">
-                  <img :src="Tools.handleImg(scope.row.avatar)" alt>
+                  <img :src="Tools.judgeFullPath(scope.row.avatar)" alt>
                 </div>
               </template>
             </el-table-column>
@@ -182,7 +182,8 @@ export default {
           this.platdata = res.data.data
         }
       })
-    }
+    },
+    
   }
 };
 </script>

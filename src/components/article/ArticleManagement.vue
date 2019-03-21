@@ -81,7 +81,7 @@
                     show-overflow-tooltip
                     align="center"
                     label="所属板块"
-                    :filters="[{ text: '汽车', value: '汽车'}, { text: '摩托车', value: '摩托车'}, { text: '模型', value: '模型'}, { text: '智能设备', value: '智能设备'}]"
+                    :filters="[{ text: '汽车', value: '汽车'}, { text: '摩托', value: '摩托'}, { text: '模型', value: '模型'}, { text: '智能设备', value: '智能设备'}]"
                   :filter-method="filterHandler">
                   </el-table-column>
                   <el-table-column
@@ -95,6 +95,16 @@
                     <template slot-scope="scope">{{scope.row.user_type===2?'专业商家':scope.row.user_type===1?'普通用户':'普通商家'}}</template>
                   </el-table-column>
                   <el-table-column
+                    prop="is_course"
+                    width="120px"
+                    show-overflow-tooltip
+                    align="center"
+                    label="文章类别"
+                    :filters="[{ text: '教程', value: 1}, { text: '普通', value: 0}]"
+                    :filter-method="filterHandler">
+                    <template slot-scope="scope">{{scope.row.is_course===1?'教程':'普通'}}</template>
+                  </el-table-column>
+                  <el-table-column
                     prop="created_at"
                     width="160px"
                     show-overflow-tooltip
@@ -106,19 +116,24 @@
                     width="120px"
                     align="center"
                     show-overflow-tooltip
+                    prop="status"
+                    :filters="[{ text: '已通过', value: 1}, { text: '未通过', value: 3}]"
+                    :filter-method="filterHandler"
                     label="通过状态">
                     <template slot-scope="scope">
-                      <div :class="scope.row.status===1||scope.row.status===4?'normal_color':'notpass_color'">{{scope.row.status===1||scope.row.status===4?'已通过':'未通过'}}</div>
+                      <div :class="scope.row.status===1?'normal_color':'notpass_color'">{{scope.row.status===1?'已通过':'未通过'}}</div>
                     </template>
                   </el-table-column>
                   <el-table-column
-                    prop="review"
                     width="120px"
                     show-overflow-tooltip
                     align="center"
+                    prop="status"
+                    :filters="[{ text: '待审核', value: 2}, { text: '已审核(已通过)', value:1 }, { text: '已审核(未通过)', value:3 }]"
+                    :filter-method="filterHandler"
                     label="审核状态">
                       <template slot-scope="scope">
-                          <div :class="scope.row.status===2?'audit_color':'wait_color'">{{scope.row.status===2?'未审核':'已审核'}}</div>
+                          <div :class="scope.row.status===2?'audit_color':'wait_color'">{{scope.row.status===2?'待审核':'已审核'}}</div>
                       </template>
                   </el-table-column>
                   <el-table-column
@@ -130,13 +145,8 @@
                       <el-button type="primary" plain size="mini" v-if="scope.row.status!==1" @click="agreeButton(scope.row.article_id)">批准</el-button>
                       <el-button type="primary" plain size="mini" v-if="scope.row.status!==3" @click="rejectButton(scope.row)">驳回</el-button>
                       <el-button type="primary" plain size="mini" v-if="scope.row.status!==1" @click="updateButton(scope.row.id,scope.row.article_id)">修改</el-button>
-                      <el-button type="primary" plain size="mini">预览</el-button>
-                      <el-button type="primary" plain size="mini" v-if="scope.row.status===3" @click="deleteButton(scope.row.article_id)">删除</el-button>
-                      <!-- <div @click="agreeButton(scope.row.article_id)" v-if="scope.row.status!==1">批准</div> -->
-                      <!-- <div @click="rejectButton(scope.row)" v-if="scope.row.status!==3">驳回</div> -->
-                      <!-- <div v-if="" @click="updateButton(scope.row.id,scope.row.article_id)">修改</div> -->
-                      <!-- <div>预览</div> -->
-                      <!-- <div @click="deleteButton(scope.row.article_id)">删除</div> -->
+                      <el-button type="primary" plain size="mini" @click="handleOpenFront(scope.row.article_id)">预览</el-button>
+                      <el-button type="primary" plain size="mini" v-if="scope.row.status===3 && Tools.getDateDiff(scope.row.created_at) > 10" @click="deleteButton(scope.row.article_id)">删除</el-button>
                     </template>
                   </el-table-column>
                 </el-table>
@@ -150,10 +160,10 @@
               </div>
             </form>
           </div>
-          <div class="tatistics">
+          <!-- <div class="tatistics">
             <div class="quantity_btm">数量：{{total}}</div>
             <div class="quantity_btm">平均字数：{{wordAverage}}</div>
-          </div>
+          </div> -->
         </div>
       </div>
 
@@ -195,9 +205,6 @@
           <div class="disable_dialog_left">类别：</div>
           <div class="disable_dialog_right">
             <el-radio border v-model="disableDialogRadio" :label="item.review_id" v-for="(item,index) in disableDialogList" :key="index">{{item.name}}</el-radio>
-            <!-- <el-radio border v-model="disableDialogRadio" label="2">故意装怪</el-radio>
-            <el-radio border v-model="disableDialogRadio" label="3">色情</el-radio>
-            <el-radio border v-model="disableDialogRadio" label="4">不友善</el-radio> -->
           </div>
         </div>
         <span slot="footer" class="dialog-footer">
@@ -271,6 +278,9 @@
       }
     },
     methods: {
+      handleOpenFront(id){
+          window.open(this.Urls.frontUrl+"home/articleDetails?id="+id);  
+      },
       formatter(row, column) {
         return row.address;
       },
@@ -309,7 +319,7 @@
                 console.log(res);
                 if(res.data.code===200){
                     this.contentData=res.data.data.data;
-                    // this.total=res.data.data.total;
+                    this.total=res.data.data.total;
                     // let word=0;
                     // this.contentData.map(item => {
                     //     word += item.word_num;

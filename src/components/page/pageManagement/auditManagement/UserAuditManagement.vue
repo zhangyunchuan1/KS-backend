@@ -6,7 +6,7 @@
     <div class="UserAuditManagement_main">
       <!--标题-->
       <div class="title">
-        <p>后台客服屏蔽</p>
+        <p>用户审核管理</p>
       </div>
       <div class="content">
 

@@ -236,7 +236,7 @@ export default {
         console.log(res);
         if (res.data.code === 200) {
           this.menuList = res.data.data;
-          this.selectVideotitle = this.menuList[1].menu_id;
+          // this.selectVideotitle = this.menuList[1].menu_id;
           // console.log(this.menuList[1].menu_id)
           this.getlistData();
         }

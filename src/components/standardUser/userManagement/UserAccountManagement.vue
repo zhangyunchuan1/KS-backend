@@ -12,20 +12,20 @@
       <div class="content">
         <div class="content_header">
           <div class="content_header_search">
-            <el-input placeholder="姓名搜索" v-model="fullNameSearch" clearable  @change="initData('', '', '', '', fullNameSearch)" class="input-with-select">
-              <el-button slot="append" icon="el-icon-search" @click="initData('', '', '', '', fullNameSearch)"></el-button>
+            <el-input placeholder="姓名搜索" v-model="fullNameSearch" clearable  @change="initData()" class="input-with-select">
+              <el-button slot="append" icon="el-icon-search" @click="initData()"></el-button>
             </el-input>
-            <el-input placeholder="电话搜索" v-model="telephoneSearch" clearable  @change="initData('', '', '', '', telephoneSearch)" class="input-with-select">
-              <el-button slot="append" icon="el-icon-search" @click="initData('', '', '', telephoneSearch)"></el-button>
+            <el-input placeholder="电话搜索" v-model="telephoneSearch" clearable  @change="initData()" class="input-with-select">
+              <el-button slot="append" icon="el-icon-search" @click="initData()"></el-button>
             </el-input>
-            <el-input placeholder="身份证号搜索" v-model="IdCardSearch" clearable  @change="initData('', '', '', '', IdCardSearch)" class="input-with-select">
-              <el-button slot="append" icon="el-icon-search" @click="initData('', '', IdCardSearch)"></el-button>
+            <el-input placeholder="身份证号搜索" v-model="IdCardSearch" clearable  @change="initData()" class="input-with-select">
+              <el-button slot="append" icon="el-icon-search" @click="initData()"></el-button>
             </el-input>
-            <el-input placeholder="昵称搜索" v-model="nickNameSearch" clearable  @change="initData('', '', '', '', nickNameSearch)" class="input-with-select">
-              <el-button slot="append" icon="el-icon-search" @click="initData('', nickNameSearch)"></el-button>
+            <el-input placeholder="昵称搜索" v-model="nickNameSearch" clearable  @change="initData()" class="input-with-select">
+              <el-button slot="append" icon="el-icon-search" @click="initData()"></el-button>
             </el-input>
-            <el-input placeholder="用户名搜索" v-model="userNameSearch" clearable  @change="initData(userNameSearch)" class="input-with-select">
-              <el-button slot="append" icon="el-icon-search" @click="initData(userNameSearch)"></el-button>
+            <el-input placeholder="用户名搜索" v-model="userNameSearch" clearable  @change="initData()" class="input-with-select">
+              <el-button slot="append" icon="el-icon-search" @click="initData()"></el-button>
             </el-input>
           </div>
         </div>
@@ -57,7 +57,7 @@
               show-overflow-tooltip>
               <template slot-scope="scope">
                 <div class="table_avatar" v-if="scope.row.avatar">
-                  <img :src='Tools.handleImg(scope.row.avatar)' alt="">
+                  <img :src='Tools.judgeFullPath(scope.row.avatar)' alt="">
                 </div>
                 <div class="table_avatar" v-else>
                   <span class="sortout_color">暂无图片</span>
@@ -77,8 +77,11 @@
               label="电话"
               align="center"
               show-overflow-tooltip
-              width="120"
+              width="150"
               prop="phone">
+              <template slot-scope="scope">
+                <span>{{'+'+scope.row.country_code+' '+scope.row.phone}}</span>
+              </template>
             </el-table-column>
 
             <el-table-column
@@ -135,6 +138,8 @@
             <el-table-column
               label="操作"
               align="center"
+              min-width="320"
+              fixed="right"
               class-name="table_scope">
               <template slot-scope="scope">
                 <div class="scope_btm">
@@ -151,7 +156,7 @@
             layout="prev, pager, next"
             :total="total"
             :current-page.sync="currentPage"
-            :page-size="25"
+            :page-size="10"
             @current-change="handleCurrentChange"
           >
           </el-pagination>
@@ -341,14 +346,15 @@
     methods: {
 
       // 获取用户列表
-      initData (user_name='', nickname='', id_card='', phone='', actual_name='', page=1) {
+      initData () {
         let data = {
-          user_name,
-          nickname,
-          id_card,
-          phone,
-          actual_name,
-          page
+          user_name:this.userNameSearch,
+          nickname:this.nickNameSearch,
+          id_card:this.IdCardSearch,
+          phone:this.telephoneSearch,
+          actual_name:this.fullNameSearch,
+          page:this.currentPage,
+          size:10
         }
         this.HttpClient.post('/admin/users/lists', data)
           .then(res => {
@@ -366,8 +372,9 @@
       },
       
       // 翻页
-      handleCurrentChange(val) {
-        this.initData('', '', '', '', '', val) 
+      handleCurrentChange(p) {
+        this.currentPage = p;
+        this.initData() ;
       },
 
       // 格式化性别
@@ -420,15 +427,15 @@
 
       // 显示对应弹窗
       showDialog(row, dialog) {
-        this[dialog] = true
-        this.uid = row.uid
-        this.oldPhone = row.phone
-        this.gender = row.gender + ''
-        this.signature = row.signature
-        this.id_card = row.id_card
-        this.actual_name = row.actual_name
-        this.avatar = Tools.handleImg(row.avatar) 
-        console.log(this.avatar)
+        this[dialog] = true;
+        this.uid = row.uid;
+        this.oldPhone = row.phone;
+        this.gender = row.gender + '';
+        this.signature = row.signature;
+        this.id_card = row.id_card;
+        this.actual_name = row.actual_name;
+        this.avatar = this.Tools.judgeFullPath(row.avatar) ;
+        console.log(this.avatar);
         // this.serial_number = Math.random().toString(36).substring(2)
 
         // 获取身份证照片

@@ -1,848 +1,757 @@
 <template>
-  <div class="videoModify">
-    <div class="videoModify_header">{{modifyData.title}} - 修改</div>
-
-    <div class="videoModify_main">
-      <div class="videoModify_List">
-        <div class="list_title">标题</div>
-        <div class="list_input">
-          <el-input v-model="modifyData.title"></el-input>
+<div class="video_modify">
+      <BreadCrumb class="bread" :breadData="breadData"></BreadCrumb>
+      <div class="articleManagement_main">
+        <div class="header">
+          <div class="title">视频修改</div>
+          <!-- <div class="refresh"><i class="iconfont icon-shuaxin"></i><span>刷新</span></div> -->
         </div>
-      </div>
+        <div class="modify_content">
+          <div class="upload_video_body">
+            <div class="upload_video">
+              <div class="upload_video_main">
+                <!-- <div class="upload_video_header">
+                  上传视频
+                </div> -->
+                <!--视频分类-->
+                <div class="video_category_type">
+                  <div @mouseenter.stop="getMousePosition($event,'20271')"
+                      @click.stop="getMousePosition($event,'20271')">
+                    <upload-category ref="uploadCategory" :source="7" :id="videoId" :selected="{category:videoData.category_id}" @change="getCategoryId"></upload-category>
+                  </div>
+                  <div class="video_type" @mouseenter.stop="getMousePosition($event,'20244')"
+                      @click.stop="getMousePosition($event,'20244')">
+                    <p class="video_type_name">视频类型</p>
+                    <upload-switch :remarkVisible="remarkVisible" :course="switchVisible" @change="getCourse"></upload-switch>
+                  </div>
+                </div>
+                <!--视频和图片-->
+                <div class="video_image">
+                  <upload-video ref="uploadVideo" :code="'20239'" @mouseenter="getMousePosition" class="up_video" :width="'532px'" :height="'307px'" :editVisible="!videoId" :videoList="videoData.video"></upload-video>
+                  <upload-poster ref="uploadImage" :code="'20240'" :adapt="!!'true'" @mouseenter="getMousePosition" class="up_image" :width="'298px'" :height="'307px'" :image="videoData.image"></upload-poster>
+                </div>
+                <!--标题-->
+                <div class="video_title_content">
+                  <div class="video_title_name">
+                    <span>*</span>
+                    <p>标题</p>
+                  </div>
+                  <div @mouseenter.stop="getMousePosition($event,'20241')"
+                      @click.stop="getMousePosition($event,'20241')">
+                    <el-input
+                      class="video_title_input"
+                      maxlength="20"
+                      placeholder="请输入标题..."
+                      v-model="videoData.title"
+                      @input="checkTitleInput"
+                    >
+                    </el-input>
+                  </div>
+                  <p class="check_title">{{titleLength}}/20</p>
+                </div>
+                <!--标签-->
+                <div class="video_tag">
+                  <div class="video_tag_name">
+                    <span>*</span>
+                    <p>标签</p>
+                    <label>（最少1个标签，最多3个，每个标签2—8个字）</label>
+                  </div>
+                  <div @mouseenter.stop="getMousePosition($event,'20243')"
+                      @click.stop="getMousePosition($event,'20243')">
+                    <upload-tags ref="uploadTag" :tagList="videoData.label" class="up_tag"></upload-tags>
+                  </div>
+                </div>
+                <!--视频详情-->
+                <div class="video_content">
+                  <div class="video_content_name">
+                    <!--<span>*</span>-->
+                    <p>视频详情</p>
+                    <label>（选填，最少20字，最多800字）</label>
+                  </div>
+                  <div @mouseenter.stop="getMousePosition($event,'20242')"
+                      @click.stop="getMousePosition($event,'20242')">
+                    <el-input
+                      class="video_content_input"
+                      resize="none"
+                      minlength="20"
+                      maxlength="800"
+                      v-model="videoData.description"
+                      @input="checkContentInput"
+                      type="textarea">
+                    </el-input>
+                  </div>
+                  <p class="check_content">{{contentLength}}/800</p>
+                </div>
+                <!--更多选项-->
+                <div class="video_more_options">
+                  <div class="video_more_name" @click="handleShowFileAndPart">
+                    <p>更多选项</p>
+                    <i :class="attachmentVisible?'el-icon-arrow-up':'el-icon-arrow-down'"></i>
+                    <label>选填——附件、使用的零件/软件</label>
+                  </div>
+                </div>
+                <!--附件和零软件-->
+                <div class="file_part" :style="attachmentVisible?{height: (Number(currentFilePartHeight)+(partLength+1)*47)+'px'}:{height:0}">
+                  <div class="video_file_name">
+                    <p>附件</p>
+                    <label>（最多上传5个附件，每个最大10M）</label>
+                  </div>
+                  <div @mouseenter.stop="getMousePosition($event,'20246')"
+                        @click.stop="getMousePosition($event,'20246')">
+                    <upload-file ref="uploadFile" :attachmentList="videoData.attachment" class="up_file"></upload-file>
+                  </div>
+                  <div class="video_part_name">
+                    <p>使用的零件/软件，包括软件版本</p>
+                    <label>（最多添加15个，每个最多8字）</label>
+                  </div>
+                  <div @mouseenter.stop="getMousePosition($event,'20245')"
+                      @click.stop="getMousePosition($event,'20245')">
+                    <upload-part ref="uploadPart" class="up_part" :part="videoData.source" @getPartLength="getPartLength"></upload-part>
+                  </div>
+                </div>
 
-      <div class="videoModify_List">
-        <div class="list_title">封面图片</div>
-        <div class="list_input list_upload">
-          <el-upload
-            class="videoModify_uploader"
-            action=""
-            :on-success="handleAvatarSuccess"
-            :before-upload="beforeAvatarUpload"
-          >
-            <img v-if="imageUrl" :src="imageUrl" class="videoModify_img">
-            <i v-else class="el-icon-plus videoModify-icon"></i>
-          </el-upload>
-          <p>(图片比例4:3，大小不超过1M)</p>
-        </div>
-      </div>
-
-      <div class="videoModify_List">
-        <div class="list_title">视频详情</div>
-        <div class="list_input list_textarea">
-          <!-- <el-input type="textarea" v-html="modifyData.description"></el-input> -->
-          <el-upload
-              id="xx"
-              class="avatar-uploader up_content"
-              :action="$uploadPath"
-              :data="contentUpData"
-              name="file"
-              :show-file-list="false"
-              :on-success="handleContentSuccess"
-              :before-upload="beforeContentUpload">
-          </el-upload>
-          <quill-editor
-              v-model="content"
-              :options="editorOption"
-              ref="myQuillEditor"
-              @blur="onEditorBlur($event)" @focus="onEditorFocus($event)"
-              @change="onEditorChange($event,5000)">
-          </quill-editor>
-
-
-          <!-- <el-input
-            type="textarea"
-            :autosize="{ minRows: 2, maxRows: 4}"
-            placeholder="请输入内容"
-            v-model="modifyData.description"
-          ></el-input> -->
-        </div>
-      </div>
-
-      <div class="videoModify_List">
-        <div class="list_title">标签</div>
-        <div class="list_input list_tags">
-          <div class="tags" v-for="(item,index) in modifyData.label" :key="index">
-            <div @click="handleModify(item,index,'a')">{{item.name}}</div>
-            <p>
-              <i class="iconfont icon-minus" @click="handleDeleteTag(item,index)"></i>
-            </p>
+                <!--提交按钮-->
+                <div class="upload_video_footer">
+                  <span class="upload_video_cancel upload_video_footer_button" @click="$router.go(-1)">取消</span>
+                  <span class="upload_video_submit upload_video_footer_button" @click="handleSubmit">发布</span>
+                </div>
+              </div>
+              <!--上传提示-->
+              <!-- <upload-tips :tips="tips" :rule="rules" :top="marginTop"></upload-tips> -->
+            </div>
           </div>
         </div>
-      </div>
-
-      <div class="videoModify_List">
-        <div class="list_title list_title_margin">使用零件、软件</div>
-        <div class="list_input list_tags_link">
-          <div class="tags_link" v-for="(item,index) in modifyData.source" :key="index">
-            <div class="tags">
-              <div @click="handleModify(item,index,'b')">{{item.source_name}}</div>
-            </div>
-            <div class="tags">
-              <div @click="handleModify(item,index,'c')">{{item.link}}</div>
-              <p>
-                <i class="iconfont icon-minus" @click="handleDeleteSource(item,index)"></i>
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="videoModify_List">
-        <div class="list_title">是否为教学视频</div>
-        <div class="list_input list_switch">
-          <el-switch
-            v-model="modifyData.is_course"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
-            @change="handleChangeCourse"
-          ></el-switch>
-        </div>
-      </div>
-
-      <div class="videoModify_List">
-        <div class="list_title">附件</div>
-        <div class="list_input list_upload list_upload_txt">
-          <el-upload
-            class="upload-demo"
-            action="http://test.kslab.com/api/article/null"
-            :on-preview="handlePreview"
-            :on-remove="handleRemove"
-            :before-remove="beforeRemove"
-            multiple
-            :before-upload="beforeUploadAttachment"
-            :on-exceed="handleExceed"
-            :file-list="modifyData.attachment">
-            <el-button size="small" type="primary">点击上传</el-button>
-            <div slot="tip" class="el-upload__tip">不超过500kb</div>
-          </el-upload>
-        </div>
-      </div>
     </div>
-
-    <div class="bottom">
-      <el-button @click="handleCancelModify">取 消</el-button>
-      <el-button type="primary" @click="handleSaveAll">保 存</el-button>
-    </div>
-
-    <el-dialog custom-class="modifyDialog" :visible.sync="modifyVisible" width="400px">
-      <span slot="title" class="modifyVisible_title">
-        <i class="iconfont icon-edit-square"></i>修改
-      </span>
-      <div class="modifyVisible">
-        <p>新名称/新链接：</p>
-        <div>
-          <el-input v-model="newName"></el-input>
-        </div>
-      </div>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="modifyVisible = false">取 消</el-button>
-        <el-button type="primary" @click="handleSaveName">保 存</el-button>
-      </span>
-    </el-dialog>
-  </div>
+</div>
 </template>
 
 <script>
-/*************富文本**************/
-// region
-  import {quillEditor} from 'vue-quill-editor'
-  import * as Quill from 'quill'  //引入编辑器
-  import moment from 'moment'
-
-  //quill图片可拖拽改变大小
-  import ImageResize from 'quill-image-resize-module';
-
-  Quill.register('modules/imageResize', ImageResize);
-
-  //quill图片可拖拽上传
-  import {ImageDrop} from 'quill-image-drop-module';
-
-  Quill.register('modules/imageDrop', ImageDrop);
-
-  // 自定义字体大小
-  let fontSize = ['10px', '12px', '14px', '16px', '18px', '20px'];
-  let Size = Quill.import('attributors/style/size');
-  Size.whitelist = fontSize;
-  Quill.register(Size, true);
-
-  var fonts = ['SimSun', 'SimHei', 'Microsoft-YaHei', 'KaiTi', 'FangSong', 'Arial', 'Times-New-Roman', 'sans-serif'];
-  var Font = Quill.import('formats/font');
-  Font.whitelist = fonts; //将字体加入到白名单
-
-  import {container, ImageExtend, QuillWatch} from 'quill-image-extend-module'
-
-  Quill.register('modules/ImageExtend', ImageExtend)
-
-  var toolbarOptions = [
-    ['italic', 'underline', 'strike', 'bold'],
-    ['blockquote', 'code-block'],
-    // [{'header':1},{'header':2}],
-    [{'list': 'ordered'}, {'list': 'bullet'}],
-    [{'script': 'sub'}, {'script': 'super'}],
-    [{'indent': '-1'}, {'indent': '+1'}],
-    [{'direction': 'rtl'}],
-    [{'size': fontSize}],
-    // [{'header':[1,2,3,4,5,6,false]}],
-    [{'color': []}],
-    // [{'font':fonts}],
-    [{'align': []}],
-    // ['clear'],
-    ['image']
-  ];
-  //endregion
-  /*************************************/
-
-
-export default {
-  name: "VideoModify",
-  data() {
-    return {
-      /*********************************************************/
-      editorOption:{ // 富文本编辑器配置
-          modules:{
-            toolbar:{
-              container: toolbarOptions,
-              handlers: {
-                'image': function (value) {  // 劫持原来的图片点击按钮事件
-                  if (value) {
-                    document.querySelector('#xx input').click()
-                  } else {
-                    this.quill.format('image', false);
-                  }
-                }
-              }
-            },
-            imageDrop:true,
-            imageResize: {
-              displayStyles: {
-                backgroundColor: 'black',
-                border: 'none',
-                color: 'white'
-              },
-              modules: [ 'Resize', 'DisplaySize', 'Toolbar' ]
-            },
-            ImageExtend: {
-              loading: true,
-              name: 'img',
-              size:1,
-              action: '',
-              response: (res) => {
-                return res.info
-              },
-              headers: (xhr) => {
-                // xhr.setRequestHeader('myHeader','myValue')
-              },  //设置请求头部
-              sizeError: () => {
-                this.$message.error('图片大小超过限制1M')
-              },  // 图片超过大小的回调
-              start: () => {},  //自定义开始上传触发事件
-              end: () => {},  //自定义上传结束触发的事件，无论成功或者失败
-              error: () => {},  //上传失败触发的事件
-              success: () => {},  //上传成功触发的事件
-              change: (xhr, formData) => {
-                // xhr.setRequestHeader('myHeader','myValue')
-                // formData.append('token', 'myToken')
-              } //每次选择图片触发，也可用来设置头部，但比headers多了一个参数，可设置formData
-            },
-          }
+import BreadCrumb from '@/components/public/BreadCrumb';
+  export default {
+    name: "VideoModify",
+    components: {
+      'upload-tips': () => import('@/components/public/upload-tips'),
+      'upload-category': () => import('@/components/public/upload-category'),
+      'upload-switch': () => import('@/components/public/upload-switch'),
+      'upload-video': () => import('@/components/public/uploadVideo'),
+      'upload-tags': () => import('@/components/public/upload-tags'),
+      'upload-file': () => import('@/components/public/uploadFile'),
+      'upload-poster':() => import('@/components/public/upload-poster'),
+      'upload-part': () => import('@/components/public/uploadPart'),
+      BreadCrumb
+    },
+    data() {
+      return {
+        breadData: [{
+          id: 1,
+          name: '视频管理',
+          urls: '/index/article/Article',
+          icon: 'icon-home'
+        }, {
+          id: 2,
+          name: '视频修改',
+          urls: '/index/article/ArticleManagement',
+          icon: 'icon-home'
+        }],
+        tips: '',//上传提示
+        rules: [],// 上传规则数组
+        marginTop: 0,// 提示框距离顶部位置
+        tipsList: [],// 提示信息数组,
+        videoData: {
+          title: '', // 标题
+          is_course: 0, // 是否为教程
+          category_id: '', // 版块儿id
+          description: '', // 视频详情
+          label: [], // 标签
+          attachment: [], // 附件
+          video: [], // 视频
+          image: [], // 图片
+          source: [], // 零件，软件
         },
-        contentUpData: {}, // 上传参数
-        content: '', // 富文本编辑内容
-      /**********************************************************************************************/
-
-      id: "", //文章全局id
-      imageUrl: "",
-      tags: [], //标签列表
-      oldTags: [],
-      name: "", //修改标签名称
-      tag_id: "", //修改标签id
-      part: [], //零件列表
-      modifyVisible: false, // 修改弹框
-      modifyObj: {}, //当前修改对象
-      modifyIndex: null, //修改的index
-      modifyType: null, //当前修改的类型
-      isCourse: null, //是否为教程
-
-      image_path: "",
-
-      teachingBtm: false, // 教学视频开关
-
-      // fileList: [{name: 'food.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'}, {name: 'food2.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'}],
-      fileList:[],
-      modifyData: {}, //修改信息
-      newName: "", //新名称
-      modifyImgUrl:'', //修改后的图片地址，半路径，用于上传
-      
-    };
-  },
-  created() {
-    this.getVideoInfo(this.$route.query.id);
-  },
-  methods: {
-    // /**************************文档编辑器*******************/
-    //   // region
-
-      /**编辑器**/
-      onEditorBlur() {//失去焦点事件
-      },
-      onEditorFocus() {//获得焦点事件
-      },
-      onEditorChange(e, decimalNum) {//内容改变事件
-        //this.content = event.html
-        console.log(this.content)
-        let lengthcontent = this.content;
-        function removeHTMLTag(str) {
-          //var str;
-          str = str.replace(/<\/?[^>]*>/g, ''); //去除HTML tag
-          str = str.replace(/[ | ]*\n/g, '\n'); //去除行尾空白
-          str = str.replace(/\n[\s| | ]*\r/g, '\n'); //去除多余空行
-          str = str.replace(/ /ig, '');//去掉
-          return str;
-        }
-        console.log(removeHTMLTag(lengthcontent).length)
-        e.quill.deleteText(decimalNum, 1);//保留 strValue 的 前 decimalNum 位字符，
-        this.$emit('Quescthon', this.content)
-        console.log(this.content);
-        const data = this.Tools.getEditorImageAndLength(this.content);
-        this.editImageSize = data.imgArray.length;
-        if (removeHTMLTag(lengthcontent).length < 2000) {
-          this.modifyData.description = this.content;
-        } else {
-          this.$message.error('字数超过限制');
-        }
+        titleLength: 0, // 标题长度
+        contentLength: 0, // 视频详情长度
+        attachmentVisible: false, // 显示附件和零软件
+        currentFilePartHeight: '171', // 当前附件零软件的高度
+        partLength: 0, // 零软件长度
+        videoId: '', // 视频id
+        remarkVisible: false, // switch字体显示
+        switchVisible: false, // 是否教程
+        buttonVisible: true, // 按钮是否可按
+      }
+    },
+    async created() {
+      // await this.getUploadTips('upload_video').then(res => {
+      //   this.tipsList = res
+      // });
+      // await this.getUploadRule('video').then(res => {
+      //   this.rules = res
+      // });
+      if(this.$route.query.id) {
+        this.videoId = this.$route.query.id;
+        this.getVideoDetail(this.videoId);
+      }
+    },
+    methods: {
+      // region
+      /*************************检查输入框****************/
+      /****
+       * 2019/2/12/012
+       * author ZhengXuDong
+       * function 检查标题输入
+       * @param value
+       */
+      checkTitleInput(value) {
+        this.titleLength = value.length;
       },
       /****
-       * 2019/1/4/004
+       * 2019/2/12/012
        * author ZhengXuDong
-       * function 富文本上传
-       * @param file
+       * function 检查视频详情输入
+       * @param value
        */
-      beforeContentUpload(file) {
-        // console.log(this.editImageSize)
-        // if(this.editImageSize >= 8) {
-        //   this.$message.error('图片不能超过8张');
-        //   return false;
-        // }
-        const sizeLimit = file.size / 1024 / 1024 < 10;
-        const fileType = file.name.split('.')[1];
-        const fileTypeStr = 'jpg,png,jpeg,tiff,tif';
-        if(fileTypeStr.indexOf(fileType) < 0) {
-          this.$message.error('图片类型只能为'+ fileTypeStr);
-          return false;
-        }
-        if (!sizeLimit) {
-          this.$message.error('上传图片大小不能超过 5MB!');
-          return false;
-        }
-        let self = this;
-        let render = new FileReader();
-        render.readAsDataURL(file);
-        return new Promise((resolve,reject) =>{
-          render.onload = function () {
-            self.contentUpData.token = self.$getQiNiuToken({saveKey:file.name});
-            resolve(true)
-          };
-        });
-      },
-      /****
-       * 2019/1/4/004
-       * author ZhengXuDong
-       * function 上传描述图片成功,将图片链接加入到文档中
-       * @param res
-       * @param file
-       * @param fileList
-       */
-      handleContentSuccess(res, file, fileList) {
-        console.log(res, file, fileList)
-        let quill = this.$refs.myQuillEditor.quill;
-        let length = quill.getSelection().index;
-        quill.insertEmbed(length, 'image', this.$imagePath + file.response.key)
-        quill.setSelection(length + 1)
+      checkContentInput(value) {
+        this.contentLength = value.length;
       },
       // endregion
+      /****
+       * 2019/2/13/013
+       * author ZhengXuDong
+       * function 获取右边提示框
+       * @param event
+       * @param code
+       */
+      getMousePosition(event, code){
+          // if (document.readyState === "complete") {
+          //     let e=event || window.event;
+          //     let element=e.currentTarget;
+          //     let actualTop = element.offsetTop;
+          //     let current = element.offsetParent;
 
-
-    //删除零件链接
-    handleDeleteSource(i, index) {
-      console.log(i);
-      this.HttpClient.form("/admin/source/del", {
-        tag_id: i.source_id,
-        relation_id: this.$route.query.video_id
-      }).then(res => {
-        console.log(res);
-        if (res.data.code === 200) {
-          this.$message.success(res.data.msg);
-          this.modifyData.source.splice(index, 1);
-        }
-      });
-    },
-    //删除标签
-    handleDeleteTag(i, index) {
-      console.log(i, this.$route.query.video_id, this.modifyData.label);
-      this.HttpClient.form("/admin/tags/del", {
-        tag_id: i.tag_id,
-        relation_id: this.$route.query.video_id
-      }).then(res => {
-        console.log(res);
-        if (res.data.code === 200) {
-          this.$message.success(res.data.msg);
-          this.modifyData.label.splice(index, 1);
-        }
-      });
-    },
-    //上传附件
-    beforeUploadAttachment(file) {
-      console.log(file);
-      this.HttpClient.form("/admin/uploadOneFile", {
-        files: file
-      }).then(res => {
-        console.log(res);
-        if (res.data.code === 200) {
-          this.$message.success(res.data.msg);
-          this.modifyData.attachment.push({
-            name: file.name,
-            path: res.data.path.substr(25),
-            status: "success",
-            uid: file.uid
-          });
-        }
-      });
-    },
-    //保存所有
-    handleSaveAll() {
-        //处理上传封面图片格式
-        console.log(this.modifyData.cover)
-        console.log(this.imageUrl)
-        if(this.modifyData.cover[0].path !== this.imageUrl){
-          this.modifyData.cover[0].path = 'http://cdn.kushualab.com/' + this.modifyData.cover[0].path;
-        }
-        // this.modifyData.cover = this.imageUrl;
-        // let resa = this.modifyData.cover.indexOf('http');
-        // if(resa !== -1){
-          // this.modifyData.cover = this.imageUrl.substring(25)
-        // }
-        // console.log(this.modifyData)
-        // 处理上传附件格式
-        let attr = [];
-        for(let i in this.modifyData.attachment){
-          attr.push({
-            name:this.modifyData.attachment[i].name,
-            path:this.modifyData.attachment[i].path,
-          })
-        }
-      // console.log(
-      //   this.modifyData.title,
-      //   JSON.stringify(this.modifyData.cover),
-      //   this.modifyData.description,
-      //   this.modifyData.label,
-      //   this.modifyData.source,
-      //   this.modifyData.is_course,
-      //   attr
-      // );
-      if (this.modifyData.is_course) {
-        this.isCourse = 1;
-      } else {
-        this.isCourse = 0;
-      }
-      console.log(JSON.stringify(this.modifyData.attachment));
-      this.HttpClient.post("/admin/videos/edit", {
-        id: this.$route.query.id,
-        title: this.modifyData.title,
-        cover: this.modifyData.cover,
-        is_course: this.isCourse,
-        description: this.modifyData.description,
-        attachment: attr
-      }).then(res => {
-        console.log(res);
-        if (res.data.code === 200) {
-          this.$message.success(res.data.msg);
-          setTimeout(() => {
-            this.$router.go(-1);
-          }, 500);
-        }else{
-          this.$router.go(-1);
-        }
-      });
-    },
-    //保存新名字
-    handleSaveName() {
-      console.log(this.modifyType, this.modifyObj);
-      if (this.modifyType === "a") {
-        //修改标签
-        this.HttpClient.form("/admin/tags/edit", {
-          tag_id: this.modifyObj.tag_id,
-          name: this.newName,
-          relation_id: this.$route.query.video_id
-        }).then(res => {
-          console.log(res);
-          if (res.data.code === 200) {
-            this.$message.success(res.data.msg);
-            this.modifyData.label[this.modifyIndex].name = this.newName;
-          }
-        });
-      } else if (this.modifyType === "b") {
-        //修改零件名称
-        this.HttpClient.form("/admin/source/edit", {
-          source_id: this.modifyObj.source_id,
-          name: this.newName,
-          relation_id: this.$route.query.video_id,
-          type: 3,
-          link: this.modifyObj.link
-        }).then(res => {
-          console.log(res);
-          if (res.data.code === 200) {
-            this.$message.success(res.data.msg);
-            this.modifyData.source[this.modifyIndex].source_name = this.newName;
-          }
-        });
-      } else if (this.modifyType === "c") {
-        //修改地址
-        this.HttpClient.form("/admin/source/edit", {
-          source_id: this.modifyObj.source_id,
-          name: this.modifyObj.name,
-          relation_id: this.$route.query.video_id,
-          type: 3,
-          link: this.newName
-        }).then(res => {
-          console.log(res);
-          if (res.data.code === 200) {
-            this.$message.success(res.data.msg);
-            this.modifyData.source[this.modifyIndex].link = this.newName;
-          }
-        });
-      }
-      this.modifyVisible = false;
-    },
-    // 是否教程
-    handleChangeCourse() {
-      console.log(this.modifyData.is_course);
-    },
-    //修改标签
-    handleModify(i, index, sign) {
-      console.log(i);
-      this.modifyObj = i;
-      this.modifyIndex = index;
-      this.modifyType = sign;
-      if (sign === "a") {
-        console.log("修改标签");
-        this.newName = i.name;
-      } else if (sign === "b") {
-        console.log("修改零件");
-        this.newName = i.source_name;
-      } else if (sign === "c") {
-        console.log("修改地址");
-        this.newName = i.link;
-      }
-      this.modifyVisible = true;
-    },
-    //获取视频详细信息
-    getVideoInfo(id) {
-      this.HttpClient.post("/admin/videos/getInfo", {
-        id: id
-      }).then(res => {
-        console.log(res);
-        this.modifyData = res.data.data;
-        this.content = this.modifyData.description ;
-        // 处理图片
-        console.log(this.modifyData.cover)
-        // this.modifyData.cover[0].path = JSON.parse(this.modifyData.cover);
-        console.log(this.modifyData.cover)
-        this.imageUrl = this.Tools.handleImg(this.modifyData.cover[0].path);
-        // 处理附件格式
-        if (this.modifyData.attachment) {
-          console.log("chuli");
-          // this.modifyData.attachment =  JSON.parse(this.modifyData.attachment);
-        } else {
-          this.modifyData.attachment = [];
-        }
-        // 处理教程
-        this.isCourse = this.modifyData.is_course;
-        if (this.modifyData.is_course === 1) {
-          this.modifyData.is_course = true;
-        } else {
-          this.modifyData.is_course = false;
-        }
-        // console.log(this.modifyData);
-      });
-    },
-    handleAvatarSuccess(res, file) {
-      // this.imageUrl = URL.createObjectURL(file.raw);
-    },
-    //图片上传
-    beforeAvatarUpload(file) {
-      console.log(file.name)
-      const isJPG = file.type === "image/jpeg";
-      const isLt5M = file.size / 1024 / 1024 < 10;
-      if (isJPG) {
-        if (isLt5M) {
-          this.HttpClient.form("/admin/uploadOneImage", {
-            images: file
-          }).then(res => {
-            console.log(res);
-            if (res.data.code === 200) {
-              this.imageUrl = res.data.path;
-              this.modifyData.cover = [];
-              this.modifyData.cover.push({
-                name:file.name,
-                path:res.data.path
-              })
-              this.$message.success(res.data.msg);
-              this.modifyData.cover[0].name = file.name;
-              // this.modifyData.cover = res.data.path;
+          //     while (current !== null){
+          //         actualTop += current. offsetTop;
+          //         current = current.offsetParent;
+          //     }
+          //     let height=document.querySelector('.upload_video_main').offsetHeight,// 内容框宽度
+          //         tipsHeight=document.querySelector('.upload_tips_box').offsetHeight,// 提示框高度
+          //         headerHeight=document.querySelector('.header_box').offsetHeight;// 头部高度
+          //     let productBody=document.querySelector('.upload_video_body');
+          //     let paddingTop=0;
+          //     if (window.getComputedStyle) {
+          //         paddingTop = parseInt(getComputedStyle(productBody, null).paddingTop)
+          //     } else {
+          //         paddingTop = parseInt(productBody.currentStyle.paddingTop);// 兼容IE
+          //     }
+          //     if(height>=tipsHeight+actualTop-paddingTop-headerHeight){
+          //         this.marginTop=actualTop-paddingTop-headerHeight;
+          //     }else{
+          //         this.marginTop=height-tipsHeight
+          //     }
+          //     this.tips=this.tipsList[this.findElem(this.tipsList,'tips_code',code)].content
+          // }
+      },
+      /****
+       * 2019/2/13/013
+       * author ZhengXuDong
+       * function 修改时获取视屏详情
+       * @param id
+       */
+      getVideoDetail(id) {
+        this.HttpClient.post('/admin/videos/Info', {video_id: id})
+          .then(res => {
+            if(res.data.code === 200) {
+              const data = res.data.data;
+              this.videoData = {
+                title: data.title, // 标题
+                is_course: data.is_course, // 是否为教程
+                category_id: data.category_id, // 版块儿id
+                description: data.description, // 视频详情
+                label: data.label, // 标签
+                attachment: data.attachment, // 附件
+                video: data.video_url, // 视频
+                image: data.cover, // 图片
+                source: data.source, // 零件，软件
+              };
+              this.remarkVisible = data.is_course === 1;
+              this.switchVisible = data.is_course === 1;
+              this.attachmentVisible = true;
+              this.partLength = data.source ? data.source.length : 0;
+              this.titleLength = data.title.length;
+              this.contentLength = data.description.length;
+            }else {
+              this.$message.error(res.data.msg);
             }
-          });
-        } else {
-          this.$message.error("上传图片大小不能超过 5MB!");
+          })
+      },
+      /****
+       * 2019/2/12/012
+       * author ZhengXuDong
+       * function 获取分类回调
+       * @param category
+       */
+      getCategoryId(category) {
+        this.videoData.category_id = category.id;
+      },
+      /****
+       * 2019/2/12/012
+       * author ZhengXuDong
+       * function 回调视频类型
+       * @param
+       */
+      getCourse(isCourse) {
+        console.log(isCourse)
+        this.videoData.is_course = isCourse ? 1 : 0;
+        this.remarkVisible = !!isCourse;
+      },
+      /****
+       * 2019/2/12/012
+       * author ZhengXuDong
+       * function 显示或隐藏附件和零软件
+       */
+      handleShowFileAndPart() {
+        this.attachmentVisible = !this.attachmentVisible;
+      },
+      /****
+       * 2019/2/12/012
+       * author ZhengXuDong
+       * function 回调part的长度
+       * @param value
+       */
+      getPartLength(value) {
+        this.partLength = value;
+      },
+      /****
+       * 2019/2/12/012
+       * author ZhengXuDong
+       * function 提交
+       */
+      handleSubmit() {
+        if (this.videoData.is_course === 1) {
+          this.videoData.integrity = 100;
+        } else if (this.videoData.is_course === 0) {
+          if (parseInt(this.videoData.video_length) >= 3 * 60) {
+            this.videoData.integrity = 20;
+          } else {
+            this.videoData.integrity = 0;
+          }
+          if (this.videoData.description && this.videoData.description.length > 150) {
+            this.videoData.integrity += 15;
+          }
+          const len = this.videoData.label.length;
+          this.videoData.integrity += len * 20;
         }
-      } else {
-        this.$message.error("上传图片只能是 JPG 格式!");
-      }
-    },
+        const data = {
+          category_id: this.videoData.category_id,
+          title: this.videoData.title,
+          description: this.videoData.description,
+          video_length: this.$refs.uploadVideo.videoLength,
+          integrity: this.videoData.integrity,
+          is_course: this.videoData.is_course,
+          label: this.$refs.uploadTag.tagArr,
+          source: this.$refs.uploadPart.partList,
+          agreement_status: 1,
+          video: this.$refs.uploadVideo.videoFileList, // 上传视频
+          image: this.$refs.uploadImage.images, // 封面图
+          attachment: this.$refs.uploadFile.fileList, // 附件
+        };
+        !data.description && delete data.description;
+        // console.log(data);
+        if(this.buttonVisible) {
+          this.buttonVisible = false;
+          if(this.videoId) {
+            data.video_id = this.videoId;
+            this.HttpClient.post('/admin/videos/editInfo', data)
+              .then(res => {
+                if (res.data.code === 200) {
+                  this.buttonVisible = true;
+                  this.$message.success(res.data.msg);
+                  if(this.$route.query.activeName) {
+                    this.$router.push({
+                      path: '/home/userCenter/user-upload-center',
+                      query: {
+                        activeName: this.$route.query.activeName ? this.$route.query.activeName : ''
+                      }
+                    });
+                  }else {
+                    setTimeout(() => {
+                      this.$router.go(-1);
+                    }, 500);
+                  }
+                } else {
+                  this.buttonVisible = true;
+                  this.$message.error(res.data.msg);
+                }
+              })
+          }else {
+            this.HttpClient.post('/videos/upload', data)
+              .then(res => {
+                if (res.data.code === 200) {
+                  this.buttonVisible = true;
+                  this.$message.success('发布成功');
+                  this.$router.go(-1);
+                } else {
+                  this.$message.error(res.data.msg);
+                  this.buttonVisible = true;
+                }
+              })
+          }
+        }else {
+          this.$message.warning('处理中...');
+        }
 
-    handleRemove(file) {
-      console.log(file);
-      console.log(this.modifyData.attachment);
-      for (let i in this.modifyData.attachment) {
-        if (file.uid === this.modifyData.attachment[i].uid) {
-          this.modifyData.attachment.splice(i, 1);
-        }
-      }
-      console.log(this.modifyData.attachment);
-    },
-    handlePreview(file) {
-      console.log(file);
-    },
-    handleExceed(files) {
-      // this.$message.warning(`当前限制选择 3 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);
-    },
-    beforeRemove(file) {
-      return this.$confirm(`确定移除 ${file.name}？`);
-    },
-    //处理富文本
-    removeHTMLTag(html) {
-      var htmlTagReg = /<(\/)?[^>].*?>/g;
-      return html.replace(htmlTagReg, "");
-    },
-    //取消修改
-    handleCancelModify() {
-      this.$router.go(-1);
+      },
     }
   }
-};
 </script>
 
-<style lang="less">
-.videoModify::-webkit-scrollbar {
-  display: none;
-}
-.videoModify {
-  text-align: left;
-  margin-left: 10px;
-  margin-top: 10px;
-  background: #fff;
-  height: calc(100vh - 70px);
-  width: calc(100vw - 240px);
-  border-radius: 2px;
-  overflow-y: auto;
-
-  /*头部*/
-  .videoModify_header {
-    border-bottom: 2px solid #f2f2f2;
-    display: flex;
-    align-items: center;
-    height: 70px;
-    padding-left: 40px;
-    font-size: 20px;
-    color: #222;
-    overflow: auto;
-  }
-  /*主体内容*/
-  .videoModify_main {
-    padding: 30px 40px;
-    /*列表*/
-    .videoModify_List:not(:last-child) {
-      margin-bottom: 25px;
+<style scoped lang="less">
+  @media screen and (max-width: 1200px) {
+    .upload_video {
+      width: 960px;
+      .upload_video_main {
+        width: 704px;
+      }
     }
-    .videoModify_List {
+  }
+  @media screen and (min-width: 1200px) {
+    .upload_video {
+      width: 1200px;
+      .upload_video_main {
+        width: 880px;
+      }
+    }
+  }
+.video_modify{
+    .bread{
+      margin: 10px;
+    }
+    .articleManagement_main::-webkit-scrollbar {display:none}
+    .articleManagement_main{
+      margin-left: 10px;
+      margin-top: 10px;
+      background: #fff;
+      height: calc(100vh - 100px);
+      width: calc(100vw - 240px);
+      border-radius: 2px;
+      overflow-y: auto;
+      /*标题*/
+      .header{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 70px;
+        border-bottom: 2px solid #f2f2f2;
+        padding: 0 40px;
+        .title{
+          font-size: 20px;
+          color: #222;
+        }
+        /*刷新*/
+        .refresh{
+          cursor: pointer;
+          span{
+            display: inline-block;
+            margin-left: 10px;
+          }
+        }
+      }
+      /*問題修改主体*/
+      .modify_content{
+        padding: 0 40px;
+  .upload_video_body {
+    padding: 42px 0 120px;
+    background: #FAFBFC;
+    font-family: MicrosoftYaHei sans-serif;
+
+    .upload_video {
+      margin: 0 auto;
       display: flex;
       align-items: flex-start;
       justify-content: flex-start;
-      /*标题*/
-      .list_title {
-        font-size: 14px;
-        color: #fff;
-        background: #15bafe;
-        padding: 0 10px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 40px;
-        min-width: 80px;
-        margin-right: 40px;
-      }
-      /*长标题*/
-      .list_title_margin {
-        margin-right: 22px;
-      }
-      /*输入框*/
-      .list_input {
-        /*input样式*/
-        .el-input__inner {
-          border-radius: 0;
+
+      .upload_video_main {
+        position: relative;
+        background: #FFF;
+        padding: 42px 20px 40px;
+        border: 1px solid rgba(235, 240, 245, 1);
+        box-shadow: 1px 2px 6px 0 rgba(21, 165, 255, 0.1);
+
+        .upload_video_header {
+          position: absolute;
+          top: -14px;
+          left: 10px;
+          width: 114px;
+          height: 47px;
+          color: #FFF;
+          font-size: 18px;
+          font-weight: bold;
+          line-height: 40px;
+          text-align: center;
+          padding-right: 10px;
+          background: url("/static/img/icon/upload_header.png") no-repeat left top;
         }
-        /*textarea样式*/
-        .el-textarea__inner {
-          border-radius: 0;
+
+        /*视频版块儿和类型*/
+        .video_category_type{
+          display: flex;
+          justify-content: space-between;
+          .video_type {
+            display: flex;
+            align-items: center;
+            .video_type_name {
+              font-size:16px;
+              font-family:MicrosoftYaHei sans-serif;
+              color:rgba(50,51,51,1);
+              margin-right: 10px;
+            }
+          }
         }
-      }
-      .list_textarea {
-        width: 750px;
-      }
-      /*上传框*/
-      .list_upload {
-        display: flex;
-        align-items: flex-end;
-        /*封面图片上传*/
-        .videoModify_uploader {
-          margin-right: 20px;
-          .el-upload {
-            border: 1px dashed #d9d9d9;
-            border-radius: 6px;
+
+        /*图片和视屏*/
+        .video_image {
+          display: flex;
+          margin-top: 10px;
+          .up_video {
+            margin-right: 10px;
+          }
+        }
+
+        /*标题*/
+        .video_title_content {
+          margin-top: 30px;
+          position: relative;
+          .video_title_name {
+            display: flex;
+            align-items: center;
+            span {
+              color: #FF4D4F;
+              margin-right: 10px;
+            }
+            p {
+              color: #323333;
+              font-size: 16px;
+              letter-spacing:1px;
+            }
+          }
+          .video_title_input {
+            margin-top: 10px;
+            /deep/.el-input__inner {
+              border: 1px solid #E1E3E6 !important;
+              border-radius: 0 !important;
+              height: 36px !important;
+              line-height: 36px !important;
+              color: #646566;
+              font-size: 14px;
+              letter-spacing: 1px;
+              &:focus {
+                border: 1px solid #1A97FF !important;
+              }
+              &::placeholder {
+                font-size: 14px;
+                color: #C8CACC;
+                letter-spacing: 1px;
+              }
+            }
+          }
+          .check_title {
+            position: absolute;
+            top: 42px;
+            right: 10px;
+            color: #C8CACC;
+            letter-spacing: 2px;
+            font-size: 14px;
+          }
+        }
+
+        /*标签*/
+        .video_tag {
+          margin-top: 30px;
+          .video_tag_name {
+            display: flex;
+            align-items: center;
+            span {
+              color: #FF4D4F;
+              margin-right: 10px;
+            }
+            p {
+              color: #323333;
+              font-size: 16px;
+              letter-spacing:1px;
+            }
+            label {
+              color: #969899;
+              font-size:12px;
+            }
+          }
+          .up_tag {
+            margin-top: 10px;
+          }
+        }
+
+        /*视频详情*/
+        .video_content {
+          margin-top: 30px;
+          position: relative;
+          .video_content_name {
+            display: flex;
+            align-items: center;
+            span {
+              color: #FF4D4F;
+              margin-right: 10px;
+            }
+            p {
+              color: #323333;
+              font-size: 16px;
+              letter-spacing:1px;
+            }
+            label {
+              color: #969899;
+              font-size:12px;
+            }
+          }
+
+          .video_content_input {
+            margin-top: 10px;
+            /deep/.el-textarea__inner {
+              border: 1px solid #E1E3E6 !important;
+              border-radius: 0 !important;
+              height: 200px !important;
+              color: #646566;
+              font-size: 14px;
+              letter-spacing: 1px;
+              &:focus {
+                border: 1px solid #1A97FF !important;
+              }
+              &::placeholder {
+                font-size: 14px;
+                color: #C8CACC;
+                letter-spacing: 1px;
+              }
+            }
+          }
+          .check_content {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            color: #C8CACC;
+            letter-spacing: 2px;
+            font-size: 14px;
+          }
+        }
+
+        /*更多选项*/
+        .video_more_options {
+          font-family:MicrosoftYaHei sans-serif;
+          margin-top: 35px;
+          .video_more_name {
+            display: flex;
+            align-items: center;
+            border-bottom: 1px dashed #E1E3E6;
+            padding-bottom: 7px;
             cursor: pointer;
-            position: relative;
-            overflow: hidden;
-          }
-          .el-upload:hover {
-            border-color: #409eff;
-          }
-          .videoModify-icon {
-            font-size: 28px;
-            color: #8c939d;
-            width: 178px;
-            height: 178px;
-            line-height: 178px;
-            text-align: center;
-          }
-          .videoModify_img {
-            width: 178px;
-            height: 178px;
-            display: block;
+            > p {
+              font-size:14px;
+              color:rgba(50,51,51,1);
+              letter-spacing:1px;
+            }
+            i {
+              color: #C8CCCC;
+              font-size: 12px;
+              margin: 0 10px;
+            }
+            label {
+              font-size:12px;
+              color:rgba(200,202,204,1);
+              cursor: pointer;
+            }
           }
         }
-        > p {
-          font-size: 12px;
-          color: #999;
+
+        /*附件和零软件*/
+        .file_part {
+          transition: all .4s linear;
+          overflow: hidden;
+
+          /*附件*/
+          .video_file_name {
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+            p {
+              color: #323333;
+              font-size: 16px;
+              letter-spacing:1px;
+            }
+            label {
+              color: #969899;
+              font-size:12px;
+              cursor: pointer;
+            }
+          }
+          .up_file {
+            margin-top: 7px !important;
+          }
+
+          /*零件，软件*/
+          .video_part_name {
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+            p {
+              color: #323333;
+              font-size: 16px;
+              letter-spacing:1px;
+            }
+            label {
+              color: #969899;
+              font-size:12px;
+              cursor: pointer;
+            }
+          }
+          .up_part {
+            margin-top: 7px;
+          }
         }
-      }
-      /*tags*/
-      .list_tags {
-        display: flex;
-        align-items: center;
-        .tags:not(:last-child) {
-          // margin-right: 0px;
-        }
-        .tags {
+
+        /*底部按钮*/
+        .upload_video_footer {
           display: flex;
           align-items: center;
-          cursor: pointer;
-          margin-right: 10px;
-          div {
-            display: flex;
-            align-items: center;
-            height: 38px;
-            padding: 0 20px;
-            border: 1px solid #dcdfe6;
-            border-right: none;
-            font-size: 14px;
-            color: #999;
-          }
-          p {
-            background: red;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #fff;
-            height: 40px;
-            width: 35px;
-          }
-        }
-      }
-      .list_tags_link {
-        align-items: center;
-        .tags_link {
-          display: flex;
-          margin-bottom: 10px;
-        }
-        .tags:not(:last-child) {
-          // margin-right: 15px;
-        }
-        .tags {
-          display: flex;
-          align-items: center;
-          cursor: pointer;
-          div {
-            display: flex;
-            align-items: center;
-            height: 38px;
-            padding: 0 20px;
-            border: 1px solid #dcdfe6;
-            border-right: none;
-            font-size: 14px;
-            color: #999;
-          }
-          p {
-            background: red;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #fff;
-            height: 40px;
-            width: 35px;
-          }
-        }
-      }
+          justify-content: flex-end;
+          padding-right: 20px;
+          margin-top: 40px;
 
-      /*教学按钮*/
-      .list_switch {
-        display: flex;
-        align-items: center;
-        height: 40px;
-      }
+          .upload_video_footer_button {
+            color: #C8CACC;
+            font-size: 16px;
+            padding: 5px 23px;
+            cursor: pointer;
+            box-sizing: border-box;
+          }
 
-      /*附件上传*/
-      .list_upload_txt {
-        border: 1px solid #dedede;
-        box-sizing: border-box;
-        padding: 20px;
+          .upload_video_cancel {
+            padding: 4px 22px;
+            border: 1px solid rgba(225, 227, 230, 1);
+          }
+
+          .upload_video_cancel:hover {
+            color: #FFF;
+            border: none;
+            padding: 5px 23px;
+            background: linear-gradient(90deg, rgba(0, 242, 254, 1) 0%, rgba(26, 148, 255, 1) 100%);
+          }
+
+          .upload_video_submit {
+            color: #FFF;
+            margin-left: 28px;
+            background: linear-gradient(90deg, rgba(0, 242, 254, 1) 0%, rgba(26, 148, 255, 1) 100%);
+          }
+
+          .upload_video_submit:hover {
+            background: linear-gradient(90deg, #018f99 0%, #0e5e99 100%);
+          }
+        }
       }
     }
   }
-
-  /*底部按钮*/
-  .bottom {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 30px;
-    .el-button {
-      margin: 0 10px;
-    }
-  }
-
-  /*修改弹框*/
-  .modifyDialog {
-    .modifyVisible_title {
-      display: flex;
-      border-bottom: 1px solid #e8e8e8;
-      padding-bottom: 10px;
-      i {
-        margin-right: 10px;
-      }
-    }
-    .modifyVisible {
-      display: flex;
-      align-items: center;
-    }
-  }
-}
+      }}}
 </style>
-

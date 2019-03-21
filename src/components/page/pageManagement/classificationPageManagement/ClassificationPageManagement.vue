@@ -158,7 +158,7 @@
         }else{
           uploadeImg.push({
             name:'imgname',
-            path:this.imgUrl
+            path:this.imageUrl
           })
         }
         
@@ -226,6 +226,7 @@
         this.currentObj = this.firstDirectory;
         this.previewBackground = this.firstDirectory.back_images;
         this.imageUrl = this.Tools.handleImg(this.firstDirectory.images);
+        console.log(this.firstDirectory)
         console.log(this.imageUrl)
         this.catalogTitle = this.firstDirectory.name;
         this.previewText = this.firstDirectory.description;

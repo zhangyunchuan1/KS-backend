@@ -26,13 +26,6 @@
         <el-button type="primary" icon="el-icon-plus" @click="addTypetitleFn"></el-button>
         </div>
       </div>
-      <!-- <div class="videotitle_header addtitle">
-        <el-radio v-model="radio7" label="1" border>文章标题</el-radio>
-        <div class="addcontent">
-          <el-input placeholder="请输入内容" v-model="addTypetitle" clearable></el-input>
-          <el-button type="primary" icon="el-icon-plus" @click="addTypetitleFn"></el-button>
-        </div>
-      </div> -->
       <!-- 列表 -->
       <div class="videotitle_header videolist_box">
         <div class="onevideo" v-for="(item,index) in listData" :key="index">

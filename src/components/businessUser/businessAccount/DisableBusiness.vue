@@ -49,8 +49,11 @@
               align="center"
               show-overflow-tooltip
               width="150"
-              prop="phone"
-            ></el-table-column>
+              prop="phone">
+              <template slot-scope="scope">
+                <span>{{'+'+scope.row.country_code+' '+scope.row.phone}}</span>
+              </template>
+            </el-table-column>
 
             <el-table-column
               label="登陆状态"
@@ -212,6 +215,12 @@
           </el-upload>
         </div>
       </div>
+      <div class="disable_dialog_box">
+        <div class="disable_dialog_left">禁用天数：</div>
+        <div class="disable_dialog_right">
+          <el-input type="text" v-model="disableDay"></el-input>
+        </div>
+      </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="disableDialog = false">取 消</el-button>
         <el-button type="primary" @click="forbiddenConfirm">确 定</el-button>
@@ -281,7 +290,7 @@ export default {
       rejectReason: "", // 禁用理由
       rejectValue: null, // 禁用单选框
       imageUrl: null,
-
+      disableDay:null,
       restore: true, // 恢复
       restoreBox: false, // 恢复弹窗
 
@@ -379,7 +388,7 @@ export default {
       let params = {
         uid: this.rowData.uid,
         content: this.rejectReason,
-        limit_day: 30,
+        limit_day: this.disableDay,
         review_id: this.rejectValue,
         review_name: str,
         images: this.imageUrl

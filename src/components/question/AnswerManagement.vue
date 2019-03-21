@@ -16,7 +16,9 @@
               class="date_picker_1"
               type="date"
               size="mini"
+              value-format='yyyy-MM-dd HH:mm:ss'
               placeholder="选择日期"
+              @change="getTableList({start_time: searchObj.startTime,end_time:searchObj.endTime})"
             ></el-date-picker>
           </div>
           <div class="date_item">
@@ -26,7 +28,9 @@
               class="date_picker_1"
               type="date"
               size="mini"
+              value-format='yyyy-MM-dd HH:mm:ss'
               placeholder="选择日期"
+              @change="getTableList({start_time: searchObj.startTime,end_time:searchObj.endTime})"
             ></el-date-picker>
           </div>
         </div>
@@ -76,7 +80,7 @@
           <el-table-column label="字数" align="center" prop="word_num" sortable>
             <template slot-scope="scope">
               <span v-if="scope.row.word_num">{{scope.row.word_num}}</span>
-              <span v-else class="sortout_color">暂无</span>
+              <span v-else class="sortout_color">0</span>
             </template>
           </el-table-column>
 
@@ -147,14 +151,15 @@
             </template>
           </el-table-column>
         </el-table>
+        <el-pagination
+          v-if="total"
+          layout="prev, pager, next"
+          :total="total"
+          :page-size="pageSize"
+          @current-change="currentChange"
+        ></el-pagination>
       </div>
-      <el-pagination
-        v-if="total"
-        layout="prev, pager, next"
-        :total="total"
-        :page-size="pageSize"
-        @current-change="currentChange"
-      ></el-pagination>
+      
     </div>
     <!--驳回弹窗-->
     <el-dialog width="470px" custom-class="disableDialog" :visible.sync="disableDialog">
@@ -247,10 +252,20 @@
           <div
             v-for="item in modifyObj.attachment"
             :key="item.path"
-            @click="viewPic(app.imageUrl + item.path)"
             class="view_upload_img"
           >
-            <img :src=" app.imageUrl + item.path" alt>
+                <div v-if="['png', 'jpg', 'jpeg', 'bmp', 'gif', 'webp', 'psd', 'svg', 'tiff'].indexOf(item.path.substr(item.path.lastIndexOf('.')+1).toLowerCase()) !== -1">
+                  <img :src=" app.imageUrl + item.path" alt="" @click="viewPic(app.imageUrl + item.path)">
+                </div>
+                <div class="file-icon" @mouseenter="enterDownload" @mouseleave="leaveDownload" v-if="['png', 'jpg', 'jpeg', 'bmp', 'gif', 'webp', 'psd', 'svg', 'tiff'].indexOf(item.path.substr(item.path.lastIndexOf('.')+1).toLowerCase()) == -1">
+                  <i class="el-icon-document"></i>
+                  <p :title="item.name">{{item.name}}</p>
+                  <div class="download" :class="isShowdownload?'showdownload':''">
+                    <a :href="Tools.handleImg(item.path)+'?attname='">下载</a>
+                    <!-- <a :href="Tools.handleImg(item.path)" :download="item.name">下载</a> -->
+                  </div>
+                </div>
+            <!-- <img :src=" app.imageUrl + item.path" alt> -->
           </div>
         </div>
       </div>
@@ -290,7 +305,7 @@
 
     <!-- 图片查看 -->
     <el-dialog :visible.sync="dialogVisible">
-      <img width="100%" :src="dialogImageUrl" alt>
+      <img style="width:70%" :src="dialogImageUrl" alt>
     </el-dialog>
   </div>
 </template>
@@ -350,7 +365,8 @@ export default {
       images: [], // 上传图片列表
       dialogImageUrl: "", // 查看的图片
       dialogVisible: false, // 图片查看弹窗
-      refuseList: [] // 驳回理由列表
+      refuseList: [], // 驳回理由列表
+      isShowdownload:false,//显示下载
     };
   },
   created() {
@@ -362,6 +378,12 @@ export default {
     approveAnwser(row) {
       this.modifyObj = row;
       this.approveDialog = true;
+    },
+    enterDownload(){
+      this.isShowdownload = true;
+    },
+    leaveDownload(){
+      this.isShowdownload = false;
     },
     // 确认批准按钮
     async approveBtm() {
@@ -453,17 +475,22 @@ export default {
     },
     // 修改
     modifyAnwser(row) {
+      this.images =[];
       console.log(row)
       this.modifyObj = row;
       this.modifyVisible = true;
-      this.modifyObj.attachment.forEach(item => {
-        var obj = {};
-        obj.name = item.name;
-        obj.url = this.Tools.handleImg(item.path);
-        console.log(obj)
-        this.images.push(obj)
-        console.log(this.images)
-      })
+      console.log(this.modifyObj)
+      if(this.modifyObj.attachment.length !== 0 && this.modifyObj.attachment !== null){
+          this.modifyObj.attachment.forEach(item => {
+            var obj = {};
+            obj.name = item.name;
+            obj.url = this.Tools.handleImg(item.path);
+            console.log(obj)
+            this.images.push(obj)
+            console.log(this.images)
+          })
+      }
+      
       // this.images = this.modifyObj.attachment;
       
       // this.modifyModal(this.modifyObj)
@@ -511,14 +538,16 @@ export default {
     viewModal(modifyObj) {
       this.viewDialog = true;
       this.modifyObj = modifyObj;
+      console.log(modifyObj)
     },
     // 显示删除提示框
     deleteModal(row) {
       this.removeVisible = true;
       this.modifyObj = row;
     },
-    async currentChange(page) {
+    currentChange(page) {
       this.currentPage = page;
+      this.getTableList({page: this.currentPage})
     },
     filterPlate(value, row, column) {
       const property = column["property"];
@@ -551,6 +580,7 @@ export default {
       if (data.code === 200) {
         if (data.data.data.length) {
           this.tableData = data.data.data;
+          this.total = data.data.total;
         } else {
           this.tableData = [];
         }
@@ -867,12 +897,55 @@ export default {
         .view_upload_img {
           width: 100px;
           height: 100px;
+          border: 1px solid #dedede;
           overflow: hidden;
           display: flex;
           justify-content: center;
           align-items: center;
           margin: 5px;
           cursor: pointer;
+          .file-icon{
+            height: 100px;
+            width: 100px;
+            text-align: center;
+            position: relative;
+            padding-top: 20px;
+            .download{
+              width: 100px;
+              height: 20px;
+              font-size: 12px;
+              display: -ms-flexbox;
+              display: flex;
+              -ms-flex-align: center;
+              align-items: center;
+              -ms-flex-pack: center;
+              justify-content: center;
+              position: absolute;
+              bottom: -10px;
+              left: 0;
+              color: #fff;
+              background: rgba(0,0,0,.4);
+              transition: all .4s linear;
+              cursor: pointer; 
+              a {  
+                text-decoration:none;
+                outline: none;
+                color:inherit;
+              }
+            }
+            .showdownload{
+              bottom: 10px;
+            }
+            p{
+              width: 100%;
+              overflow: hidden;
+              text-overflow:ellipsis;
+              white-space: nowrap;
+            }
+            .el-icon-document:before {
+              font-size: 54px;
+            }
+          }
           img {
             width: 100%;
           }

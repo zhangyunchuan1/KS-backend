@@ -36,6 +36,7 @@
                 size="mini"
                 value-format="yyyy-MM-dd HH:mm:ss"
                 placeholder="选择日期"
+                :clearable='false'
                 @change="getDataByDate"
               ></el-date-picker>
             </div>
@@ -47,6 +48,7 @@
                 type="date"
                 size="mini"
                 placeholder="选择日期"
+                :clearable='false'
                 value-format="yyyy-MM-dd HH:mm:ss"
                 @change="getDataByDate"
                 :picker-options="pickerOptions"
@@ -85,7 +87,7 @@
                 </div>
                 <div class="right_items">
                   <div class="point color2"></div>
-                  <p>摩托车占{{((motorcycle.normal+motorcycle.business)/totalByDate*100).toFixed(2)}}%</p>
+                  <p>摩托占{{((motorcycle.normal+motorcycle.business)/totalByDate*100).toFixed(2)}}%</p>
                 </div>
                 <div class="right_items">
                   <div class="point color3"></div>
@@ -135,6 +137,7 @@
                 class="date_picker_1"
                 type="date"
                 size="mini"
+                :clearable='false'
                 value-format="yyyy-MM-dd HH:mm:ss"
                 placeholder="选择日期"
                 @change="getviewDataByDate"
@@ -145,6 +148,7 @@
               <el-date-picker
                 v-model="endviewTime"
                 class="date_picker_1"
+                :clearable='false'
                 type="date"
                 size="mini"
                 placeholder="选择日期"
@@ -526,7 +530,7 @@ export default {
                 }
               }
             },
-            name: "摩托车",
+            name: "摩托",
             type: "line",
             smooth: true,
             data: motorcycle
@@ -566,6 +570,12 @@ export default {
 
     //按时间段获取统计数据
     getDataByDate() {
+      
+      // let time = new Date(this.startTime)
+      // console.log(time.getMonth()+1)
+      // if(){
+
+      // }
       this.HttpClient.post("/admin/analysis/diagram", {
         type: 1,
         begin: this.startTime,
@@ -934,7 +944,7 @@ export default {
                 }
               }
             },
-            name: "摩托车",
+            name: "摩托",
             type: "line",
             smooth: true,
             data: motorcycleview
@@ -1014,7 +1024,11 @@ export default {
     }
     arr.join("-");
     this.startTime = arr.join("-");
+    console.log(this.initFormat((new Date(this.startTime)).getMonth() + 1));
+    this.startTime  = this.initDateValue(new Date(this.startTime));
+    console.log(this.startTime);
     this.endTime = this.initDateValue(new Date());
+    console.log(this.endTime)
     /** liushuya  2019-01-04 */
     let arrview = this.initDateValue(new Date()).split("-");
     if (arrview[1] == "01") {
@@ -1025,6 +1039,7 @@ export default {
     }
     arrview.join("-");
     this.startviewTime = arrview.join("-");
+    this.startviewTime  = this.initDateValue(new Date(this.startviewTime));
     this.endviewTime = this.initDateValue(new Date());
     // console.log(this.startTime);
     // console.log(this.endTime);

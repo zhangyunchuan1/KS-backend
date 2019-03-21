@@ -1,18 +1,24 @@
 <template>
-    <div>
+    <div class="activity_modify">
       <BreadCrumb class="bread" :breadData="breadData"></BreadCrumb>
       <div class="content">
         <p class="title">活动被修改</p>
         <div class="content_contain">
           <div class="conditions">
-            <div class="select_normal">
+            <!-- <div class="select_normal">
                 <el-input v-model="searchObj.activityName" placeholder="活动名称" clearable  @change="search"> </el-input>
                 <el-button slot="append" @click="search" icon="el-icon-search"></el-button>
             </div>
             <div class="select_normal">
                 <el-input v-model="searchObj.companyName" placeholder="商家对外名称" clearable  @change="search"></el-input>
                 <el-button slot="append" @click="search" icon="el-icon-search"></el-button>
-            </div>
+            </div> -->
+            <el-input placeholder="活动名称" v-model="searchObj.activityName" @keyup.13.native="search()" clearable @clear="search()">
+                <el-button slot="append" icon="el-icon-search" @click="search()"></el-button>
+            </el-input>
+            <el-input placeholder="商家对外名称" v-model="searchObj.companyName" @keyup.13.native="search()" clearable @clear="search()">
+                <el-button slot="append" icon="el-icon-search" @click="search()"></el-button>
+            </el-input>
             
         </div>
         <div class="tables">
@@ -20,12 +26,13 @@
               :data="tableData"
               border
               :stripe="true"
-              style="width: 1135px">
+              width="100%"
+              class="table_ta">
               <el-table-column
                 prop="id"
                 label="ID"
                 align="center"
-                width="50"
+                width="100"
                 show-overflow-tooltip>
               </el-table-column>
               <el-table-column
@@ -39,6 +46,8 @@
                 prop="city_name"
                 label="城市"
                 align="center"
+                :filters="citys"
+                :filter-method="filterHandler"
                 width="120"
                 show-overflow-tooltip>
               </el-table-column>
@@ -46,7 +55,7 @@
                 prop="company_name"
                 label="商家对外名称"
                 align="center"
-                width="120"
+                width="180"
                 show-overflow-tooltip>
               </el-table-column>
               <el-table-column
@@ -64,6 +73,13 @@
                 </template>
               </el-table-column>
               <el-table-column
+                prop="registration_deadline"
+                label="报名截止时间"
+                align="center"
+                width="180"
+                show-overflow-tooltip>
+              </el-table-column>
+              <el-table-column
                 prop="updated_at"
                 label="修改时间"
                 align="center"
@@ -72,13 +88,14 @@
               </el-table-column>
               <el-table-column
                 label="操作"
-                align="center"
-                fixed="right">
+                fixed="right"
+                min-width="300"
+                align="center">
                 <template slot-scope="scope">
-                  <el-button type="text" @click="viewActivity">预览活动</el-button>
-                  <el-button type="text" @click="passModal(scope.$index)">通过</el-button>
-                  <el-button type="text" @click="rejectInfo(scope.$index)">驳回</el-button>
-                  <el-button type="text" @click="basicInfo(scope.$index)">基本信息</el-button>
+                  <el-button type="primary" plain size="mini" @click="viewActivity">预览活动</el-button>
+                  <el-button type="primary" plain size="mini" @click="passModal(scope.$index)">通过</el-button>
+                  <el-button type="primary" plain size="mini" @click="rejectInfo(scope.$index)">驳回</el-button>
+                  <el-button type="primary" plain size="mini" @click="basicInfo(scope.$index)">基本信息</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -229,6 +246,7 @@
           rejectData: [],
           tableData:[],
           total: 0,
+          citys:[],  //城市选择
           currentPage: 1
         }
       },
@@ -301,7 +319,19 @@
           let res = await this.HttpClient.post('/admin/actives/lists', params);
           console.log(res)
           this.tableData = res.data.data.data;
+          this.tableData.forEach(item => {
+            this.citys.push({
+              text:item.city_name,
+              value:item.city_name
+            })
+          });   
+          this.citys = this.Tools.arrayRemoval(this.citys);
+          console.log(this.citys);
           this.total = res.data.data.total;
+        },
+        filterHandler(value, row, column) {
+          const property = column['property'];
+          return row[property] === value;
         },
         handleCurrentChange(val) {
           this.currentPage = val;
@@ -312,21 +342,7 @@
 </script>
 
 <style scoped lang="less">
-  .space_bottom {
-    margin-bottom: 20px;
-  }
-  .search_length {
-    width: 160px;
-    margin-right: 10px;
-  }
-  .form_layout {
-    display: flex;
-  }
-  .form_item {
-    display: inline-block;
-    margin-right: 30px;
-    width: 42%;
-  }
+.activity_modify{
   .bread{
     margin: 10px;
   }
@@ -339,31 +355,45 @@
     height: calc(100vh - 87px);
     width: calc(100vw - 221px);
     border-radius: 2px;
-  }
-  .title{
-    text-align: left;
-    /* padding: 10px; */
-    line-height: 70px;
-    padding-left: 50px;
-    font-size: 20px;
-    border-bottom: 1px solid #f2f2f2;
-  }
-  .content_contain{
-    padding-left: 50px;
-  }
-  .conditions{
-    display: flex;
-    margin-left: 10px;
-    margin-top: 20px;
-  }
-  .select_normal{
-    // width: 120px;
-    display: flex;
-    margin-right: 10px;
-  }
-  .tables{
-    margin: 20px 10px;
-  }
+    .title{
+      text-align: left;
+      /* padding: 10px; */
+      line-height: 70px;
+      padding-left: 50px;
+      font-size: 20px;
+      border-bottom: 1px solid #f2f2f2;
+    }
+    .content_contain{
+      padding-left: 50px;
+      .conditions{
+        display: flex;
+        margin-left: 10px;
+        margin-top: 20px;
+          .select_normal{
+          // width: 120px;
+          display: flex;
+          margin-right: 10px;
+        }
+        .el-input-group{
+          width: 250px;
+          margin-right: 15px;
+        } 
+      }
+      .tables{
+        margin: 20px 10px;
+        .el-table{
+            th{
+                background-color: #15bafe;
+                color:#fff;
+            }
+            .el-icon-arrow-down{
+              font-size: 20px;
+              color:#fff;
+            }
+          }
+      }
+    }
+  } 
   .row_activity{
     width: 200px;
     overflow: hidden;
@@ -495,9 +525,6 @@
   .btn_deletes{
     padding: 5px 15px;
   }
-  .el-table th>.cell{
-    text-align: center;
-  }
   .btns{
     width: 100%;
     margin-left: 0;
@@ -510,5 +537,21 @@
     color: white;
     background: #409EFF;
   }
+  .space_bottom {
+    margin-bottom: 20px;
+  }
+  .search_length {
+    width: 160px;
+    margin-right: 10px;
+  }
+  .form_layout {
+    display: flex;
+  }
+  .form_item {
+    display: inline-block;
+    margin-right: 30px;
+    width: 42%;
+  }
+}
 </style>
 

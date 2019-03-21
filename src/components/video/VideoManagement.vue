@@ -96,7 +96,7 @@
                     <el-table-column
                             label="所属板块"
                             align="center"
-                            :filters="[{text: '汽车', value: '汽车'}, {text: '摩托车', value: '摩托车'}, {text: '无人机', value: '无人机'}, {text: '智能设备', value: '智能设备'}]"
+                            :filters="[{text: '汽车', value: '汽车'}, {text: '摩托', value: '摩托'}, {text: '无人机', value: '无人机'}, {text: '智能设备', value: '智能设备'}]"
                             :filter-method="filterSecondary"
                             width="120"
                             prop="category_name"
@@ -144,14 +144,14 @@
                     <el-table-column
                             label="通过状态"
                             align="center"
-                            :filters="[{text: '已通过', value: 1}, {text: '未通过，已审核', value: 3}, {text: '未通过，待审核', value: 2}]"
+                            :filters="[{text: '已通过', value: 1}, {text: '未通过', value: 0}]"
                             :filter-method="filterSecondary"
                             width="100"
-                            prop="status"
+                            prop="passStatus"
                             show-overflow-tooltip>
                         <template slot-scope="scope">
-                            <span v-if="scope.row.status === 1">已通过</span>
-                            <span v-if="scope.row.status === 3||scope.row.status === 2">未通过</span>
+                            <span class="normal_color" v-if="scope.row.status === 1">已通过</span>
+                            <span class="sortout_color" v-if="scope.row.status === 3||scope.row.status === 2">未通过</span>
                             <!-- <span v-if="scope.row.status === 0">已删除</span> -->
                         </template>
                     </el-table-column>
@@ -159,15 +159,15 @@
                     <el-table-column
                             label="审核状态"
                             align="center"
-                            :filters="[{text: '已审核', value: 1}, {text: '待审核', value: 2}, {text: '已审核，未通过', value: 3}]"
+                            :filters="[{text: '已审核', value: 1}, {text: '未审核', value: 0}]"
                             :filter-method="filterSecondary"
                             width="125"
-                            prop="status"
+                            prop="examineStatus"
                             show-overflow-tooltip>
                         <template slot-scope="scope">
-                            <span v-if="scope.row.status === 1||scope.row.status === 3">已审核</span>
-                            <span v-if="scope.row.status === 2">待审核</span>
-                            <span v-if="scope.row.status === 0">已删除</span>
+                            <span class="normal_color" v-if="scope.row.status === 1||scope.row.status === 3">已审核</span>
+                            <span class="sortout_color" v-if="scope.row.status === 2">未审核</span>
+                            <!-- <span v-if="scope.row.status === 0">已删除</span> -->
                         </template>
                     </el-table-column>
 
@@ -179,9 +179,9 @@
                         <template slot-scope="scope">
                             <el-button type="primary" plain size="mini" v-if="scope.row.status === 1||scope.row.status === 2" @click="handleOpenReject(scope.row.video_id)">驳回</el-button>
                             <el-button type="primary" plain size="mini" v-if="scope.row.status === 2||scope.row.status === 3" @click="handleOpenApprove(scope.row.video_id)">批准</el-button>
-                            <el-button type="primary" plain size="mini" @click="handleOpenModify(scope.row.video_id,scope.row.id)">修改</el-button>
+                            <el-button type="primary" plain size="mini" @click="handleOpenModify(scope.row.video_id)">修改</el-button>
                             <el-button type="primary" plain size="mini" v-if="scope.row.status === 3" @click="handleOpendelete(scope.row.video_id)">删除</el-button>
-                            <el-button type="primary" plain size="mini">查看</el-button>
+                            <el-button type="primary" plain size="mini" @click="handleOpenFront(scope.row.video_id)">预览</el-button>
                             <!-- <div class="video_btm">
                                 <div v-if="scope.row.status === 1||scope.row.status === 2" @click="handleOpenReject(scope.row.video_id)">驳回</div>
                                 <div v-if="scope.row.status === 2||scope.row.status === 3" @click="handleOpenApprove(scope.row.video_id)">批准</div>
@@ -456,6 +456,9 @@
             this.getRejectList();
         },
         methods:{
+            handleOpenFront(id){
+                window.open(this.Urls.frontUrl+"home/videoDetail?video="+id);  
+            },
             //添加标签
             addTags(){},
             // 删除标签
@@ -463,13 +466,12 @@
             // 保存修改
             handleSaveModify(){},
             // 打开修改弹窗
-            handleOpenModify(video_id,id){
-                console.log(video_id,id)
+            handleOpenModify(id){
+                console.log(id)
                 // this.modifyVisible = true;
                 this.$router.push({
                     path:'/index/video/video-modify',
                     query:{
-                        video_id:video_id,
                         id:id
                     }
               })
@@ -531,7 +533,17 @@
                         console.log(res)
                         this.tableData = res.data.data.data;
                         this.tableData.forEach(item => {
-                            item.video_length = Math.ceil(item.video_length/60)
+                            item.video_length = Math.ceil(item.video_length/60);
+                            if(item.status === 1){   //通过
+                                item.passStatus = 1;
+                                item.examineStatus = 1;
+                            }else if(item.status === 2){ //待审核
+                                item.passStatus = 0;
+                                item.examineStatus = 0;
+                            }else if(item.status === 3){ //未通过
+                                item.passStatus = 0;
+                                item.examineStatus = 1;
+                            }
                         });
                         this.total=res.data.data.total
                     })

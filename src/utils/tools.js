@@ -38,7 +38,28 @@ export default class Utils {
     }
     return str;
   }
-
+  //计算两个时间的间隔天数
+  static getDateDiff(endDate){
+    console.log(endDate);
+    let myDate = new Date();//获取系统当前时间
+    let nowTime = myDate.getTime();     
+    let endTime = new Date(endDate).getTime();     
+    let dates = Math.abs((nowTime - endTime))/(1000*60*60*24); 
+    console.log(dates);    
+    return  dates;    
+    
+  }
+  static arrayRemoval(arr){
+    let result = [];
+    let obj = {};
+    for(let i =0; i<arr.length; i++){
+       if(!obj[arr[i].key]){
+          result.push(arr[i]);
+          obj[arr[i].key] = true;
+      }
+    }
+    return result; 
+  }
   // 手机号码正则
   static regPhone(phone) {
     if(!(/^1(3|4|5|7|8)\d{9}$/.test(phone))){ 
@@ -149,4 +170,133 @@ export default class Utils {
       }
     }
   }
+  //资源路径是否为全路径
+  static judgeFullPath(path){
+    if(path){
+      let str = path.substring(0,7);
+      console.log(str)
+      if(str === 'https:/'){
+        return path
+      }else if(str === 'http://'){
+        return path
+      }else{
+        let url = this.handleImg(path);
+        return url
+      }
+    }
+  }
+  /**
+   * 上传文件类型限制
+   * str : 文件上传名称
+   * type : 文件限制的类型 数组 例： ['doc','jpg']
+   * author:ZhangYunChuan
+   * 
+  */
+  static fileLimit(type,str){
+    console.log(str);
+    let flashbackStr =  str.split('').reverse().join('');
+    let index = flashbackStr.indexOf(".");
+    let newStr = flashbackStr.substring(0,index);
+    let identification = newStr.split('').reverse().join('');
+    console.log(identification);
+    if(type.indexOf(identification) > -1){
+      console.log('true')
+      return true
+    }else{
+      console.log('false')
+      return false
+    }
+  }
+  /**
+   * 图片类型限制
+   * file : 文件上传名称
+   * author:ZhangYunChuan
+  */
+  static pictureLimit(file){
+    let fileTypes = ['image/jpeg','image/jpg','image/png','image/tiff','image/tif'];
+    console.log(fileTypes.indexOf(file.type))
+    if(fileTypes.indexOf(file.type) != -1){
+      console.log('true');
+      return true;
+    }else{
+      return false;
+    }
+  }
+  static isChinese(temp){
+    var reg = new RegExp("[\\u4E00-\\u9FFF]+","g");  //中文
+    let p=/^\w+$/;  //字母或数字
+    if(reg.test(temp)){
+      return true;
+    }else if(p.test(temp)){
+      return false;
+    }
+  }
+  static findElem (arrayToSearch,attr,val){
+    for (let i=0;i<arrayToSearch.length;i++){
+        if(arrayToSearch[i][attr].indexOf(val)!==-1){
+            return i;
+        }
+    }
+    return -1;
+  }
+  /****
+   * 2019/3/7
+   * author ZhangYunChuan
+   * function 根据关键字获取最后一个值
+   * @param str
+   * @param key
+   */
+  static getLastStringByKeyWord(str, key) {
+    return str.split(key)[str.split(key).length - 1];
+  }
+  //获取唯一值
+  static GetNumber() {
+    return moment().format('YYYYMMDDHHmmssS');
+  }
+  //是否是图片
+  static isPic(url){
+    console.log(url)
+    let format = ["jpg", "jpeg", "png","bmp",'tiff','tif'];
+    let invertedStr = url.split('').reverse().join('');  //字符串倒叙
+    let index = invertedStr.indexOf(".");
+    // console.log('.位置',index)
+    // console.log('倒叙字符',invertedStr)
+    let newStr = invertedStr.substring(0,index);
+    let identification = newStr.split('').reverse().join('');
+    console.log('最后取字符',identification)
+    if(format.indexOf(identification) > -1){
+        console.log('true')
+        return true
+    }else{
+        return false
+        console.log('false')
+    }
+  }
+  // 去掉富文本标签
+  static removeTAG(str,len){
+    return str.replace(/<[^>]+>/g, "");
+  }
+  // 去掉前后空格
+  static trim(str) {
+    str = str.replace(/\s+/g, '');
+    return str;
+  }
+  //时间0的补全
+  static add0(m){
+    return m<10?'0'+m:m 
+  }
+  static format(shijianchuo){
+    //shijianchuo是整数，否则要parseInt转换
+    var time = new Date(Number(shijianchuo)*1000);
+    console.log(time,shijianchuo);
+    var y = time.getFullYear();
+    var m = time.getMonth()+1;
+    var d = time.getDate();
+    var h = time.getHours();
+    var mm = time.getMinutes();
+    var s = time.getSeconds();
+    console.log(y,m,d,h,mm,s)
+    return y+'-'+this.add0(m)+'-'+this.add0(d)+' '+this.add0(h)+':'+this.add0(mm)+':'+this.add0(s);
+  }
 }
+

@@ -67,14 +67,14 @@
               show-overflow-tooltip
               width="140"
               prop="user_type"
-              :filters="[{text: '个人注册', value: 1}, {text: '公司注册', value: 2}, {text: '普通商家', value: 3}]"
+              :filters="[{text: '用户', value: 1}, {text: '公司', value: 2}, {text: '商家', value: 3}]"
               :filter-method="filterTypeHandler"
             >
               <template slot-scope="scope">
-                <span v-if="scope.row.user_type == 1">个人注册</span>
-                <span v-if="scope.row.user_type == 2">公司注册</span>
-                <span v-if="scope.row.user_type == 3">普通商家</span>
-                <span v-if="scope.row.user_type == null" class="sortout_color">暂无</span>
+                <span v-if="scope.row.user_type === 1">用户</span>
+                <span v-if="scope.row.user_type === 2">公司</span>
+                <span v-if="scope.row.user_type === 3">商家</span>
+                <span v-if="scope.row.user_type === null" class="sortout_color">暂无</span>
               </template>
             </el-table-column>
 
@@ -82,7 +82,7 @@
               label="微信ID"
               align="center"
               show-overflow-tooltip
-              width="200"
+              width="280"
               prop="pay_id"
             >
               <template slot-scope="scope">
@@ -101,22 +101,22 @@
 
             <el-table-column label="实际金额" align="center" show-overflow-tooltip width="120">
               <template slot-scope="scope">
-                <span>{{scope.row.amount-scope.row.poundage}}</span>
+                <span>{{Number(scope.row.amount)+Number(scope.row.poundage)}}</span>
               </template>
             </el-table-column>
 
             <el-table-column label="类型" prop="amount" align="center" show-overflow-tooltip width="100">
               <template slot-scope="scope">
-                <span>{{scope.row.amount > 0?'收入':'支出'}}</span>
+                <span>{{scope.row.amount >= 0?'收入':'支出'}}</span>
               </template>
             </el-table-column>
 
             <el-table-column label="方式" align="center" show-overflow-tooltip width="100">
               <template slot-scope="scope">
-                <span v-if="scope.row.pay_type == 1">活动</span>
-                <span v-if="scope.row.pay_type == 2">商城</span>
-                <span v-if="scope.row.pay_type == 3">淘货</span>
-                <span v-else class="sortout_color">暂无</span>
+                <span v-if="scope.row.pay_type === 1">活动</span>
+                <span v-if="scope.row.pay_type === 2">商城</span>
+                <span v-if="scope.row.pay_type === 3">淘货</span>
+                <span v-if="scope.row.pay_type === null" class="sortout_color">暂无</span>
               </template>
               <!-- <template slot-scope="scope">
                 <span>{{scope.row.pay_type ==1?'活动':scope.row.pay_type ==2?'商城':scope.row.pay_type ==3?'淘货':''}}</span>
@@ -181,8 +181,8 @@ export default {
 
       searchTime: "",
       nickNameSearch: "",
-      options: [{ value: 1, label: "收入" },{ value: 2, label: "支出" }],
-      typeValue: "", //收入支出value
+      options: [{ value:null, label: "全部" },{ value:1, label: "收入" },{ value:2, label: "支出" }],
+      typeValue: null, //收入支出value
       amountNum:null,//余额
 
       tableData: [],
@@ -203,6 +203,7 @@ export default {
         end: this.searchTime ? this.searchTime[1] : "",
         nickname: this.nickNameSearch,
         page: this.currentPage,
+        // pay_amount_type:1,
         page_size: this.pageSize
       };
       this.HttpClient.post("/admin/revenues/paylists", params).then(res => {
@@ -217,26 +218,22 @@ export default {
     // 类型选择
     changeTypeFn() {
       console.log(this.typeValue);
-      if (this.typeValue !== 0 && this.typeValue !== 1) {
-        this.getlistdata();
-      } else {
         let params = {
-          payment: 2,
+          payment: 1,
           begin: this.searchTime ? this.searchTime[0] : "",
           end: this.searchTime ? this.searchTime[1] : "",
-          nickname: this.nickNameSearch,
-          pay_amount_type: this.typeValue,
+          nickname:this.nickNameSearch,
+          pay_amount_type:this.typeValue,
           page: this.currentPage,
           page_size: this.pageSize
         };
         this.HttpClient.post("/admin/revenues/paylists", params).then(res => {
           console.log(res.data);
-          if (res.data.code == 200) {
-            this.tableData = res.data.data.data;
-            this.total = res.data.data.total;
+          if (res.data.code === 200) {
+            this.tableData = res.data.data.lists.data;
+            this.total = res.data.data.lists.total;
           }
         });
-      }
     },
     // 时间区间搜索
     changeTimeFn() {

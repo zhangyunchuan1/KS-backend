@@ -14,13 +14,15 @@
           <div class="choice-left">
             <div style="display:flex;margin-right:10px">
               <!-- 姓名搜索 -->
-              <el-input placeholder="请输入姓名" v-model="nameSearch" clearable></el-input>
-              <el-button type="primary" icon="el-icon-search" @click="getlistData"></el-button>
+              <el-input placeholder="请输入姓名" v-model="nameSearch" @keyup.13.native="getlistData()" clearable @clear="getlistData()">
+                  <el-button slot="append" icon="el-icon-search" @click="getlistData()"></el-button>
+              </el-input>
             </div>
             <div style="display:flex;margin-right:10px">
               <!-- 学校搜索 -->
-              <el-input placeholder="请输入学校名" v-model="schoolSearch" clearable></el-input>
-              <el-button type="primary" icon="el-icon-search" @click="getlistData"></el-button>
+              <el-input placeholder="请输入学校名" v-model="schoolSearch" @keyup.13.native="getlistData()" clearable @clear="getlistData()">
+                  <el-button slot="append" icon="el-icon-search" @click="getlistData()"></el-button>
+              </el-input>
             </div>
             <div style="display:flex;margin-right:10px">
               <!-- 职位搜索 -->

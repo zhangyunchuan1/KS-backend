@@ -94,7 +94,7 @@
               <template slot-scope="scope">
                 <div class="videoSoftware_btm">
                   <div @click="modifyVideoFn(scope.row)">修改</div>
-                  <div>看视频</div>
+                  <div @click="handleSeeVideo(scope.row.video_id)">看视频</div>
                 </div>
               </template>
             </el-table-column>
@@ -228,6 +228,10 @@ export default {
     this.getlistData();
   },
   methods: {
+    //跳转视频详情页
+    handleSeeVideo(id){
+      window.open(this.Urls.frontUrl+"home/videoDetail?video="+id);  
+    },
     getlistData() {
       let params = {
         size: 25,

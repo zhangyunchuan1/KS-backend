@@ -59,15 +59,19 @@
           <el-table-column
             label="所属板块"
             align="center"
-            prop="menu.folder_name"
+            prop="menu[0].folder_name"
             width="110">
           </el-table-column>
           <el-table-column
             label="子类"
             align="center"
-            prop="menu.menu_1_name"
             width="130"
-          ></el-table-column>
+          >
+            <template slot-scope="scope">
+              <el-tag type="success" v-if="scope.row.menu[0]">{{scope.row.menu[0].menu_1_name}}</el-tag>
+              <el-tag type="success" v-if="scope.row.menu[1]">{{scope.row.menu[1].menu_1_name}}</el-tag>
+            </template>
+          </el-table-column>
           <el-table-column
             label="用户类别"
             align="center"
@@ -89,7 +93,7 @@
             :filters="[{text: '未通过', value: 3}, {text: '已通过', value: 1||2}]"
             :filter-method="filterSecondary"
             prop="status"
-            width="120"
+            width="100"
           >
             <template slot-scope="scope">
               <span class="notpass_color" v-if="scope.row.status === 3">未通过</span>
@@ -104,7 +108,7 @@
             :filters="[{text: '待审核', value: 2}, {text: '已审核', value: 1}, {text: '已删除', value: 0}, {text: '已驳回', value: 3}]"
             :filter-method="filterSecondary"
             prop="status"
-            width="120"
+            width="100"
           >
             <template slot-scope="scope">
               <span class="notpass_color" v-if="scope.row.status === 3">已驳回</span>
@@ -114,16 +118,16 @@
             </template>
           </el-table-column>
           <el-table-column
-            min-width="250"
+            min-width="313"
             label="操作"
             fixed="right"
             align="center">
             <template slot-scope="scope">
               <el-button type="primary" plain size="mini" v-if="scope.row.status===2|| scope.row.status===3" @click="handleOpenApproval(scope.row.question_id)">批准</el-button>
               <el-button type="primary" plain size="mini" v-if="scope.row.status===2|| scope.row.status===1" @click="handleReject(scope.row.question_id,scope.row.id,scope.row.title)">驳回</el-button>
-              <el-button type="primary" plain size="mini" @click="updateButton(scope.row.id)">修改</el-button>
+              <el-button type="primary" plain size="mini" @click="updateButton(scope.row.question_id)">修改</el-button>
               <el-button type="primary" plain size="mini" v-if="scope.row.status===3" @click="handleOpendelete(scope.row.question_id)">删除</el-button>
-              <el-button type="primary" plain size="mini" @click="handlePreview(scope.row.id)">预览</el-button>
+              <el-button type="primary" plain size="mini" @click="handlePreview(scope.row.question_id)">预览</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -280,6 +284,7 @@ export default {
     },
     //修改按钮
     updateButton(id) {
+      console.log(id)
       this.$router.push({
         path: "/index/question/question-modify",
         query: {
@@ -289,12 +294,13 @@ export default {
     },
     //修改按钮
     handlePreview(id) {
-      this.$router.push({
-        path: "/index/question/question-preview",
-        query: {
-          id: id
-        }
-      });
+      window.open(this.Urls.frontUrl+"home/problemDetails?id="+id);  
+      // this.$router.push({
+      //   path: "/index/question/question-preview",
+      //   query: {
+      //     id: id
+      //   }
+      // });
     },
     //打开删除弹框
     handleOpendelete(id) {

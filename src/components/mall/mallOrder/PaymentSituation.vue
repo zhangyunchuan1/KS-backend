@@ -83,9 +83,9 @@
         </div>
       </div>
 
-      <div class="mallReview_content_box" style="width: 80%">
+      <div class="mallReview_content_box">
         <el-table :data="tableData" :border="true" style="width: 100%">
-          <el-table-column label="订单ID" align="center" width="100" prop="id" show-overflow-tooltip sortable></el-table-column>
+          <el-table-column label="订单ID" align="center" width="150" prop="order_no" show-overflow-tooltip sortable></el-table-column>
 
           <el-table-column label="商品名称" align="center" width="140" show-overflow-tooltip prop="title"></el-table-column>
 
@@ -93,7 +93,7 @@
 
           <el-table-column label="订单时间" align="center" width="180" show-overflow-tooltip sortable prop="created_at"></el-table-column>
 
-          <el-table-column label="用户昵称" align="center" width="100" show-overflow-tooltip prop="nickname">
+          <el-table-column label="用户昵称" align="center" width="150" show-overflow-tooltip prop="nickname">
               <template slot-scope='scope'>
                   <span>
                       {{scope.row.nickname || '无'}}
@@ -118,15 +118,15 @@
             label="订单状态"
             align="center"
             show-overflow-tooltip
+            prop="admin_status"
             :filters="orderStatus"
             :filter-method="filterHandler"
-            width="100"
+            width="150"
           >
             <template slot-scope="scope">
-              {{
-              scope.row.status===1?'未付款':scope.row.status===2?'已付款未发货':scope.row.status===4?'已发货未收货':scope.row.status===5?
-              '已收货':scope.row.status===6?'已打款':'失效'
-              }}
+              <span :class="scope.row.admin_status===1?'start_color ':scope.row.admin_status===2?'end_color':scope.row.admin_status===3?'audit_color':''">{{
+              scope.row.admin_status===1?'已退款 ':scope.row.admin_status===2?'已打款':scope.row.admin_status===3?'未打款':'错误状态'
+              }}</span>
             </template>
           </el-table-column>
 
@@ -134,13 +134,14 @@
 
           <el-table-column label="数量" align="center" show-overflow-tooltip width="100" prop="quantity"></el-table-column>
 
-          <el-table-column label="总计" align="center" show-overflow-tooltip width="100" prop="total_price"></el-table-column>
+          <el-table-column label="总计" align="center" show-overflow-tooltip width="150" prop="total_price"></el-table-column>
 
-          <el-table-column label="操作" align="center"  fixed="right" class-name="mallReview_scope">
+          <el-table-column label="操作"
+                align="center"
+                min-width="120"
+                fixed="right">
             <template slot-scope="scope">
-              <div class="mallReview_btm">
-                <el-button size="medium " type="text" @click="remarkButton(scope.row.order_id)">备注</el-button>
-              </div>
+                <el-button type="primary" plain size="mini" @click="remarkButton(scope.row.order_id)">备注</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -231,13 +232,9 @@ export default {
       ], // 支付方式列表
       paymentSelect: "", // 支付方式选中值
       orderStatus: [
-        { text: "全部", value: "" },
-        { text: "未付款", value: 1 },
-        { text: "已付款未发货", value: 2 },
-        { text: "已发货未收货", value: 4 },
-        { text: "已收货", value: 5 },
-        { text: "已打款", value: 6 },
-        { text: "失效", value: 3 }
+        { text: "已退款 ", value: 1 },
+        { text: "已打款", value: 2 },
+        { text: "未打款", value: 3 },
       ], // 订单状态
       orderStatusSelect: "", // 订单状态选中值
 

@@ -27,7 +27,6 @@
                   v-model="startTime"
                   class="date_picker_1"
                   type="date"
-                  size="mini"
                   placeholder="选择日期"
                   @change="handleChangeStartTime($event)">
                 </el-date-picker>
@@ -38,7 +37,6 @@
                   v-model="endTime"
                   class="date_picker_1"
                   type="date"
-                  size="mini"
                   placeholder="选择日期"
                   @change="handleChangeEndTime($event)">
                 </el-date-picker>
@@ -70,15 +68,16 @@
                 </el-input>
               </div>
 
-              <!-- <div>
-                <el-input
-                  placeholder="商品名称"
-                  clearable
-                  v-model="productName"
-                  class="input-with-select">
-                  <el-button slot="append" icon="el-icon-search"></el-button>
-                </el-input>
-              </div> -->
+              <div style="display:flex;">
+                <el-select v-model="orderValue" clearable placeholder="请选择订单状态"  @change="orderStatusSearch">
+                <el-option
+                v-for="item in orderData"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+                </el-option>
+            </el-select>
+              </div>
 
               <div>
                 <el-input
@@ -167,6 +166,7 @@
                 align="center"
                 width="120"
                 prop="status"
+
                 show-overflow-tooltip>
                 <template slot-scope="scope">
                     <span class="notpass_color" v-if="scope.row.status === 1||scope.row.status === 2">未发货</span>
@@ -180,13 +180,14 @@
                 class-name="mallReview_scope">
                 <template slot-scope="scope">
                   <div class="mallReview_btm">
-                    <el-button type="primary" size="mini" plain>查看货品</el-button>
+                    <el-button type="primary" size="mini" plain @click="checkProductionModal(scope.row)">查看货品</el-button>
                     <el-button type="primary" size="mini" plain @click="handleRefund(scope.row)">退款</el-button>
                     <el-button type="primary" size="mini" plain v-if="scope.row.status === 3" @click="handleSeeLogistics(scope.row)">查看物流</el-button>
                     <el-button type="primary" size="mini" plain v-if="scope.row.status === 1||scope.row.status === 2" @click="handleAddLogistics(scope.row)">添加物流</el-button>
                     <el-button type="primary" size="mini" plain @click="handleSeeBusiness(scope.row)">卖家信息</el-button>
                     <el-button type="primary" size="mini" plain @click="handleSeeUser(scope.row)">用户信息</el-button>
                     <el-button type="primary" size="mini" plain @click="handleRemark(scope.row)">备注</el-button>
+                    <el-button type="primary" size="mini" plain @click="handleBuyerRemark(scope.row)">买家备注</el-button>
                     <el-button type="primary" size="mini" plain @click="handleSeeOrderInfo(scope.row)">订单详情</el-button>
                   </div>
                 </template>
@@ -320,7 +321,7 @@
             type="textarea"
             resize="none"
             :rows="1"
-            v-model="commodityId">
+            v-model="detailObj.id">
           </el-input>
         </div>
       </div>
@@ -352,7 +353,29 @@
             type="textarea"
             resize="none"
             :rows="1"
-            v-model="ReceivingName">
+            v-model="detailObj.telphone">
+          </el-input>
+        </div>
+      </div>
+      <div class="disable_dialog_box">
+        <div class="disable_dialog_left">用户昵称：</div>
+        <div class="disable_dialog_right">
+          <el-input
+            type="textarea"
+            resize="none"
+            :rows="1"
+            v-model="detailObj.nickname">
+          </el-input>
+        </div>
+      </div>
+      <div class="disable_dialog_box">
+        <div class="disable_dialog_left">用户ID：</div>
+        <div class="disable_dialog_right">
+          <el-input
+            type="textarea"
+            resize="none"
+            :rows="1"
+            v-model="detailObj.user_id">
           </el-input>
         </div>
       </div>
@@ -363,7 +386,7 @@
             type="textarea"
             resize="none"
             :rows="1"
-            v-model="phone">
+            v-model="detailObj.telphone">
           </el-input>
         </div>
       </div>
@@ -374,7 +397,7 @@
             type="textarea"
             resize="none"
             :rows="1"
-            v-model="Adrress">
+            v-model="detailObj.province+' '+detailObj.city+' '+detailObj.area+' '+detailObj.detail">
           </el-input>
         </div>
       </div>
@@ -499,7 +522,7 @@
           </el-input>
         </div>
       </div>
-      <div class="disable_dialog_box">
+      <!-- <div class="disable_dialog_box">
         <div class="disable_dialog_left">工商全名：</div>
         <div class="disable_dialog_right">
           <el-input
@@ -520,7 +543,7 @@
             v-model="sellerId">
           </el-input>
         </div>
-      </div>
+      </div> -->
       <span slot="footer" class="dialog-footer">
         <el-button @click="sureBusinessVisible = false">关 闭</el-button>
       </span>
@@ -560,6 +583,26 @@
           <el-button @click="remarkVisible = false">关 闭</el-button>
           <el-button type="primary" @click="handlePrimary">提 交</el-button>
         </span>
+    </el-dialog>
+
+    <!-- 买家备注 -->
+    <el-dialog
+      :visible.sync="buyerVisible"
+      width="470px"
+      custom-class="RemarksDialog">
+      <span slot="title" class="RemarksDialog_title"><i class="iconfont icon-edit-square"></i>买家备注</span>
+      <div class="RemarksDialog_main">
+        <div class="main_content">
+          <div class="main_content_list">
+            <el-input
+              type="textarea"
+              :rows="4"
+              resize="none"
+              v-model="buyerRemark.content">
+            </el-input>
+          </div>
+        </div>
+      </div>
     </el-dialog>
 
   </div>
@@ -615,6 +658,18 @@
         addExpressNumber: '',
         addExpressObCompany: '',
 
+        orderData: [{
+          value: '1',
+          label: '未发货'
+        }, {
+          value: '2',
+          label: '已发货'
+        },{
+          value: '',
+          label: '全部'
+        }],
+        orderValue: '',
+
 
         approve: true,  // 批准按钮
         disable: false,  // 驳回按钮
@@ -630,9 +685,12 @@
         logisticsN:null,
         company:null,
         ReceivingName:null, //收货人姓名
-        phone:null,
-        Adrress:null,
-        commodityId:null,  //商品ID
+        // phone:null,
+        // Adrress:null,
+        // userID:null,
+        // userNikeName:'',
+        // commodityId:null,  //商品ID
+        detailObj:{},  //订单详情
         order_id: '',   // 订单全局id
         traces: [],     //  物流历史  
         //用户身份确认弹窗
@@ -658,6 +716,10 @@
         remarkList:[],  //历史备注信息
         operationId:null,
 
+        // 买家备注
+        buyerVisible:false,
+        buyerRemark:{},
+
         //添加物流
         orderInfo:null,  //订单信息
         logisticsId:null,
@@ -673,6 +735,13 @@
       this.getOrderList();
       this.getPalteList();
       this.getExpressLists()
+    },
+    watch:{
+      detailVisible(){
+        if(this.detailVisible == false){
+          this.detailTable = [];
+        }
+      }
     },
     methods:{
       // 分页
@@ -750,6 +819,25 @@
             this.getRemarkList(i.order_id);
             this.remarkVisible = true
         },
+        // 查看商品
+        checkProductionModal(modifyObj) {
+          // 跳转到商城页面查看商品
+          console.log(modifyObj)
+          window.open(this.Urls.frontUrl+"home/market-detail?id="+modifyObj.asin);
+        },
+        // 买家备注
+        handleBuyerRemark(row){
+          console.log(row)
+          this.HttpClient.post('/admin/marketOrder/orderLog',{order_id:row.order_id}).then(res => {
+            if(res.data.code == 200){
+              this.buyerRemark = res.data.data;
+              this.buyerVisible = true;
+              console.log(this.buyerRemark)
+            }else{
+              this.$message.warning(res.data.msg)
+            }
+          })
+        },
         //获取备注
         getRemarkList(id){
             this.HttpClient.post('/admin/remarkLog/lists',{
@@ -768,10 +856,13 @@
             })
             .then(res=>{
                 console.log(res)
-                this.commodityId = res.data.data.product_id;
-                this.phone = res.data.data.telphone;
-                this.Adrress = res.data.data.detail;
-                this.ReceivingName = res.data.data.conducts;
+                this.detailObj = res.data.data;
+                // this.commodityId = res.data.data.id;
+                // this.phone = res.data.data.telphone;
+                // this.Adrress = res.data.data.detail;
+                // this.ReceivingName = res.data.data.conducts;
+                // this.userNikeName = res.data.data.nickname;
+                // this.userID = res.data.data.user_id;
                 this.detailTable.push(res.data.data);
             })
             this.detailVisible = true;
@@ -827,7 +918,9 @@
         handleSeeLogistics(e){
             console.log(e)
             this.HttpClient.post('/admin/getLogisticsInfo',{
-                logisticcode:e.logistics_no
+                logisticcode:e.logistics_no,
+                order_id:e.order_id,
+                type:1
             })
             .then(res=>{
                 // console.log(res)
@@ -849,6 +942,9 @@
         //订单id搜索
         handleSearcha(){
             this.companyName = null;
+            this.getOrderList();
+        },
+        orderStatusSearch(){
             this.getOrderList();
         },
         //卖家昵称搜索
@@ -902,6 +998,7 @@
                 title:this.companyName,
                 order_id:this.orderId,
                 // title:this.title,
+                admin_status:this.orderValue,
                 city_id:this.cityId,
                 folder:this.folderId,
                 page:this.currentPage,
@@ -1027,7 +1124,7 @@
                 color: #808080;
                 font-size: 12px;
                 height: 28px;
-                line-height: 28px;
+                line-height: 42px;
                 margin-left: 10px;
               }
               .date_picker_1{

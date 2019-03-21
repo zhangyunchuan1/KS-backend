@@ -37,9 +37,9 @@
                         :border="true"
                         style="width: 100%">
                     <el-table-column
-                            label="ID"
+                            label="产品ID"
                             align="center"
-                            width="60"
+                            width="100"
                             prop="id"
                             sortable
                             show-overflow-tooltip>
@@ -244,21 +244,22 @@
                     </div>
                 </div>
                 <div class="brand_item" v-if="seriesSelect">
+                    <div class="brand_item_title">年限</div>
+                    <div class="brand_item_list">
+                        <el-checkbox-group v-model="yearSelect" size="mini" @change="getBrandList(seriesSelect,3)">
+                            <el-checkbox :label="item" border v-for="item in yearList" :key="item">{{item}}</el-checkbox>
+                        </el-checkbox-group>
+                    </div>
+                </div>
+                <div class="brand_item" v-if="yearSelect">
                     <div class="brand_item_title">配置</div>
                     <div class="brand_item_list">
-                        <el-radio-group v-model="configSelect" size="mini" @change="getBrandList(configSelect,3)">
+                        <el-radio-group v-model="configSelect" size="mini">
                             <el-radio :label="item.config_id" border v-for="item in configList" :key="item.config_id">{{item.name}}</el-radio>
                         </el-radio-group>
                     </div>
                 </div>
-                <div class="brand_item" v-if="configSelect">
-                    <div class="brand_item_title">年限</div>
-                    <div class="brand_item_list">
-                        <el-checkbox-group v-model="yearSelect" size="mini">
-                            <el-checkbox :label="item.id" border v-for="item in yearList" :key="item.id">{{item.year}}</el-checkbox>
-                        </el-checkbox-group>
-                    </div>
-                </div>
+                
                 <div class="brand_add_button">
                     <el-button size="mini" :disabled="!configSelect" @click="addBrand">添加</el-button>
                 </div>
@@ -758,17 +759,32 @@
             },
             //获取品牌列表
             getBrandList(id,type){
+                console.log(this.yearSelect)
+                console.log(id)
                 let parameters={};
                 if(type===0){// 获取品牌
                     parameters.menu_id=id
                 }else if(type===1){// 获取系列
+                    this.seriesSelect = '';
+                    this.seriesList = [];
+                    this.yearList = [];
+                    this.configList = [];
                     parameters.brand_id=id;
-                }else if(type===2){// 获取配置
+                }else if(type===2){// 获取年限
+                    this.yearSelect = [];
+                    this.yearList = [];
+                    this.configList = [];
                     parameters.series_id=id
-                }else{// 获取年限
-                    parameters.config_id=id
+                }else{// 获取配置
+                    // var arr = [];
+                    // arr.push(this.yearSelect);
+                    this.configSelect = '';
+                    this.configList = [];
+                    parameters.year=this.yearSelect;
+                    parameters.series_id = id;
+                    this.configSelec = '';
                 }
-                this.HttpClient.get('/brands',parameters)
+                this.HttpClient.get('/brandsV2',parameters)
                     .then(res=>{
                         // console.log(res);
                         let {code,data} = res.data;
@@ -777,10 +793,12 @@
                                this.brandList=data
                             }else if(type===1){// 获取系列
                                 this.seriesList=data
-                            }else if(type===2){// 获取配置
-                                this.configList=data
-                            }else{// 获取年限
+                            }else if(type===2){// 获取年限
+                                // this.configList=data
                                 this.yearList=data
+                            }else{// 获取配置
+                                this.configList=data
+                                console.log(this.configList)
                             }
                         }
                     })
@@ -911,11 +929,19 @@
                 if(row.suit===2){
                     this.productId=row.product_id;
                     this.brandDialog=true;
-                    this.getBrandList(row.menu[0].menu_id,0);
+                    this.getBrandList(row.folder,0);
                     this.getBrandSelectedList()
                 }else{
                     this.adaptDialog=true;
                 }
+                // this.HttpClient.get('/brandsV2',parameters)
+                //     .then(res=>{
+                //         // console.log(res);
+                //         let {code,data} = res.data;
+                //         if(code===200){
+                //             this.brandList=data
+                //         }
+                //     })
             },
             //驳回框确认按钮
             rejectConfirm(){
@@ -931,30 +957,40 @@
             },
             //添加品牌按钮
             addBrand(){
-                let parameters={
-                    product_id:this.productId,
-                    action:'add',
-                };
-                if(this.yearSelect && this.yearSelect.length>0){
-                    parameters.id=this.yearSelect
-                }else{
-                    this.configList.map(item=>{
-                        if(item.config_id===this.configSelect){
-                            parameters.id=item.id
-                        }
-                    })
-                }
-                this.HttpClient.post('/admin/marketProduct/addOrDelCarType',parameters)
-                    .then(res=>{
-                        if(res.data.code===200){
-                            this.$message.success(res.data.msg);
-                            setTimeout(()=>{
-                                this.getBrandSelectedList()
-                            },500)
-                        }else{
-                            this.$message.error(res.data.msg)
-                        }
-                    })
+                console.log(this.configSelect)
+                var arrID = [];
+                this.HttpClient.get('/getIdByYearAndConfig',{config_id:this.configSelect,year:this.yearSelect}).then(res => {
+                    console.log(res.data)
+                    if(res.data.code === 200){
+                        arrID = res.data.data;
+                        let parameters={
+                            product_id:this.productId,
+                            action:'add',
+                            id:arrID
+                        };
+                        // if(this.yearSelect && this.yearSelect.length>0){
+                        //     parameters.id=arrID
+                        // }
+                        // else{
+                        //     this.configList.map(item=>{
+                        //         if(item.config_id===this.configSelect){
+                        //             parameters.id=item.id
+                        //         }
+                        //     })
+                        // }
+                        this.HttpClient.post('/admin/marketProduct/addOrDelCarType',parameters)
+                            .then(res=>{
+                                if(res.data.code===200){
+                                    this.$message.success(res.data.msg);
+                                    setTimeout(()=>{
+                                        this.getBrandSelectedList()
+                                    },500)
+                                }else{
+                                    this.$message.error(res.data.msg)
+                                }
+                            })
+                            }
+                        })
             },
             //删除品牌按钮
             deleteBrand(id){
@@ -1525,7 +1561,14 @@
                     margin-top:10px;
                     padding:10px 10px;
                     border:1px solid #ccc;
-
+                    .el-radio.is-bordered+.el-radio.is-bordered,.el-checkbox.is-bordered+.el-checkbox.is-bordered{
+                        margin-right: 10px;
+                        margin-left: 0;
+                        margin-top: 10px;
+                    }
+                    .el-radio--mini.is-bordered,.el-checkbox.is-bordered.el-checkbox--mini{
+                       margin-right: 10px; 
+                    }
                     .el-radio-group{
                         .el-radio__input{
                             display:none;

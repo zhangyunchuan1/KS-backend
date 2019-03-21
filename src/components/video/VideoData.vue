@@ -34,6 +34,7 @@
                 class="date_picker_1"
                 type="date"
                 size="mini"
+                :clearable='false'
                 value-format="yyyy-MM-dd HH:mm:ss"
                 placeholder="选择日期"
                 @change="getDataByDate"
@@ -46,6 +47,7 @@
                 class="date_picker_1"
                 type="date"
                 size="mini"
+                :clearable='false'
                 placeholder="选择日期"
                 value-format="yyyy-MM-dd HH:mm:ss"
                 @change="getDataByDate"
@@ -135,6 +137,7 @@
                 class="date_picker_1"
                 type="date"
                 size="mini"
+                :clearable='false'
                 value-format="yyyy-MM-dd HH:mm:ss"
                 placeholder="选择日期"
                 @change="getviewDataByDate"
@@ -147,6 +150,7 @@
                 class="date_picker_1"
                 type="date"
                 size="mini"
+                :clearable='false'
                 placeholder="选择日期"
                 value-format="yyyy-MM-dd HH:mm:ss"
                 @change="getviewDataByDate"
@@ -489,7 +493,7 @@ export default {
       });
       // console.log(this.carvideo);
       // 基于准备好的dom，初始化echarts实例
-      let myChart = echarts.init(document.getElementById("myChart"));
+        let myChart = echarts.init(document.getElementById("myChart"));
       // 绘制图表
       myChart.setOption({
         tooltip: {
@@ -634,8 +638,8 @@ export default {
     /** liushuya  2019-01-04 */
     //按时间段获取统计浏览量数据
     getviewDataByDate() {
-      console.log(this.startviewTime)
-      console.log(this.endviewTime)
+      // console.log(this.startviewTime)
+      // console.log(this.endviewTime)
       this.HttpClient.post("/admin/analysis/diagram", {
         type: 3,
         begin: this.startviewTime,
@@ -897,7 +901,7 @@ export default {
       // console.log(this.carvideo);
 
       // 基于准备好的dom，初始化echarts实例
-      let myviewChart = echarts.init(document.getElementById("myviewChart"));
+        let myviewChart = echarts.init(document.getElementById("myviewChart"));
       // 绘制图表
       myviewChart.setOption({
         tooltip: {
@@ -1005,6 +1009,7 @@ export default {
     }
   },
   created() {
+    console.log('1111111111111111111111111111111111111111111111111111')
     let arr = this.initDateValue(new Date()).split("-");
     if (arr[1] == "01") {
       arr[0] = arr[0] - 1;
@@ -1014,6 +1019,7 @@ export default {
     }
     arr.join("-");
     this.startTime = arr.join("-");
+    this.startTime  = this.initDateValue(new Date(this.startTime));
     this.endTime = this.initDateValue(new Date());
     /** liushuya  2019-01-04 */
     let arrview = this.initDateValue(new Date()).split("-");
@@ -1025,10 +1031,11 @@ export default {
     }
     arrview.join("-");
     this.startviewTime = arrview.join("-");
+    this.startviewTime  = this.initDateValue(new Date(this.startviewTime));
     this.endviewTime = this.initDateValue(new Date());
     // console.log(this.startTime);
     // console.log(this.endTime);
-    
+    console.log('2222222222222222222222222222222222222222222222222222')
     this.HttpClient.post("/admin/analysis/numCache", { type: 3 }).then(res => {
       // console.log(res);
       if (res.data.code === 200) {
@@ -1052,14 +1059,14 @@ export default {
           item.numberview += Number(item.analysis.normal_videos_view);
           this.videoTotal += item.number;
           this.videoviewTotal += item.numberview;
-          this.getDataByDate();
-          this.getviewDataByDate();
         });
-        // console.log(this.videoTotal);
-        // console.log(this.videoNum);
       }
     });
-    
+    console.log('33333333333333333333333333333333333333333333333333')
+    this.getDataByDate();
+    console.log('4444444444444444444444444444444444444444444444444444')
+    this.getviewDataByDate();
+    console.log('5555555555555555555555555555555555555555555555555555')
   }
 };
 </script>

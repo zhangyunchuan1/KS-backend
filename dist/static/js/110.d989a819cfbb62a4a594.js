@@ -1,0 +1,1 @@
+webpackJsonp([110],{"8tC9":function(t,e){},pf0v:function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0});var a={render:function(){var t=this.$createElement,e=this._self._c||t;return e("div",{staticClass:"mallStatus"},[e("router-view")],1)},staticRenderFns:[]};var r=n("VU/8")({name:"MallStatus"},a,!1,function(t){n("8tC9")},null,null);e.default=r.exports}});

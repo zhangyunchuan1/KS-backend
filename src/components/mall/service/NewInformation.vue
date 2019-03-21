@@ -67,9 +67,9 @@
       <div class="chatDialog_main">
         <div class="main_content" id="neir">
           <div class="neir" v-for="(item,index) in MessageList" :key="index">
-            <!-- 用户 -->
-            <div class="user_chat chat_list" v-if="item.send_id == listID">
-              <div class="service_time">{{item.send_time}}</div>
+            <!-- 用户  判断发送者的id是否是新消息的用户uid，是的话为用户发送的信息 -->
+            <div class="user_chat chat_list" v-if="item.send_id === listID">
+              <div class="service_time">{{Tools.format(item.send_time)}}</div>
               <p class="service_message">
                 <span class="service_serviceName">{{item.send_nickname}}</span>
               </p>
@@ -165,6 +165,7 @@ export default {
       chatDialog: false,
       innerVisible: false,
       userName: null, //对话人名字
+      newMessage:null,  //新消息
       //分页
       total: null, //数据总条数
       pageSize: 25,
@@ -206,8 +207,10 @@ export default {
   },
   mounted() {
     this.getMessageList();
+    this.socketApi.sendSock();
   },
   methods: {
+    
     // changeValue(e){
     //     this.textarea = e;
     //     this.text.text = e;
@@ -215,8 +218,10 @@ export default {
     handleOpenTalk(row) {
       console.log(row);
       this.chatDialog = true;
+      this.newMessage = row;
       this.managerID = row.manager_id;
       this.listID = row.uid;
+      this.userName = row.nickname;
       this.getchatList();
     },
     getchatList() {
@@ -229,6 +234,13 @@ export default {
       this.HttpClient.post("/admin/message/info", params).then(res => {
         console.log(res.data);
         this.MessageList = res.data.data.data;
+        //添加新消息到聊天框
+        this.MessageList.push({
+          send_id:this.newMessage.user_id,
+          send_time:this.newMessage.created_at,
+          send_nickname:this.newMessage.nickname,
+          content:this.newMessage.content
+        })
         this.chatTotal = res.data.data.total;
       });
     },
@@ -306,6 +318,7 @@ export default {
         page: this.currentPage,
         page_size: this.pageSize
       }).then(res => {
+        console.log(res);
         const {
           code,
           data: { total, data }

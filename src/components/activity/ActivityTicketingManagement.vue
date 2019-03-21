@@ -22,14 +22,21 @@
                 :value="item.value">
               </el-option>
             </el-select> -->
-            <div class="select_normal">
+            <!-- <div class="select_normal">
               <el-input placeholder="活动名称" clearable v-model="active_name" @change="handleActiveNameChange"></el-input>
               <el-button icon="el-icon-search" @click="handleActiveNameChange"></el-button>
-            </div>
-            <div class="select_normal">
+            </div> -->
+            <!-- <div class="select_normal">
               <el-input placeholder="商家对外名称" clearable v-model="business_name" @change="handleBusinessNameChange"></el-input>
               <el-button icon="el-icon-search" @click="handleBusinessNameChange"></el-button>
-            </div>
+            </div> -->
+            <el-input placeholder="活动名称" v-model="active_name" @keyup.13.native="handleActiveNameChange()" clearable @clear="handleActiveNameChange()">
+                <el-button slot="append" icon="el-icon-search" @click="handleActiveNameChange()"></el-button>
+            </el-input>
+            <el-input placeholder="商家对外名称" v-model="business_name" @keyup.13.native="handleBusinessNameChange()" clearable @clear="handleBusinessNameChange()">
+                <el-button slot="append" icon="el-icon-search" @click="handleBusinessNameChange()"></el-button>
+            </el-input>
+            
         </div>
         <div class="tables">
             <el-table
@@ -194,7 +201,8 @@
             </div>
             <div class="phone">
                 <span>未使用票数：</span>
-                <div>{{ticketData.sale_num-ticketData.refund_num-ticketData.use_num}}</div>
+                <div v-if="ticketData.sale_num-ticketData.refund_num-ticketData.use_num > 0">{{ticketData.sale_num-ticketData.refund_num-ticketData.use_num}}</div>
+                <div v-if="ticketData.sale_num-ticketData.refund_num-ticketData.use_num <= 0">0</div>
             </div>
         </el-dialog>
         <!-- 验票时间记录 -->
@@ -209,17 +217,17 @@
               style="width:100%">
               <el-table-column
                 fixed
-                prop="name"
+                prop="conducts"
                 label="用户姓名"
                 width="130">
               </el-table-column>
               <el-table-column
-                prop="use_num"
+                prop="num"
                 label="使用票数"
                 width="100">
               </el-table-column>
               <el-table-column
-                prop="province"
+                prop="created_at"
                 label="验票时间"
                 width="179">
               </el-table-column>
@@ -309,13 +317,21 @@
         //查看验票时间记录
         handleTicketTimeRecord(i){
             this.ticketTimeRecord = [];
-            console.log(i);
-            this.ticketTimeRecord.push({
-              name:i.contacts,
-              use_num:i.use_num,
-
+            this.HttpClient.post('/admin/actives/getCheckTicketLog',{
+                active_id:i.active_id,
+                type:0
             })
-            console.log(this.ticketTimeRecord);
+            .then(res=>{ 
+              console.log(res);
+              this.ticketTimeRecord = res.data.data.data;
+            })
+            // console.log(i);
+            // this.ticketTimeRecord.push({
+            //   name:i.contacts,
+            //   use_num:i.use_num,
+
+            // })
+            // console.log(this.ticketTimeRecord);
             this.ticketTimeRecordVisible = true;
         },
         //商家身份认证
@@ -664,6 +680,10 @@
     .conditions{
       .el-table th>.cell{
         text-align: center;
+      }
+      .el-input-group{
+        width: 240px;
+        margin-right: 15px;
       }
     }
 

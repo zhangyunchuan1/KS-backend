@@ -14,10 +14,12 @@
         <div class="content_plate">
           <el-radio-group v-model="plateRadio" @change="plateBtm($event)">
             <div class="plate_list" v-for="(item,index) in plateList" :key="index">
-              <el-radio-button :label="item">{{item.name}}</el-radio-button>
+              <div class="info_frame" @mouseover="enter($event,item)" @mouseout="leave($event)">
+                <el-radio-button :label="item" >{{item.name}}</el-radio-button>
+              </div>
               <el-button type="primary" class="qujiao" v-if="item.status === 1" @click="handleProhibit(item)">禁用</el-button>
               <el-button type="warning" class="qujiao" v-if="item.status === 0" @click="handleRecovery(item)">恢复</el-button>
-              <el-button type="info" icon="el-icon-edit" circle @click="handleRecovery(item)"></el-button>
+              <el-button type="info" icon="el-icon-edit" circle @click="handleEdit(item)"></el-button>
             </div>
           </el-radio-group>
         </div>
@@ -30,10 +32,12 @@
 
               <el-radio-group v-model="primaryDirectoryRadio" @change="primaryDirectoryBtm($event)">
                 <div class="plate_list" v-for="(item,index) in firstLevelDirectory" :key="index">
-                  <el-radio-button :label="item">{{item.name}}</el-radio-button>
+                  <div class="info_frame" @mouseover="enter($event,item)" @mouseout="leave($event)">
+                    <el-radio-button :label="item" >{{item.name}}</el-radio-button>
+                  </div>
                   <el-button type="primary" class="qujiao" v-if="item.status === 1" @click="handleProhibit(item)">禁用</el-button>
                   <el-button type="warning" class="qujiao" v-if="item.status === 0" @click="handleRecovery(item)">恢复</el-button>
-                  <el-button type="info" icon="el-icon-edit" circle @click="handleRecovery(item)"></el-button>
+                  <el-button type="info" icon="el-icon-edit" circle @click="handleEdit(item)"></el-button>
                 </div>
 
               </el-radio-group>
@@ -49,10 +53,12 @@
 
               <el-radio-group v-model="secondaryDirectoryRadio" @change="secondaryDirectoryBtm($event)">
                 <div class="plate_list" v-for="(item,index) in twoLevelDirectory" :key="index">
-                  <el-radio-button :label="item">{{item.name}}</el-radio-button>
+                  <div class="info_frame" @mouseover="enter($event,item)" @mouseout="leave($event)">
+                    <el-radio-button :label="item" >{{item.name}}</el-radio-button>
+                  </div>
                   <el-button type="primary" class="qujiao" v-if="item.status === 1" @click="handleProhibit(item)">禁用</el-button>
                   <el-button type="warning" class="qujiao" v-if="item.status === 0" @click="handleRecovery(item)">恢复</el-button>
-                  <el-button type="info" icon="el-icon-edit" circle @click="handleRecovery(item)"></el-button>
+                  <el-button type="info" icon="el-icon-edit" circle @click="handleEdit(item)"></el-button>
                 </div>
               </el-radio-group>
             </div>
@@ -67,10 +73,12 @@
 
               <el-radio-group v-model="threelDirectoryRadio">
                 <div class="plate_list" v-for="(item,index) in threeLevelDirectory" :key="index">
-                  <el-radio-button :label="item">{{item.name}}</el-radio-button>
+                  <div class="info_frame" @mouseover="enter($event,item)" @mouseout="leave($event)">
+                    <el-radio-button :label="item" >{{item.name}}</el-radio-button>
+                  </div>
                   <el-button type="primary" class="qujiao" v-if="item.status === 1" @click="handleProhibit(item)">禁用</el-button>
                   <el-button type="warning" class="qujiao" v-if="item.status === 0" @click="handleRecovery(item)">恢复</el-button>
-                  <el-button type="info" icon="el-icon-edit" circle @click="handleRecovery(item)"></el-button>
+                  <el-button type="info" icon="el-icon-edit" circle @click="handleEdit(item)"></el-button>
                 </div>
               </el-radio-group>
             </div>
@@ -78,7 +86,71 @@
         </el-collapse-transition>
       </div>
     </div>
-
+    <!--修改目录弹窗-->
+    <el-dialog
+      :visible.sync="editDirectoryDialog"
+      width="470px"
+      custom-class="addDirectoryDialog">
+      <span slot="title" class="addDirectoryDialog_title"><i class="iconfont icon-orderedlist"></i>修改目录</span>
+      <div class="addDirectoryDialog_main">
+        <div class="dialog_main_header">
+          <p>目录名称：</p>
+          <el-input placeholder="输入目录名称" v-model="CategoryName"></el-input>
+        </div>
+        <!-- 近义词 -->
+        <div class="jinyi">
+          <p>近义词：</p>
+          <el-tag v-for="tag in dynamicTags" :key="tag">{{tag}}</el-tag>
+          <!-- <el-tag
+            :key="tag"
+            v-for="tag in dynamicTags"
+            closable
+            :disable-transitions="false"
+            @close="handleClose(tag)">
+            {{tag}}
+          </el-tag>
+          <el-input
+            class="input-new-tag"
+            v-if="inputVisible"
+            v-model="inputValue"
+            ref="saveTagInput"
+            size="small"
+            @keyup.enter.native="handleInputConfirm"
+            @blur="handleInputConfirm"
+          >
+          </el-input>
+          <el-button v-else class="button-new-tag" size="small" @click="showInput">+</el-button> -->
+        </div>
+        <div class="dialog_images">
+          <el-upload
+            action="http://test.kslab.com/api/article/null"
+            list-type="picture-card"
+            :limit="1"
+            :file-list="fileList"
+            :on-preview="handlePictureCardPreview"
+            :on-remove="handleRemove"
+            :before-upload="beforeFileUpload">
+            <i class="el-icon-plus"></i>
+          </el-upload>
+          <el-dialog :visible.sync="dialogVisible">
+            <img width="100%" :src="dialogImageUrl" alt="">
+          </el-dialog>
+        </div>
+        <div class="dialog_textarea">
+          <el-input
+            type="textarea"
+            :rows="4"
+            resize="none"
+            placeholder="请输入简介内容"
+            v-model="textarea">
+          </el-input>
+        </div>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="editDirectoryDialog = false">取 消</el-button>
+        <el-button type="primary" @click="handleSaveDirectory">保 存</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -132,12 +204,135 @@
         firstMenuId:null,  //一级的menu_id
         twoMenuId:null,  //二级的menu_id
 
+        editDirectoryDialog:false,  //编辑弹窗
+        objNow:{},
+        CategoryName:'',  
+        fileList:[],
+        dialogVisible:false,
+        dialogImageUrl:'',
+        textarea:'',
+        inputValue:'',
+        dynamicTags:[],
+        inputVisible:false,
       }
     },
     mounted(){
         this.getMenuList(); 
     },
     methods:{
+      //鼠标移入事件
+      enter(e,item){
+        console.log('kkkk',e)
+        this.$store.dispatch('getShowInfo',{isShow:true,top:e.clientY-100,left:e.clientX+40,info:item});
+        // console.log( this.$store.state.frame.frameState);
+      },
+      leave(e){
+        this.$store.dispatch('getShowInfo',{isShow:false,top:e.clientY,left:e.clientX});
+      },
+      //专业目录编辑
+      handleEdit(i){
+        this.fileList = [];
+        this.CategoryName ='';
+        this.dynamicTags = [];
+        this.textarea = '';
+        console.log(i);
+        this.objNow = i;
+        this.CategoryName = i.name,
+        this.textarea = i.description,
+        this.editDirectoryDialog = true;
+        if(i.images){
+          this.fileList.push({
+            name:'imgName',
+            url:this.Tools.handleImg(i.images)
+          })
+        }
+        if(i.homoionym){
+          this.dynamicTags = i.homoionym.split(",");
+        }
+      },
+      handlePictureCardPreview(){},
+      handleRemove(){
+        console.log(this.fileList)
+      },
+      //图片上传
+      beforeFileUpload(file){
+        console.log(file)
+          var FromData = new FormData();
+                FromData.append('token', window.localStorage.token);
+                FromData.append('images', file);
+                this.$ajax.post('http://test.kslab.com/api/admin/uploadOneImage', FromData)
+                .then((res) => {
+                    console.log(res)
+                    if(res.data.code === 200){
+                        this.fileList = [],
+                        this.dialogImageUrl = res.data.path;
+                        this.fileList.push({
+                          name:file.name,
+                          url:res.data.path
+                        })
+                        console.log(this.fileList)
+                    }
+                })
+      },
+      //保存修改
+      handleSaveDirectory(){
+        console.log(this.CategoryName,this.dynamicTags, this.fileList,this.textarea);
+        let imgPath = [];
+        if(this.fileList.length > 0){
+          imgPath.push({
+            name:this.fileList[0].name,
+            path:this.fileList[0].url
+          })
+        }
+        let tags = '';
+        if(this.dynamicTags){
+          tags = this.dynamicTags.join(',');
+        }
+        console.log(tags)
+        let param = {
+          id:this.objNow.id,
+          menu_type : 3,
+          name:this.CategoryName,
+          description:this.textarea,
+          images:imgPath,
+          pid:this.objNow.pid,
+          type:this.objNow.type,
+          homoionym:tags
+        }
+        console.log(param);
+        this.HttpClient.post('/admin/menu/edit',param)
+            .then(res=>{
+                console.log(res)
+                if(res.data.code === 200){
+                    this.$message.success(res.data.msg);
+                    setTimeout(() => {
+                      this.getMenuList(); 
+                      this.editDirectoryDialog = false;
+                      this.fileList = [];
+                    }, 1000);
+                }
+            })
+      },
+      handleClose(tag) {
+        this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1);
+      },
+
+      showInput() {
+        this.inputVisible = true;
+        this.$nextTick(_ => {
+          this.$refs.saveTagInput.$refs.input.focus();
+        });
+      },
+
+      handleInputConfirm() {
+        let inputValue = this.inputValue;
+        if (inputValue) {
+          this.dynamicTags.push(inputValue);
+        }
+        console.log(this.dynamicTags);
+        this.inputVisible = false;
+        this.inputValue = '';
+      },
       // 恢复接口
       recoveryList(i){
           this.HttpClient.post('/admin/menu/changeStatus',{
@@ -322,13 +517,13 @@
       },
 
 
-      handleRemove(file, fileList) {
-        console.log(file, fileList);
-      },
-      handlePictureCardPreview(file) {
-        this.dialogImageUrl = file.url;
-        this.dialogVisible = true;
-      }
+      // handleRemove(file, fileList) {
+      //   console.log(file, fileList);
+      // },
+      // handlePictureCardPreview(file) {
+      //   this.dialogImageUrl = file.url;
+      //   this.dialogVisible = true;
+      // }
 
     }
   }
@@ -424,6 +619,69 @@
           }
         }
 
+      }
+    }
+    /*编辑弹窗*/
+    .addDirectoryDialog{
+      .addDirectoryDialog_title{
+        display: flex;
+        align-items: center;
+        color: #666;
+
+        i{
+          font-size: 24px;
+          color: #15bafe;
+          margin-right: 10px;
+        }
+      }
+      .addDirectoryDialog_main{
+        .dialog_main_header{
+          display: flex;
+          align-items: center;
+          margin-bottom: 30px;
+          p{
+            margin-right: 10px;
+          }
+          .el-input{
+            flex: 1;
+          }
+        }
+        .jinyi{
+              margin-bottom: 10px;
+              border: 1px solid #bfbfbf;
+              padding: 5px;
+              P{
+                margin-bottom: 5px;
+              }
+              .el-tag + .el-tag {
+                margin-left: 10px;
+              }
+              .button-new-tag {
+                margin-left: 10px;
+                height: 32px;
+                line-height: 30px;
+                padding-top: 0;
+                padding-bottom: 0;
+              }
+              .input-new-tag {
+                width: 90px;
+                margin-left: 10px;
+                vertical-align: bottom;
+              }
+          }
+        .dialog_images{
+          border: 1px solid #dedede;
+          box-sizing: border-box;
+          padding: 15px;
+          margin-bottom: 30px;
+
+          .el-upload--picture-card,
+          .el-upload-list--picture-card .el-upload-list__item{
+            width: 80px;
+            height: 80px;
+            line-height: 80px;
+          }
+        }
       }
     }
   }

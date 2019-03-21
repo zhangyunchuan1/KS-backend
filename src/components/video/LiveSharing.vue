@@ -6,7 +6,7 @@
       <div class="liveSharing_main">
         <!--标题-->
         <div class="title">
-          <p>直播分享</p>
+          <p>精彩赛事</p>
         </div>
 
         <div class="liveSharing_content">
@@ -148,11 +148,12 @@
             <el-input v-model="addLiveTile" placeholder="请输入文章标题"></el-input>
             <el-input v-model="addLiveLink" placeholder="请输入网站链接"></el-input>
             <el-input v-model="addLiveMediaName" placeholder="请输入媒体名称"></el-input>
-            <el-date-picker
+            <el-input v-model="addLiveArtcleTime" placeholder="请输入时间"></el-input>
+            <!-- <el-date-picker
               v-model="addLiveArtcleTime"
               type="date"
               placeholder="选择文章时间">
-            </el-date-picker>
+            </el-date-picker> -->
           </div>
 
         </div>
@@ -284,7 +285,7 @@
           url: this.addLiveLink,
           type: 2,
           created_name: this.addLiveMediaName,
-          record_time: Moment(this.addLiveArtcleTime).format('YYYY-MM-DD HH:mm:ss')
+          record_time: this.addLiveArtcleTime
         })
         tools.getApiMessage(res);
         if(res.data.code == '200') this.addLiveDialog = false;

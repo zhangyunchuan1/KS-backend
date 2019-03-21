@@ -153,10 +153,8 @@
                             :render-header="renderEncyclopediaStatus"
                             width="125">
                         <template slot-scope="scope">
-                            <p>
-                                <i class="iconfont icon-dian"></i>
-                                {{scope.row.status===3||scope.row.status===2?'未通过':'已通过'}}
-                            </p>
+                            <span class="sortout_color" v-if="scope.row.status===3 || scope.row.status===2">未通过</span>
+                            <span class="normal_color" v-else>已通过</span>
                         </template>
                     </el-table-column>
 
@@ -167,25 +165,24 @@
                             :render-header="renderEncyclopediaAuditStatus"
                             width="125">
                         <template slot-scope="scope">
-                            <p>
-                                <i class="iconfont icon-dian"></i>
-                                {{scope.row.status===2?'待审核':'已审核'}}
-                            </p>
+                            <span class="sortout_color" v-if="scope.row.status===2">待审核</span>
+                            <span class="normal_color" v-else>已审核</span>
                         </template>
                     </el-table-column>
 
                     <el-table-column
-                            label="操作"
-                            align="center"
-                            class-name="encyclopedia_scope">
+                        label="操作"
+                        fixed="right"
+                        min-width="400"
+                        align="center">
                         <template slot-scope="scope">
-                            <div class="encyclopedia_btm">
-                                <div v-if="scope.row.status!==3" @click="rejectButton(scope.row.encyclopedia_id)">驳回</div>
-                                <div v-if="scope.row.status===2 || scope.row.status===3" @click="agreeButton(scope.row.encyclopedia_id)">批准</div>
-                                <div @click="modifyButton(scope.row.id,scope.row.encyclopedia_id)">修改</div>
-                                <div @click="deleteButton(scope.row.encyclopedia_id)">删除</div>
-                                <router-link :to="'http://frontend.kslab.com/home/baikeDetail?uid='+scope.row.encyclopedia_id">查看</router-link>
-                            </div>
+                            
+                                <el-button type="primary" plain size="mini" v-if="scope.row.status!==3" @click="rejectButton(scope.row.encyclopedia_id)">驳回</el-button>
+                                <el-button type="primary" plain size="mini" v-if="scope.row.status===2 || scope.row.status===3" @click="agreeButton(scope.row.encyclopedia_id)">批准</el-button>
+                                <el-button type="primary" plain size="mini" @click="modifyButton(scope.row.encyclopedia_id)">修改</el-button>
+                                <el-button type="primary" plain size="mini" @click="deleteButton(scope.row.encyclopedia_id)">删除</el-button>
+                                <el-button type="primary" plain size="mini" @click="handleView(scope.row.encyclopedia_id)">预览</el-button>
+                            
                         </template>
                     </el-table-column>
                 </el-table>
@@ -283,9 +280,9 @@
                 }],
                 headerSelect:'',// 百科状态选择值
                 headerOptions:[
-                    {status:0,text:'全部'},
+                    {status:null,text:'全部'},
                     {status:1,text:'通过'},
-                    {status:2,text:'未通过'},
+                    {status:0,text:'未通过'},
                 ],// 百科状态选择列
                 headerTypeSelect:'',// 百科用户类别选择值
                 headerTypeOptions:[
@@ -296,9 +293,9 @@
                 ],// 百科用户类别选择列
                 headerAuditSelect:'',// 商品审核状态选择值
                 headerAuditOptions:[
-                    {status:0,text:'全部'},
+                    {status:null,text:'全部'},
                     {status:1,text:'已审核'},
-                    {status:2,text:'待审核'},
+                    {status:0,text:'待审核'},
                 ],// 商品审核状态选择列
                 headerCategorySelect:'',// 百科所属板块选择值
                 headerCategoryOptions:[],// 百科所属板块列表
@@ -327,6 +324,9 @@
             }
         },
         methods:{
+            handleView(id){
+                window.open(this.Urls.frontUrl+"home/encyclopedia-detail?uid="+id); 
+            },
             // 驳回按钮
             rejectButton(id){
                 this.id=id;
@@ -339,12 +339,11 @@
                 this.approveDialog = true;
             },
             //修改按钮
-            modifyButton(id,aid){
+            modifyButton(id){
                 this.$router.push({
                     path:'/index/encyclopedia/encyclopedia-modify',
                     query:{
                         id:id,
-                        aid:aid
                     }
                 })
             },
@@ -422,7 +421,7 @@
                         input:value=>{
                             console.log(value);
                             this.headerAuditSelect=value;
-                            this.getAuditList()
+                            this.getEncyclopediaList()
                         }
                     }
                 }, [
@@ -508,10 +507,10 @@
                     parameters.user_type=this.headerTypeSelect
                 }
                 if(this.headerSelect!==''){// 通过状态
-                    parameters.pass_status=this.headerSelect
+                    parameters.clear_status=this.headerSelect
                 }
                 if(this.headerAuditSelect!==''){// 审核状态
-                    parameters.review_status=this.headerAuditSelect
+                    parameters.auditing_status=this.headerAuditSelect
                 }
                 if(this.userNameSearch){
                     parameters.username=this.userNameSearch

@@ -56,6 +56,9 @@
               show-overflow-tooltip
               width="150"
               prop="phone">
+              <template slot-scope="scope">
+                <span>{{'+'+scope.row.country_code+' '+scope.row.phone}}</span>
+              </template>
             </el-table-column>
 
             <el-table-column
@@ -82,12 +85,12 @@
               label="剩余禁用时间（天）"
               align="center"
               width="200"
-              prop="surplusDay"
+              prop="disable_end"
               sortable>
-              <template slot-scope="scope">
+              <!-- <template slot-scope="scope">
                 <span v-if="scope.row.status === 1">0</span>
                 <span v-else>{{scope.row.surplusDay}}</span>
-              </template>
+              </template> -->
             </el-table-column>
 
             <el-table-column
@@ -132,7 +135,7 @@
               v-if="total"
               layout="prev, pager, next"
               :total="total"
-              :page-size="25"
+              :page-size="10"
               @current-change="currentChange"
           ></el-pagination>
         </div>
@@ -286,7 +289,7 @@
       //获取用户状态列表
       getUserStatusList(){
         this.HttpClient.post('/admin/forbidden/userLists',{
-            size:25,
+            size:10,
             page:this.currentPage,
             nickname:this.nickNameSearch,
             username:this.userNameSearch

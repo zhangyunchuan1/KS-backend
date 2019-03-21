@@ -138,7 +138,7 @@
                                     class-name="encyclopedia_scope">
                                 <template slot-scope="scope">
                                     <div class="encyclopedia_btm">
-                                        <el-button size="medium " type="text">查看商品</el-button>
+                                        <el-button size="medium " type="text" @click="viewGoods(scope.row)">查看商品</el-button>
                                     </div>
                                 </template>
                             </el-table-column>
@@ -204,6 +204,11 @@
             }
         },
         methods:{
+          // 查看商品
+          viewGoods(row){
+            console.log(row)
+            window.open(this.Urls.frontUrl+"home/market-detail?id="+row.asin);
+          },
             //获取淘货板块列表
             async getTypeList(){
                 await this.HttpClient.post('/admin/menu/getList',{menu_type:2,type:0,goods:true})
@@ -297,7 +302,7 @@
               padding: 0 25px;
               text-align: center;
               line-height: 40px;
-              border-color: #606266;
+              // border-color: #606266;
 
               .el-radio__input {
                 display: none;

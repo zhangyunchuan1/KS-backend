@@ -477,6 +477,7 @@
                         }
                     }
                     .el-radio-group{
+                        margin-top: 15px;
                         .el-radio{
                             padding: 0 25px;
                             text-align: center;

@@ -79,8 +79,7 @@
                 prop="view_num"
               >
                 <template slot-scope="scope">
-                  <span v-if="scope.row.view_num">{{scope.row.view_num}}</span>
-                  <span v-else>无</span>
+                  <span>{{scope.row.view_num}}</span>
                 </template>
               </el-table-column>
               <el-table-column
@@ -91,15 +90,15 @@
                 prop="sole_num"
               >
                 <template slot-scope="scope">
-                  <span v-if="scope.row.sole_num">{{scope.row.sole_num}}</span>
-                  <span v-else>无</span>
+                  <span>{{scope.row.sole_num}}</span>
+                  <!-- <span v-else>无</span> -->
                 </template>
               </el-table-column>
 
               <el-table-column
                 label="创建时间"
                 align="center"
-                width="150"
+                width="160"
                 show-overflow-tooltip
                 prop="created_at"
               >
@@ -116,30 +115,24 @@
                 prop="status"
               >
                 <template slot-scope="scope">
-                  <span v-if="scope.row.status === 0">删除</span>
-                  <span v-if="scope.row.status === 1">上线</span>
-                  <span v-if="scope.row.status === 2">审核</span>
-                  <span v-if="scope.row.status === 3">下线</span>
+                  <span class="delete_color" v-if="scope.row.status === 0">删除</span>
+                  <span class="normal_color" v-if="scope.row.status === 1">上线</span>
+                  <span class="audit_color" v-if="scope.row.status === 2">审核</span>
+                  <span class="sortout_color" v-if="scope.row.status === 3">下线</span>
                 </template>
               </el-table-column>
 
               <el-table-column
                 label="操作"
                 fixed="right"
-                align="center"
-                class-name="mallReview_scope"
-              >
+                min-width="400"
+                align="center">
                 <template slot-scope="scope">
-                  <div class="mallReview_btm">
-                    <el-button @click="checkProduct(scope.row)">预览</el-button>
-                    <div @click="changeStatus(scope.row)">
-                      <el-button v-if="scope.row.status === 1">下线</el-button>
-                      <el-button v-if="scope.row.status === 3">上线</el-button>
-                    </div>
-                    <!-- <el-button >下线</el-button> -->
-                    <el-button @click="deleteAdv(scope.row.id)">删除</el-button>
-                    <el-button>购买记录</el-button>
-                  </div>
+                    <el-button type="primary" plain size="mini" @click="checkProduct(scope.row)">预览</el-button>
+                    <el-button type="primary" plain size="mini" v-if="scope.row.status === 1" @click="changeStatus(scope.row)">下线</el-button>
+                    <el-button type="primary" plain size="mini" v-if="scope.row.status === 3" @click="changeStatus(scope.row)">上线</el-button>
+                    <el-button type="primary" plain size="mini" @click="deleteAdv(scope.row.id)">删除</el-button>
+                    <el-button type="primary" plain size="mini">购买记录</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -322,6 +315,7 @@ export default {
     // 获取列表
     getMessageList() {
       this.HttpClient.get("/admin/advertisement").then(res => {
+        console.log(res)
         const { code, data } = res.data;
         if (code === 200) {
           // layout 0: 默认自定义 1: 头部  2: 中部 3: 底部
@@ -457,25 +451,36 @@ export default {
         folder_id:this.mall,
         layout:'2'
       }
-      console.log(data);
-      this.HttpClient.post("/admin/advertisement", data).then(res => {
-        const { code, msg } = res.data;
-        if (code === 200) {
-          this.$message.success(msg);
-          this.RemarksDialog = false;
-          this.title = "";
-          this.choseValue = "";
-          this.mall = "";
-          this.uploadId = null;
-          this.uploadTitle = null;
-          this.uploadName = null;
-          setTimeout(() => {
-            this.getMessageList();
-          }, 500);
-        } else {
-          this.$message.error(msg);
+      //控制每个版块广告不能多于2个
+      let palteLength = 0;
+      for(let i=0;i<this.tableData.length;i++){
+        if(data.folder_id === this.tableData[i].folder_id){
+          palteLength = palteLength+1;
         }
-      });
+      }
+      if(palteLength >= 2){
+        this.$message.warning('每个版块的广告不能大于2条。')
+      }else{
+        console.log(data);
+        this.HttpClient.post("/admin/advertisement", data).then(res => {
+          const { code, msg } = res.data;
+          if (code === 200) {
+            this.$message.success(msg);
+            this.RemarksDialog = false;
+            this.title = "";
+            this.choseValue = "";
+            this.mall = "";
+            this.uploadId = null;
+            this.uploadTitle = null;
+            this.uploadName = null;
+            setTimeout(() => {
+              this.getMessageList();
+            }, 500);
+          } else {
+            this.$message.error(msg);
+          }
+        });
+      }
     },
     //分页
     handleCurrentChange(e) {

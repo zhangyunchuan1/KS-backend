@@ -170,9 +170,10 @@
             .feedback_header{
                 display: flex;
                 align-items: center;
-                justify-content: space-between;
                 padding: 30px 25px;
-
+                .el-button{
+                    margin-left: 20px;
+                }
             }
 
             .feedback_content{
