@@ -170,6 +170,7 @@
                 } else {
                     this.setSlist(this.list);  // 没有搜索内容，则展示全部数据
                 }
+                console.log('jhdgfsudbvsv')
             }
         }
     }
